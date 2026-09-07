@@ -41,6 +41,11 @@ title: Home
   </div>
 </div>
 
+<div class="card" style="margin-top:.9rem">
+  <div class="section-head"><h3 style="margin:0">LeetCode</h3><a class="small" href="{{ '/leetcode/' | relative_url }}">All problems →</a></div>
+  <div id="lc-summary" style="margin-top:.6rem"><span class="muted">Loading…</span></div>
+</div>
+
 <div class="section-head"><h2>Recent posts</h2><a class="small" href="{{ '/blog/' | relative_url }}">All posts →</a></div>
 {% if site.posts.size > 0 %}
 <ul class="post-list">
@@ -57,3 +62,4 @@ title: Home
 {% else %}<div class="empty">No posts yet.</div>{% endif %}
 
 {% include tracker-data.html %}
+{% include leetcode-data.html %}

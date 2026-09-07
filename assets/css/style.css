@@ -259,3 +259,20 @@ details.more > summary { cursor: pointer; color: var(--muted); font-size: .88rem
 .log-hint { background: var(--accent-soft); border-radius: var(--radius); padding: .8rem 1rem; font-size: .9rem; margin-bottom: 1rem; }
 .log-hint code { background: rgba(0,0,0,.06); }
 .stat-late { color: var(--danger); }
+
+/* ───────── LeetCode ───────── */
+.diff { font-size: .72rem; padding: .1rem .5rem; border-radius: 999px; font-weight: 600; }
+.diff-easy { background: var(--accent-soft); color: var(--accent); }
+.diff-medium { background: var(--reading-bg); color: var(--reading-fg); }
+.diff-hard { background: #fde2dd; color: #9b2c1c; }
+:root[data-theme="dark"] .diff-hard { background: #3d1f19; color: #f0917e; }
+@media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) .diff-hard { background: #3d1f19; color: #f0917e; } }
+.lang { display: inline-block; font-family: var(--mono); font-size: .72rem; padding: .1rem .45rem; border-radius: 6px; border: 1px solid var(--border); color: var(--muted); cursor: pointer; margin-right: .2rem; background: var(--surface-2); }
+.lang.on { background: var(--accent-soft); color: var(--accent); border-color: transparent; font-weight: 600; }
+.lang.off { opacity: .35; cursor: default; text-decoration: line-through; }
+.lang.open { outline: 2px solid var(--accent); }
+.lc-table td { vertical-align: middle; }
+.lc-table .num { font-variant-numeric: tabular-nums; color: var(--muted); }
+.lc-code td { padding: 0; }
+.lc-code pre { margin: 0; border-radius: 0; border: 0; border-top: 1px solid var(--border); border-bottom: 1px solid var(--border); font-size: .82rem; max-height: 480px; overflow: auto; }
+.lc-code .code-head { display: flex; justify-content: space-between; font-size: .8rem; color: var(--muted); padding: .4rem .8rem; background: var(--surface-2); }

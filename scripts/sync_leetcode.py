@@ -1,0 +1,108 @@
+#!/usr/bin/env python3
+"""Read a LeetHub-style solutions repo and write _data/leetcode.json.
+Also checks off the `coding` habit in _data/days/<date>.yml for every day a solution was first committed.
+
+Env: LEETCODE_DIR (path to a full clone of the solutions repo). Prints a summary; exit 0 always.
+"""
+import json, os, re, subprocess, sys
+from datetime import datetime, timedelta, timezone
+
+ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+DAYS = os.path.join(ROOT, "_data", "days")
+OUT = os.path.join(ROOT, "_data", "leetcode.json")
+KST = timezone(timedelta(hours=9))
+EXT = {".c": "c", ".cpp": "cpp", ".cc": "cpp", ".cxx": "cpp", ".py": "py"}
+SKIP_DIRS = {".git", ".github", "node_modules"}
+
+
+def first_commit_date(repo, path):
+    """KST date (YYYY-MM-DD) of the commit that added `path`, or None."""
+    try:
+        out = subprocess.run(["git", "-C", repo, "log", "--diff-filter=A", "--follow", "--format=%aI", "--", path],
+                             capture_output=True, text=True, check=True).stdout.strip().splitlines()
+    except subprocess.CalledProcessError:
+        return None
+    if not out: return None
+    dt = datetime.fromisoformat(out[-1].replace("Z", "+00:00"))
+    return dt.astimezone(KST).date().isoformat()
+
+
+def parse_readme(path):
+    """LeetHub README: <h2><a href="https://leetcode.com/problems/two-sum/">1. Two Sum</a></h2><h3>Easy</h3>"""
+    meta = {}
+    try:
+        s = open(path, encoding="utf-8", errors="replace").read(4000)
+    except OSError:
+        return meta
+    m = re.search(r'href="(https?://leetcode\.com/problems/([^/"]+)/?)"[^>]*>\s*(?:(\d+)\.\s*)?([^<]+)<', s)
+    if m:
+        meta.update(url=m.group(1), slug=m.group(2), title=m.group(4).strip())
+        if m.group(3): meta["id"] = int(m.group(3))
+    m = re.search(r"<h3>\s*(Easy|Medium|Hard)\s*</h3>", s, re.I)
+    if m: meta["difficulty"] = m.group(1).capitalize()
+    return meta
+
+
+def scan(repo):
+    problems = []
+    for name in sorted(os.listdir(repo)):
+        d = os.path.join(repo, name)
+        if not os.path.isdir(d) or name in SKIP_DIRS or name.startswith("."): continue
+        langs = {}
+        for f in sorted(os.listdir(d)):
+            lang = EXT.get(os.path.splitext(f)[1].lower())
+            if not lang or lang in langs: continue
+            date = first_commit_date(repo, os.path.join(name, f))
+            langs[lang] = {"file": f, "date": date}
+        if not langs: continue
+        m = re.match(r"^(\d+)[-_.]?(.*)$", name)
+        slug = (m.group(2) if m else name).strip("-_ ") or name
+        p = {"id": int(m.group(1)) if m and m.group(1) else None, "slug": slug,
+             "title": slug.replace("-", " ").replace("_", " ").title(), "difficulty": None,
+             "url": f"https://leetcode.com/problems/{slug}/", "path": name, "langs": langs}
+        p.update({k: v for k, v in parse_readme(os.path.join(d, "README.md")).items() if v})
+        dates = [l["date"] for l in langs.values() if l["date"]]
+        p["first"] = min(dates) if dates else None
+        p["last"] = max(dates) if dates else None
+        problems.append(p)
+    problems.sort(key=lambda p: (p["last"] or "", p["id"] or 0), reverse=True)
+    return problems
+
+
+def mark_coding(date):
+    """Ensure _data/days/<date>.yml has `coding` in done. Returns True if changed."""
+    path = os.path.join(DAYS, f"{date}.yml")
+    if os.path.exists(path):
+        s = open(path, encoding="utf-8").read()
+        m = re.search(r"^done:\s*\[(.*?)\]\s*$", s, re.M)
+        if m:
+            items = [x.strip() for x in m.group(1).split(",") if x.strip()]
+            if "coding" in items: return False
+            items.append("coding")
+            s = s[:m.start()] + f"done: [{', '.join(items)}]" + s[m.end():]
+        else:
+            s = s.rstrip("\n") + "\ndone: [coding]\n"
+    else:
+        os.makedirs(DAYS, exist_ok=True)
+        s = "done: [coding]\n"
+    open(path, "w", encoding="utf-8").write(s)
+    return True
+
+
+def main():
+    repo = os.environ.get("LEETCODE_DIR")
+    if not repo or not os.path.isdir(repo):
+        print("LEETCODE_DIR missing; nothing to do"); return
+    problems = scan(repo)
+    data = {"updated": datetime.now(KST).isoformat(timespec="minutes"), "problems": problems}
+    old = open(OUT, encoding="utf-8").read() if os.path.exists(OUT) else ""
+    new = json.dumps(data, ensure_ascii=False, indent=1) + "\n"
+    changed_json = re.sub(r'"updated": "[^"]*"', "", old) != re.sub(r'"updated": "[^"]*"', "", new)
+    if changed_json:
+        open(OUT, "w", encoding="utf-8").write(new)
+    marked = sorted({l["date"] for p in problems for l in p["langs"].values() if l["date"] and mark_coding(l["date"])})
+    print(f"problems: {len(problems)} · json {'updated' if changed_json else 'unchanged'} · coding marked on: {marked or 'none'}")
+
+
+if __name__ == "__main__":
+    main()

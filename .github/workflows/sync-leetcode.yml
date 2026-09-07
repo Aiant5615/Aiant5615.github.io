@@ -1,0 +1,47 @@
+name: Sync LeetCode solutions
+
+on:
+  schedule:
+    - cron: "17 * * * *"        # hourly
+  workflow_dispatch:
+  repository_dispatch:
+    types: [leetcode]           # sent by the leetcode repo's notify-site workflow (optional)
+
+permissions:
+  contents: write
+  pages: write
+
+concurrency: sync-leetcode
+
+env:
+  LEETCODE_REPO: Aiant5615/leetcode
+
+jobs:
+  sync:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Clone the solutions repo (full history, for commit dates)
+        run: git clone --quiet "https://github.com/${LEETCODE_REPO}.git" /tmp/leetcode
+
+      - name: Build _data/leetcode.json and mark coding days
+        run: LEETCODE_DIR=/tmp/leetcode python3 scripts/sync_leetcode.py
+
+      - name: Commit and push
+        id: push
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add _data/leetcode.json _data/days
+          if git diff --cached --quiet; then echo "no changes"; echo "changed=false" >> "$GITHUB_OUTPUT"; else
+            git commit -m "leetcode: sync"
+            git push
+            echo "changed=true" >> "$GITHUB_OUTPUT"
+          fi
+
+      - name: Request a Pages build
+        if: steps.push.outputs.changed == 'true'
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: gh api -X POST "repos/${{ github.repository }}/pages/builds" >/dev/null && echo "build requested" || echo "build request failed (the push may trigger one anyway)"

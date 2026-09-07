@@ -12,6 +12,10 @@ github_repo: Aiant5615/Aiant5615.github.io
 github_branch: main
 log_issue_template: log.yml
 
+# LeetCode solutions repo (synced hourly by .github/workflows/sync-leetcode.yml)
+leetcode_repo: Aiant5615/leetcode
+leetcode_branch: main
+
 # ── Tracker ──────────────────────────────────────────────────
 # habits: things to check off daily. `key` is what goes in `done:` in _data/days/*.yml.
 tracker:

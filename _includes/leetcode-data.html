@@ -1,0 +1,5 @@
+<script>
+  window.LEETCODE_DATA = {{ site.data.leetcode | jsonify }};
+  window.LEETCODE_CONFIG = { repo: {{ site.leetcode_repo | jsonify }}, branch: {{ site.leetcode_branch | default: "main" | jsonify }} };
+</script>
+<script src="{{ '/assets/js/leetcode.js' | relative_url }}?v={{ site.time | date: '%s' }}"></script>

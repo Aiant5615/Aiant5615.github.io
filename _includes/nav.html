@@ -3,6 +3,7 @@
     <a class="site-title" href="{{ '/' | relative_url }}">{{ site.title }}</a>
     <nav class="site-nav">
       <a href="{{ '/tracker/' | relative_url }}" {% if page.url contains '/tracker/' %}class="active"{% endif %}>Tracker</a>
+      <a href="{{ '/leetcode/' | relative_url }}" {% if page.url contains '/leetcode/' %}class="active"{% endif %}>LeetCode</a>
       <a href="{{ '/blog/' | relative_url }}" {% if page.url contains '/blog/' %}class="active"{% endif %}>Blog</a>
       <a href="{{ '/papers/' | relative_url }}" {% if page.url contains '/papers/' %}class="active"{% endif %}>Papers</a>
       <a href="{{ '/about/' | relative_url }}" {% if page.url contains '/about/' %}class="active"{% endif %}>About</a>
