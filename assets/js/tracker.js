@@ -111,7 +111,7 @@
       HABITS.forEach(h => html += `<span class="chip">${h.emoji} ${esc(h.label)}</span>`);
       html += `<a class="btn btn-sm btn-primary" href="/tracker/#log">Log today</a>`;
     } else {
-      if (t.arrive != null) html += `<span class="chip ${t.arrive <= GOAL ? "on" : ""}">🏢 In at <span class="n">${fmtMin(t.arrive)}</span></span>`;
+      if (t.arrive != null) html += `<span class="chip ${t.arrive <= GOAL ? "on" : ""}">🏢 In at <span class="n">${fmt12(t.arrive)}</span></span>`;
       HABITS.forEach(h => html += `<span class="chip ${t.done.has(h.key) ? "on" : ""}">${h.emoji} ${esc(h.label)}</span>`);
       if (t.mood != null) html += `<span class="chip">${moodStr(t.mood)}</span>`;
     }
