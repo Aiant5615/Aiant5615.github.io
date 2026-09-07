@@ -1,9 +1,9 @@
 ---
 title: "From n-gram LMs to InstructGPT: a 16-paper reading path"
-date: 2026-09-07 23:00:00 +0900
+date: 2026-09-07 09:17:00 +0900
 categories: [paper, study]
 tags: [NLP]
-description: The sixteen papers that get you from the first neural language model to RLHF, grouped by what each one added, with a detailed review of every one.
+description: "The sixteen papers that get you from the first neural language model to RLHF, grouped by what each one added, with a detailed review of every one."
 ---
 
 Sixteen papers, read in order, that explain where today's language models come from. Each link goes to a review that walks through the model's equations and figures.

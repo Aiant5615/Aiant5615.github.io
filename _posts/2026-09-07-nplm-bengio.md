@@ -7,7 +7,7 @@ math: true
 rating: 4
 series: transformer-lineage
 series_order: 1
-description: The paper that put word embeddings inside a neural language model. Every equation of the model, the training cost that motivated a decade of tricks, and what its figures show.
+description: "The paper that put word embeddings inside a neural language model. Every equation of the model, the training cost that motivated a decade of tricks, and what its figures show."
 paper:
   title: A Neural Probabilistic Language Model
   authors: Yoshua Bengio, Réjean Ducharme, Pascal Vincent, Christian Jauvin

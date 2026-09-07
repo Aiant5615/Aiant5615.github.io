@@ -7,7 +7,7 @@ math: true
 rating: 4
 series: transformer-lineage
 series_order: 9
-description: Normalize across the features of one example instead of across the batch. The formulas, the invariance table, the RNN version, why it suits variable-length sequences, and what the convergence figures show.
+description: "Normalize across the features of one example instead of across the batch. The formulas, the invariance table, the RNN version, why it suits variable-length sequences, and what the convergence figures show."
 paper:
   title: Layer Normalization
   authors: Jimmy Lei Ba, Jamie Ryan Kiros, Geoffrey E. Hinton (Toronto)

@@ -7,7 +7,7 @@ math: true
 rating: 4
 series: transformer-lineage
 series_order: 3
-description: The encoder–decoder recipe and the GRU, equation by equation. Why the gates exist, how the model was used inside a phrase-based SMT system, and what the phrase-embedding plots show.
+description: "The encoder–decoder recipe and the GRU, equation by equation. Why the gates exist, how the model was used inside a phrase-based SMT system, and what the phrase-embedding plots show."
 paper:
   title: Learning Phrase Representations using RNN Encoder–Decoder for Statistical Machine Translation
   authors: Kyunghyun Cho, Bart van Merriënboer, Caglar Gulcehre, Dzmitry Bahdanau, Fethi Bougares, Holger Schwenk, Yoshua Bengio

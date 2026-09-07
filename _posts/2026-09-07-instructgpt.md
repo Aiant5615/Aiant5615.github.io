@@ -7,7 +7,7 @@ math: true
 rating: 5
 series: transformer-lineage
 series_order: 16
-description: RLHF in three steps: supervised fine-tuning, a reward model trained on pairwise comparisons, and PPO against that reward with a KL penalty and a pretraining-mix term. Every loss explained, the labeler setup, the win-rate and truthfulness figures, and the alignment tax.
+description: "RLHF in three steps: supervised fine-tuning, a reward model trained on pairwise comparisons, and PPO against that reward with a KL penalty and a pretraining-mix term. Every loss explained, the labeler setup, the win-rate and truthfulness figures, and the alignment tax."
 paper:
   title: Training Language Models to Follow Instructions with Human Feedback
   authors: Long Ouyang, Jeff Wu, Xu Jiang, Diogo Almeida, Carroll L. Wainwright, Pamela Mishkin, Chong Zhang, Sandhini Agarwal, Katarina Slama, Alex Ray, et al. (OpenAI)

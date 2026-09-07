@@ -7,7 +7,7 @@ math: true
 rating: 5
 series: transformer-lineage
 series_order: 5
-description: Additive attention, derived line by line. Why the fixed-length vector was the bottleneck, how the alignment weights are computed, how to read the alignment heatmaps, and what the BLEU-vs-length plot proves.
+description: "Additive attention, derived line by line. Why the fixed-length vector was the bottleneck, how the alignment weights are computed, how to read the alignment heatmaps, and what the BLEU-vs-length plot proves."
 paper:
   title: Neural Machine Translation by Jointly Learning to Align and Translate
   authors: Dzmitry Bahdanau, Kyunghyun Cho, Yoshua Bengio

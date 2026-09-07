@@ -7,7 +7,7 @@ math: true
 rating: 5
 series: transformer-lineage
 series_order: 10
-description: The Transformer, every equation explained: scaled dot-product attention and why the scaling, multi-head attention, the position-wise FFN, sinusoidal positions, masking, the learning-rate schedule, and the complexity table. Plus a walk through the architecture figure.
+description: "The Transformer, every equation explained: scaled dot-product attention and why the scaling, multi-head attention, the position-wise FFN, sinusoidal positions, masking, the learning-rate schedule, and the complexity table. Plus a walk through the architecture figure."
 paper:
   title: Attention Is All You Need
   authors: Ashish Vaswani, Noam Shazeer, Niki Parmar, Jakob Uszkoreit, Llion Jones, Aidan N. Gomez, Łukasz Kaiser, Illia Polosukhin (Google)

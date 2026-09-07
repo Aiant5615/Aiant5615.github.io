@@ -7,7 +7,7 @@ math: true
 rating: 4
 series: transformer-lineage
 series_order: 6
-description: Global vs local attention, the three score functions (dot, general, concat), the Gaussian-windowed local model, and input feeding. Each formula explained, plus what the alignment and length figures show.
+description: "Global vs local attention, the three score functions (dot, general, concat), the Gaussian-windowed local model, and input feeding. Each formula explained, plus what the alignment and length figures show."
 paper:
   title: Effective Approaches to Attention-based Neural Machine Translation
   authors: Minh-Thang Luong, Hieu Pham, Christopher D. Manning (Stanford)

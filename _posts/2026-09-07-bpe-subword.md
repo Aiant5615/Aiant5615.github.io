@@ -7,7 +7,7 @@ math: true
 rating: 4
 series: transformer-lineage
 series_order: 7
-description: Byte-pair encoding for tokenization. The merge algorithm worked through by hand, why it beats a back-off dictionary, joint vs separate vocabularies, and how the rare-word F1 tables should be read.
+description: "Byte-pair encoding for tokenization. The merge algorithm worked through by hand, why it beats a back-off dictionary, joint vs separate vocabularies, and how the rare-word F1 tables should be read."
 paper:
   title: Neural Machine Translation of Rare Words with Subword Units
   authors: Rico Sennrich, Barry Haddow, Alexandra Birch (Edinburgh)
