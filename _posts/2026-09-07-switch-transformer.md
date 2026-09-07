@@ -85,6 +85,9 @@ Both vectors sum to one, so the product is minimized (at $$1/N$$) when routing i
 <figure class="paper-fig"><img src="/assets/papers/switch/figure3.png" alt="Figure 3 from Fedus et al. (2021)" loading="lazy"><figcaption>Figure 3 of Fedus et al. (2021), reproduced from the paper for commentary.</figcaption></figure>
 
 - **Figure 3 (token routing dynamics).** Tokens flowing to experts with capacity factor 1.0 vs 1.5: at 1.0, a red overflow token is dropped; at 1.5, slots are padded (white). The trade-off between dropped tokens and wasted compute.
+
+<figure class="paper-fig"><img src="/assets/papers/switch/figure4.png" alt="Figure 4 from Fedus et al. (2021)" loading="lazy"><figcaption>Figure 4 of Fedus et al. (2021), reproduced from the paper for commentary.</figcaption></figure>
+
 - **Figure 4 (scaling properties).** Left: quality vs experts at fixed steps. Right: quality vs step for 1–256 experts.
 
 <figure class="paper-fig"><img src="/assets/papers/switch/figure5.png" alt="Figure 5 from Fedus et al. (2021)" loading="lazy"><figcaption>Figure 5 of Fedus et al. (2021), reproduced from the paper for commentary.</figcaption></figure>

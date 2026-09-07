@@ -28,7 +28,7 @@ permalink: /papers/
 {% endif %}
 {% endfor %}
 
-{% assign loose = papers | where_exp: "p", "p.series == nil and p.overview != true" %}
+{% assign loose = papers | where_exp: "p", "p.series == nil" | where_exp: "p", "p.overview != true" %}
 {% if loose.size > 0 %}
 <h2>Other reviews</h2>
 <ul class="post-list">
