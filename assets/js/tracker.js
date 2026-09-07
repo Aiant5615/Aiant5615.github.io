@@ -525,6 +525,7 @@
       catch (e) { flash(`Save failed: ${e.message}`); }
       b.disabled = false;
     });
+    root._update = update;
     if (get(TODAY_KEY)) fillForm(TODAY_KEY, true); else update();
 
     function val(n) { const i = root.querySelector(`[name=${n}]`); return i ? i.value.trim() : ""; }
@@ -604,7 +605,7 @@
     try { const c = JSON.parse(lsGet(CACHE_KEY) || "null"); if (c && c.raw) { RAW = c.raw; rebuild(); renderAll(); } } catch {}   // show cached data instantly
     try { await loadRemote(); renderAll(); }
     catch (e) {
-      const msg = `Could not load ${DFILE} from ${DREPO}: ${e.message}`;
+      const msg = e.status === 401 || e.status === 403 ? `GitHub rejected the stored token (${e.message}). Reconnect on the tracker page.` : `Could not load ${DFILE} from ${DREPO}: ${e.message}`;
       if ($("quick-status")) $("quick-status").innerHTML = `<span style="color:var(--danger)">${esc(msg)}</span>`;
       else if ($("today-bar")) $("today-bar").innerHTML = `<span style="color:var(--danger)">${esc(msg)}</span>`;
     }
