@@ -10,6 +10,24 @@ permissions:
   pages: write
 
 jobs:
+  # 소유자가 아닌 사람이 연 log 이슈는 아무것도 저장하지 않고 바로 닫음
+  reject:
+    if: >-
+      github.event.action == 'opened' &&
+      github.event.issue.user.login != github.repository_owner &&
+      (contains(github.event.issue.labels.*.name, 'log') || startsWith(github.event.issue.title, 'log'))
+    runs-on: ubuntu-latest
+    permissions:
+      issues: write
+    steps:
+      - run: |
+          gh issue comment "$N" --repo "$R" --body "이 폼은 저장소 소유자 전용입니다. 기록은 저장되지 않았습니다."
+          gh issue close "$N" --repo "$R" --reason "not planned"
+        env:
+          GH_TOKEN: ${{ github.token }}
+          N: ${{ github.event.issue.number }}
+          R: ${{ github.repository }}
+
   log:
     # 저장소 소유자가 만든 'log' 라벨 이슈만 처리 (공개 저장소라 남이 만든 이슈는 무시)
     if: >-
