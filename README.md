@@ -38,7 +38,6 @@ shows stats, a daily heatmap, and the code for each language.
 | Path | Purpose |
 |---|---|
 | `_data/goals.yml` | Weekly goals. The entry whose `week` matches the current ISO week (`2026-W37`) shows on the home page |
-| `_data/reading_list.yml` | Reading queue. Links to a review automatically when `link` matches the review's `paper.link` |
 | `_posts/` | Blog posts. `categories: [paper]` marks a paper review; `tags: [RL]` powers the field filter |
 | `_drafts/` | Not built. Contains two post templates |
 | `_config.yml` | Site info, `tracker_repo` (private data), `tracker.habits`, `arrive_goal`, `skip_weekends` |

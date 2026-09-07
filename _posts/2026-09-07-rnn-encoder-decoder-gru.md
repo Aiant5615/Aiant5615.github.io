@@ -80,9 +80,17 @@ Not as a standalone translator. The authors trained the encoder–decoder on phr
 
 ## Figures, explained
 
+<figure class="paper-fig"><img src="/assets/papers/cho/figure1.png" alt="Figure 1 from Cho et al. (2014)" loading="lazy"><figcaption>Figure 1 of Cho et al. (2014), reproduced from the paper for commentary.</figcaption></figure>
+
 - **Figure 1 (encoder–decoder).** Two chains of boxes. The left chain consumes $$x_1 \dots x_T$$ and emits $$c$$; the right chain consumes $$c$$ plus its own previous output and emits $$y_1 \dots y_{T'}$$. The arrow from $$c$$ fans out to every decoder step.
+
+<figure class="paper-fig"><img src="/assets/papers/cho/figure2.png" alt="Figure 2 from Cho et al. (2014)" loading="lazy"><figcaption>Figure 2 of Cho et al. (2014), reproduced from the paper for commentary.</figcaption></figure>
+
 - **Figure 2 (the hidden unit).** A single unit drawn with the reset gate $$r$$ on the path from $$h$$ to $$\tilde h$$ and the update gate $$z$$ choosing between $$h$$ and $$\tilde h$$. Compare it with the LSTM diagram in Sutskever et al.: three gates and a cell there, two gates and no cell here.
 - **Figure 3 (word embeddings, 2-D).** A Barnes–Hut-SNE projection of the learned word vectors; the insets zoom into clusters such as countries, months and numbers, showing that the encoder learned Word2Vec-like structure as a by-product.
+
+<figure class="paper-fig"><img src="/assets/papers/cho/figure4.png" alt="Figure 4 from Cho et al. (2014)" loading="lazy"><figcaption>Figure 4 of Cho et al. (2014), reproduced from the paper for commentary.</figcaption></figure>
+
 - **Figure 4 (phrase embeddings, 2-D).** The same projection for the encoder's phrase vectors $$c$$. Zoomed regions group phrases by meaning ("at the end of", "before the end of") and by syntax (durations, quantities), which is the evidence for the title's claim about *phrase representations*.
 
 ## Results

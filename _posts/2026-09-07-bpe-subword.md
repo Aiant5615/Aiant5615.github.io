@@ -49,6 +49,8 @@ The competing approach was a **back-off dictionary**: translate with a word-leve
 
 ## Figures and tables, explained
 
+<figure class="paper-fig"><img src="/assets/papers/bpe/figure1.png" alt="Figure 1 from Sennrich et al. (2016)" loading="lazy"><figcaption>Figure 1 of Sennrich et al. (2016), reproduced from the paper for commentary.</figcaption></figure>
+
 - **Figure 1 (the code).** Learning BPE in Python: `get_stats` counts pairs, `merge_vocab` applies a merge with a regex that respects symbol boundaries. Worth reading closely; a tokenizer is genuinely this small.
 - **Table 1 (segmentation statistics).** For each segmentation (word-level, character n-gram variants, BPE with 60k merges, joint BPE 90k), the vocabulary size and the number of unknown types on the test set: BPE variants reach 0 unknowns while keeping sentences only modestly longer.
 - **Table 2 (English–German results).** Compares WDict (dictionary back-off), WUnk (no special handling), C2-50k (character bigrams), BPE-60k, and BPE-J90k. BPE-J90k gains up to +1.1 BLEU and +2.1 CHRF3 over the dictionary baseline on newstest2015; the character-bigram variant is close behind, showing that the gain is from subword modeling, not from BPE specifically.

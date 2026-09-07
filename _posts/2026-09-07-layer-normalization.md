@@ -74,11 +74,29 @@ Layer norm is invariant to scaling and shifting the *whole weight matrix* and to
 
 ## Figures, explained
 
+<figure class="paper-fig"><img src="/assets/papers/layernorm/figure1.png" alt="Figure 1 from Ba et al. (2016)" loading="lazy"><figcaption>Figure 1 of Ba et al. (2016), reproduced from the paper for commentary.</figcaption></figure>
+
 - **Figure 1 (image–sentence ranking, order embeddings).** Recall@K on validation versus training iterations for LN vs baseline GRU encoders; LN converges markedly faster and ends higher.
+
+<figure class="paper-fig"><img src="/assets/papers/layernorm/figure2.png" alt="Figure 2 from Ba et al. (2016)" loading="lazy"><figcaption>Figure 2 of Ba et al. (2016), reproduced from the paper for commentary.</figcaption></figure>
+
 - **Figure 2 (attentive reader).** Validation error curves on the CNN question-answering corpus; LN with 4× the normal learning rate is stable where the baseline diverges.
+
+<figure class="paper-fig"><img src="/assets/papers/layernorm/figure3.png" alt="Figure 3 from Ba et al. (2016)" loading="lazy"><figcaption>Figure 3 of Ba et al. (2016), reproduced from the paper for commentary.</figcaption></figure>
+
 - **Figure 3 (skip-thought vectors).** Downstream sentence-task scores over 1M training iterations; LN skip-thoughts reach the baseline's final score in a fraction of the iterations and surpass it.
-- **Figure 4 (handwriting generation, batch-size sweep).** Negative log-likelihood vs iterations for batch sizes 8 and 1; batch norm degrades sharply as the batch shrinks, LN is unaffected. The plot that explains why LN, not BN, is used for models trained with small per-device batches.
-- **Figure 5–6 (MNIST feed-forward, permutation-invariant).** With large batches BN and LN are similar; with batch size 4, LN wins.
+
+<figure class="paper-fig"><img src="/assets/papers/layernorm/figure4.png" alt="Figure 4 from Ba et al. (2016)" loading="lazy"><figcaption>Figure 4 of Ba et al. (2016), reproduced from the paper for commentary.</figcaption></figure>
+
+- **Figure 4 (DRAW image generation).** Test variational bound on MNIST vs epochs for the baseline, weight norm and layer norm; LN converges fastest.
+
+<figure class="paper-fig"><img src="/assets/papers/layernorm/figure5.png" alt="Figure 5 from Ba et al. (2016)" loading="lazy"><figcaption>Figure 5 of Ba et al. (2016), reproduced from the paper for commentary.</figcaption></figure>
+
+- **Figure 5 (handwriting sequence generation).** Negative log-likelihood vs updates for LN vs the baseline, train and test; LN reaches the baseline's final score in far fewer updates.
+
+<figure class="paper-fig"><img src="/assets/papers/layernorm/figure6.png" alt="Figure 6 from Ba et al. (2016)" loading="lazy"><figcaption>Figure 6 of Ba et al. (2016), reproduced from the paper for commentary.</figcaption></figure>
+
+- **Figure 6 (MNIST feed-forward, permutation-invariant).** Four panels comparing batch norm and layer norm at batch sizes 128 and 4. With large batches BN and LN are similar; with batch size 4, BN degrades sharply and LN is unaffected. The plot that explains why LN, not BN, suits models trained with small per-device batches.
 - **Table on CNNs.** LN does *not* help convolutional networks, where BN remains better; the authors attribute it to the feature-map statistics being very different across positions.
 
 ## Results

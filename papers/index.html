@@ -4,7 +4,7 @@ title: Paper Reviews
 permalink: /papers/
 ---
 <h1>Paper Reviews</h1>
-<p class="muted">Summaries and thoughts on papers I've read. Reviews use <code>categories: [paper]</code> and a field tag like <code>tags: [RL, NLP]</code>.</p>
+<p class="muted">Summaries and thoughts on papers I've read, with the equations and figures explained. Start with the <a href="/blog/2026/09/07/transformer-lineage/">16-paper reading path</a>.</p>
 
 {% assign papers = site.categories.paper %}
 {% if papers and papers.size > 0 %}
@@ -40,27 +40,3 @@ permalink: /papers/
 })();
 </script>
 {% else %}<div class="empty">No reviews yet.</div>{% endif %}
-
-<h2>Reading list</h2>
-<p class="small muted">Managed in <code>_data/reading_list.yml</code> (status: todo / reading / done). An item links to its review automatically when its <code>link</code> matches the review's <code>paper.link</code>.</p>
-{% assign rl = site.data.reading_list %}
-{% if rl and rl.size > 0 %}
-<div class="card">
-{% assign order = "reading,todo,done" | split: "," %}
-{% for st in order %}
-  {% assign items = rl | where: "status", st %}
-  {% for r in items %}
-  {% assign review_url = r.review %}
-  {% if review_url == nil and r.link and papers %}{% assign match = papers | where_exp: "p", "p.paper.link == r.link" | first %}{% if match %}{% assign review_url = match.url %}{% endif %}{% endif %}
-  <div class="reading-item">
-    <span class="status status-{{ st }}">{% if st == "reading" %}Reading{% elsif st == "todo" %}To read{% else %}Done{% endif %}</span>
-    <div>
-      <div class="reading-title">{% if r.link %}<a href="{{ r.link }}" target="_blank" rel="noopener">{{ r.title }}</a>{% else %}{{ r.title }}{% endif %}</div>
-      <div class="reading-meta">{{ r.authors }}{% if r.venue %} · {{ r.venue }}{% endif %}{% if r.year %} {{ r.year }}{% endif %}{% if r.why %} — {{ r.why }}{% endif %}</div>
-    </div>
-    <div class="small">{% if review_url %}<a href="{{ review_url | relative_url }}">Review →</a>{% endif %}</div>
-  </div>
-  {% endfor %}
-{% endfor %}
-</div>
-{% else %}<div class="empty">The reading list is empty.</div>{% endif %}

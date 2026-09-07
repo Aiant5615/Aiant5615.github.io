@@ -90,12 +90,29 @@ Now the decoder carries a memory of past alignment choices, and the network is e
 
 ## Figures, explained
 
+<figure class="paper-fig"><img src="/assets/papers/luong/figure1.png" alt="Figure 1 from Luong et al. (2015)" loading="lazy"><figcaption>Figure 1 of Luong et al. (2015), reproduced from the paper for commentary.</figcaption></figure>
+
 - **Figure 1 (stacked LSTM NMT).** The encoder and decoder as one deep LSTM chain reading "A B C D ⟨eos⟩" then emitting "X Y Z ⟨eos⟩"; attention sits on top of the decoder side. It is Sutskever's picture with an attention layer added.
+
+<figure class="paper-fig"><img src="/assets/papers/luong/figure2.png" alt="Figure 2 from Luong et al. (2015)" loading="lazy"><figcaption>Figure 2 of Luong et al. (2015), reproduced from the paper for commentary.</figcaption></figure>
+
 - **Figure 2 (global attention).** For one target step: all encoder states, an alignment-weight vector $$a_t$$ over them, the context $$c_t$$, and the combination with $$h_t$$ into $$\tilde h_t$$.
+
+<figure class="paper-fig"><img src="/assets/papers/luong/figure3.png" alt="Figure 3 from Luong et al. (2015)" loading="lazy"><figcaption>Figure 3 of Luong et al. (2015), reproduced from the paper for commentary.</figcaption></figure>
+
 - **Figure 3 (local attention).** The same, but the weight vector is drawn only over a window around $$p_t$$, with the Gaussian bump superimposed.
+
+<figure class="paper-fig"><img src="/assets/papers/luong/figure4.png" alt="Figure 4 from Luong et al. (2015)" loading="lazy"><figcaption>Figure 4 of Luong et al. (2015), reproduced from the paper for commentary.</figcaption></figure>
+
 - **Figure 4 (input feeding).** The dashed arrow from $$\tilde h_t$$ back down into the next LSTM input.
 - **Figure 5 (learning curves).** Test cost vs epochs for the models in Table 1; the attention models separate from the non-attention baseline early and stay below it.
+
+<figure class="paper-fig"><img src="/assets/papers/luong/figure6.png" alt="Figure 6 from Luong et al. (2015)" loading="lazy"><figcaption>Figure 6 of Luong et al. (2015), reproduced from the paper for commentary.</figcaption></figure>
+
 - **Figure 6 (BLEU vs sentence length).** Attention models remain strong on 40+ word sentences while the plain model falls, the same shape as Bahdanau's Figure 2.
+
+<figure class="paper-fig"><img src="/assets/papers/luong/figure7.png" alt="Figure 7 from Luong et al. (2015)" loading="lazy"><figcaption>Figure 7 of Luong et al. (2015), reproduced from the paper for commentary.</figcaption></figure>
+
 - **Figure 7 (alignment visualizations).** Heatmaps for global, local-m, local-p and the *gold* alignment; local-p looks the sharpest. The paper also scores alignments with **AER** (alignment error rate) against human alignments, where local-p wins.
 
 ## Results
