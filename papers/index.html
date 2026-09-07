@@ -25,7 +25,7 @@ permalink: /papers/
       <a class="t" href="{{ post.url | relative_url }}">{{ post.title }}</a>
       {% if post.rating %}<span class="tag" style="color:var(--warn)">{% for i in (1..post.rating) %}★{% endfor %}</span>{% endif %}
       {% for t in post.tags %}<span class="tag">#{{ t }}</span>{% endfor %}
-      <div class="x">{% if post.paper %}{{ post.paper.authors }}{% if post.paper.venue %} · {{ post.paper.venue }} {{ post.paper.year }}{% endif %}{% else %}{{ post.excerpt | strip_html | strip_newlines | truncate: 120 }}{% endif %}</div>
+      <div class="x">{% if post.paper %}{{ post.paper.authors }}{% if post.paper.venue %} · {{ post.paper.venue }} {{ post.paper.year }}{% endif %}{% else %}{{ post.description | default: post.excerpt | strip_html | strip_newlines | truncate: 120 }}{% endif %}</div>
     </div>
   </li>
   {% endfor %}

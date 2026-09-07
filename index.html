@@ -49,7 +49,7 @@ title: Home
     <time datetime="{{ post.date | date_to_xmlschema }}">{{ post.date | date: "%b %-d, %Y" }}</time>
     <div>
       <a class="t" href="{{ post.url | relative_url }}">{{ post.title }}</a>{% for c in post.categories %}<span class="tag">{{ c }}</span>{% endfor %}
-      <div class="x">{{ post.excerpt | strip_html | strip_newlines | truncate: 110 }}</div>
+      <div class="x">{{ post.description | default: post.excerpt | strip_html | strip_newlines | truncate: 110 }}</div>
     </div>
   </li>
   {% endfor %}

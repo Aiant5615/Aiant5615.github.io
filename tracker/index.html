@@ -10,6 +10,7 @@ permalink: /tracker/
 <div class="today-bar" id="today-bar" style="margin:.6rem 0 1.4rem"><span class="muted">Loading…</span></div>
 
 <div id="stats"></div>
+<div class="card log-hint" id="onboarding" hidden>No entries yet. Log your first day below, or use the <a href="https://github.com/{{ site.github_repo }}/issues/new?template={{ site.log_issue_template }}">issue form</a> from your phone. Charts and streaks appear as entries accumulate.</div>
 
 <h2 id="log">Log today</h2>
 <div class="card" id="log-form"></div>
@@ -17,6 +18,7 @@ permalink: /tracker/
 <div class="section-head"><h2>Heatmap <span class="small muted" style="font-weight:400">last 26 weeks</span></h2><div id="heatmap-select"></div></div>
 <div class="card" id="heatmap"></div>
 
+<div id="data-sections">
 <h2>Arrival time <span class="small muted" style="font-weight:400">last 30 days</span></h2>
 <div class="card" id="arrive-chart"></div>
 
@@ -36,5 +38,6 @@ permalink: /tracker/
 
 <h2>Last 2 weeks <span class="small muted" style="font-weight:400">click a row to load it into the form</span></h2>
 <div class="card" id="recent-log"></div>
+</div>
 
 {% include tracker-data.html %}

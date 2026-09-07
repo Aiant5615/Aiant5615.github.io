@@ -128,7 +128,7 @@
       const p = hasHabit(h.key), sk = habitSkipsWeekend(h.key);
       const n7 = l7.filter(p).length, m = mo.filter(p).length;
       const moDen = sk ? mo.filter(e => !isWeekend(e.date)).length : mo.length;
-      return tile(`${h.emoji} ${esc(h.label)}`, `${streak(p, sk)}<span class="unit">-day streak</span>`, `last 7 days: ${n7} · this month: ${pct(m, moDen) ?? "–"}% · best ${bestStreak(p, sk)}`);
+      return tile(`${h.emoji} ${esc(h.label)}`, `${streak(p, sk)}<span class="unit">-day streak</span>`, `last 7 days: ${n7} · this month: ${moDen ? pct(m, moDen) + "%" : "–"} · best ${bestStreak(p, sk)}`);
     });
     if (hb.length) root.insertAdjacentHTML("beforeend", `<div class="grid grid-4" style="margin-top:.9rem">${hb.join("")}</div>`);
   }
@@ -136,7 +136,8 @@
   // ───────── heatmap ─────────
   function renderHeatmap(root, selectRoot) {
     let metric = "all";
-    const weeks = 26, cell = 12, gap = 3, step = cell + gap, left = 22, top = 18;
+    const cell = 12, gap = 3, step = cell + gap, left = 22, top = 18;
+    const weeksFor = () => Math.max(8, Math.min(26, Math.floor((root.clientWidth - 40 - left) / step)));
     const level = e => {
       if (!e) return 0;
       if (metric === "all") { if (!HKEYS.length) return 4; const r = [...e.done].filter(k => HMAP[k]).length / HKEYS.length; return r === 0 ? 0 : Math.max(1, Math.ceil(r * 4)); }
@@ -153,6 +154,7 @@
       return parts.join(" · ");
     };
     function draw() {
+      const weeks = weeksFor();
       const start = addDays(TODAY, -((TODAY.getDay() + 6) % 7) - (weeks - 1) * 7);   // Monday of the first week
       const H = top + 7 * step + 4;
       const labels = svgEl("svg", { class: "heat-labels", width: left, height: H, viewBox: `0 0 ${left} ${H}` });
@@ -187,6 +189,7 @@
       selectRoot.querySelectorAll("button").forEach(b => b.addEventListener("click", () => { metric = b.dataset.v; selectRoot.querySelectorAll("button").forEach(x => x.classList.toggle("on", x === b)); draw(); }));
     }
     draw();
+    let rt, lastWeeks = weeksFor(); window.addEventListener("resize", () => { clearTimeout(rt); rt = setTimeout(() => { const w = weeksFor(); if (w !== lastWeeks) { lastWeeks = w; draw(); } }, 200); });
   }
 
   // ───────── arrival chart (last 30 days) ─────────
@@ -244,7 +247,8 @@
     const a = weekRows(thisWeek()), b = weekRows(lastWeek());
     const [mon] = weekRange();
     const head = ["Metric", `This week (${isoWeek(mon)})`, `Last week (${isoWeek(addDays(mon, -7))})`];
-    root.innerHTML = `<div style="overflow-x:auto"><table class="summary-table"><thead><tr>${head.map(h => `<th>${esc(h)}</th>`).join("")}</tr></thead><tbody>${a.map((r, i) => `<tr><td>${esc(r[0])}</td><td>${esc(r[1])}</td><td class="muted">${esc(b[i][1])}</td></tr>`).join("")}</tbody></table></div>
+    const shortHead = ["Metric", "This wk", "Last wk"];
+    root.innerHTML = `<div class="table-caption">${isoWeek(mon)} vs ${isoWeek(addDays(mon, -7))}</div><div style="overflow-x:auto"><table class="summary-table"><thead><tr>${shortHead.map(h => `<th>${esc(h)}</th>`).join("")}</tr></thead><tbody>${a.map((r, i) => `<tr><td>${esc(r[0])}</td><td>${esc(r[1])}</td><td class="muted">${esc(b[i][1])}</td></tr>`).join("")}</tbody></table></div>
       <div class="md-copy"><button type="button" class="btn btn-sm" id="weekly-md">Copy as Markdown for the weekly review</button> <span class="small muted" id="weekly-hint"></span></div>`;
     root.querySelector("#weekly-md").addEventListener("click", () => {
       const md = `| ${head.join(" | ")} |\n|---|---|---|\n` + a.map((r, i) => `| ${r[0]} | ${r[1]} | ${b[i][1]} |`).join("\n") + "\n";
@@ -309,18 +313,18 @@
     const habitChecks = HABITS.map(h => `<label class="check"><input type="checkbox" name="done" value="${h.key}"> ${h.emoji} ${esc(h.label)}</label>`).join("");
     root.innerHTML = `
       <div class="form-grid">
-        <div class="field"><label>Date</label><input type="date" name="date" value="${TODAY_KEY}"></div>
-        <div class="field"><label>Arrived at</label><input type="time" name="arrive" step="300"></div>
-        <div class="field"><label>Left at</label><input type="time" name="leave" step="300"></div>
-        <div class="field field-wide"><label>Done today</label><div class="checks">${habitChecks}</div></div>
-        <div class="field field-wide"><label>Note · one-line retro</label><textarea name="note" placeholder="What I did today, what's next"></textarea></div>
+        <div class="field"><label for="tr-date">Date</label><input id="tr-date" type="date" name="date" value="${TODAY_KEY}"></div>
+        <div class="field"><label for="tr-arrive">Arrived at</label><input id="tr-arrive" type="time" name="arrive" step="300"></div>
+        <div class="field"><label for="tr-leave">Left at</label><input id="tr-leave" type="time" name="leave" step="300"></div>
+        <fieldset class="field field-wide" style="border:0;padding:0;margin:0"><legend class="small muted" style="padding:0;margin-bottom:.25rem">Done today</legend><div class="checks">${habitChecks}</div></fieldset>
+        <div class="field field-wide"><label for="tr-note">Note · one-line retro</label><textarea id="tr-note" name="note" placeholder="What I did today, what's next"></textarea></div>
       </div>
       <details class="more"><summary>More (wake-up · sleep · mood · focus)</summary>
         <div class="form-grid">
-          <div class="field"><label>Woke up at</label><input type="time" name="wake" step="300"></div>
-          <div class="field"><label>Sleep (hours)</label><input type="number" name="sleep" step="0.5" min="0" max="16" placeholder="7"></div>
-          <div class="field"><label>Mood (1–5)</label><select name="mood"><option value="">–</option><option value="5">😄 5 great</option><option value="4">🙂 4 good</option><option value="3">😐 3 okay</option><option value="2">😕 2 meh</option><option value="1">😩 1 rough</option></select></div>
-          <div class="field"><label>Focus (hours)</label><input type="number" name="focus" step="0.5" min="0" max="16" placeholder="3"></div>
+          <div class="field"><label for="tr-wake">Woke up at</label><input id="tr-wake" type="time" name="wake" step="300"></div>
+          <div class="field"><label for="tr-sleep">Sleep (hours)</label><input id="tr-sleep" type="number" name="sleep" step="0.5" min="0" max="16" placeholder="7"></div>
+          <div class="field"><label for="tr-mood">Mood (1–5)</label><select id="tr-mood" name="mood"><option value="">–</option><option value="5">😄 5 great</option><option value="4">🙂 4 good</option><option value="3">😐 3 okay</option><option value="2">😕 2 meh</option><option value="1">😩 1 rough</option></select></div>
+          <div class="field"><label for="tr-focus">Focus (hours)</label><input id="tr-focus" type="number" name="focus" step="0.5" min="0" max="16" placeholder="3"></div>
         </div>
       </details>
       <div class="form-actions">
@@ -397,8 +401,11 @@
   // ───────── mount ─────────
   function mount() {
     const $ = id => document.getElementById(id);
+    const empty = KEYS.length === 0;
+    if ($("onboarding")) $("onboarding").hidden = !empty;
+    if ($("data-sections")) $("data-sections").hidden = empty;
     if ($("today-bar")) renderToday($("today-bar"));
-    if ($("stats")) renderStats($("stats"));
+    if ($("stats")) { if (empty) $("stats").hidden = true; else renderStats($("stats")); }
     if ($("log-form")) initForm($("log-form"));
     if ($("heatmap")) renderHeatmap($("heatmap"), $("heatmap-select"));
     if ($("arrive-chart")) renderArriveChart($("arrive-chart"));

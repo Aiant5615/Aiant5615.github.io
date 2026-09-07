@@ -9,4 +9,4 @@
     issueTemplate: {{ site.log_issue_template | default: "log.yml" | jsonify }}
   };
 </script>
-<script src="{{ '/assets/js/tracker.js' | relative_url }}"></script>
+<script src="{{ '/assets/js/tracker.js' | relative_url }}?v={{ site.time | date: '%s' }}"></script>
