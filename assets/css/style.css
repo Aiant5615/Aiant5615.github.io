@@ -295,3 +295,6 @@ details.more > summary { cursor: pointer; color: var(--muted); font-size: .88rem
 .chip.quick:hover { border-color: var(--accent); }
 .chip.quick.on { color: var(--accent); }
 #full-form-wrap > summary { color: var(--muted); font-size: .92rem; cursor: pointer; }
+
+button.chip.quick { font: inherit; }
+button.chip.quick:disabled { opacity: .6; cursor: wait; }

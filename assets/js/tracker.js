@@ -353,16 +353,93 @@
   function outside(ev) { if (picker && !picker.contains(ev.target) && !ev.target.closest(".clock")) closePicker(); }
   function closePicker() { if (picker) { picker.remove(); picker = null; document.removeEventListener("click", outside); } }
 
+  // ───────── GitHub connection (token stored only in this browser) ─────────
+  const TOKEN_KEY = "gh_token", USER_KEY = "gh_user", PENDING_KEY = "tracker_pending";
+  const lsGet = k => { try { return localStorage.getItem(k); } catch { return null; } };
+  const lsSet = (k, v) => { try { v == null ? localStorage.removeItem(k) : localStorage.setItem(k, v); } catch {} };
+  const token = () => lsGet(TOKEN_KEY) || "";
+  const FIELD_LABELS = { date: "Date", arrive: "Arrived at", leave: "Left at", done: "Done today", note: "Note", wake: "Woke up at", sleep: "Sleep hours", mood: "Mood (1-5)", focus: "Focus hours" };
+  // body in the same shape the issue form produces, so scripts/issue_to_log.py parses it unchanged
+  const issueBody = f => Object.keys(FIELD_LABELS).filter(k => f[k] != null && f[k] !== "").map(k => `### ${FIELD_LABELS[k]}\n\n${f[k]}`).join("\n\n")
+    + (f.replace ? "\n\n### Replace\n\n- [x] Replace the whole entry for this day instead of merging" : "") + "\n";
+  async function gh(path, opts = {}) {
+    const r = await fetch(`https://api.github.com${path}`, { ...opts, headers: { Authorization: `Bearer ${token()}`, Accept: "application/vnd.github+json", "X-GitHub-Api-Version": "2022-11-28", ...(opts.body ? { "Content-Type": "application/json" } : {}), ...(opts.headers || {}) } });
+    if (!r.ok) { let msg = `${r.status}`; try { msg += " " + ((await r.json()).message || ""); } catch {} const e = new Error(msg); e.status = r.status; throw e; }
+    return r.json();
+  }
+  // Create the log issue directly. Returns the issue URL.
+  async function saveDirect(fields) {
+    const f = { date: TODAY_KEY, ...fields };
+    const issue = await gh(`/repos/${REPO}/issues`, { method: "POST", body: JSON.stringify({ title: `log: ${f.date}`, body: issueBody(f), labels: ["log"] }) });
+    rememberPending(f);
+    return issue.html_url;
+  }
+  // Optimistic local view until the hourly/1-2 min sync lands
+  function rememberPending(f) {
+    const all = JSON.parse(lsGet(PENDING_KEY) || "{}"); const cur = all[f.date] || { fields: {}, at: 0 };
+    if (f.replace) cur.fields = {};
+    for (const k in f) { if (k === "date" || k === "replace" || f[k] === "") continue; if (k === "done") { const s = new Set([...(cur.fields.done || "").split(/[,\s]+/).filter(Boolean), ...String(f.done).split(/[,\s]+/).filter(Boolean)]); cur.fields.done = [...s].join(", "); } else if (k === "note") cur.fields.note = cur.fields.note ? `${cur.fields.note} · ${f.note}` : f.note; else cur.fields[k] = f[k]; }
+    cur.at = Date.now(); all[f.date] = cur; lsSet(PENDING_KEY, JSON.stringify(all));
+    applyPending();
+  }
+  function applyPending() {   // merge pending (< 30 min old) into E so the page reflects what was just saved
+    const all = JSON.parse(lsGet(PENDING_KEY) || "{}"); let changed = false;
+    for (const d in all) {
+      if (Date.now() - all[d].at > 30 * 60 * 1000) { delete all[d]; changed = true; continue; }
+      const f = all[d].fields, cur = E[d], raw = { arrive: cur?.arrive != null ? fmtMin(cur.arrive) : null, leave: cur?.leave != null ? fmtMin(cur.leave) : null, wake: cur?.wake != null ? fmtMin(cur.wake) : null, sleep: cur?.sleep, mood: cur?.mood, focus: cur?.focus, note: cur?.note, done: cur ? [...cur.done] : [] };
+      for (const k in f) { if (k === "done") raw.done = [...new Set([...raw.done, ...f.done.split(/[,\s]+/).filter(Boolean)])]; else if (k === "note") { if (!(raw.note || "").includes(f.note)) raw.note = raw.note ? `${raw.note} · ${f.note}` : f.note; } else raw[k] = f[k]; }
+      E[d] = normalize(d, raw); E[d].pending = true;
+    }
+    if (changed) lsSet(PENDING_KEY, JSON.stringify(all));
+    KEYS = Object.keys(E).sort();
+  }
+  function renderConnect(root) {
+    const user = lsGet(USER_KEY);
+    const draw = (msg = "") => {
+      root.innerHTML = token()
+        ? `<details class="more"><summary>GitHub: connected${user ? ` as @${esc(user)}` : ""} — quick-log buttons save directly ${msg ? `· <span class="muted">${esc(msg)}</span>` : ""}</summary>
+             <div class="card"><p class="small muted" style="margin-top:0">The token lives only in this browser's storage. Remove it on shared devices.</p><button type="button" class="btn btn-sm" id="gh-remove">Disconnect</button></div></details>`
+        : `<details class="more"><summary>GitHub: not connected — buttons open the issue form in a new tab. Connect to save in place ${msg ? `· <span class="muted">${esc(msg)}</span>` : ""}</summary>
+             <div class="card">
+               <p class="small" style="margin-top:0">Create a <a href="https://github.com/settings/personal-access-tokens/new" target="_blank" rel="noopener">fine-grained personal access token</a> with: <b>Repository access → Only select repositories → ${esc(REPO)}</b>, and <b>Permissions → Issues → Read and write</b>. Nothing else. Paste it here; it is stored only in this browser (localStorage), never in the repo.</p>
+               <div class="form-actions"><input type="password" id="gh-token" class="search" style="margin:0;flex:1;min-width:200px" placeholder="github_pat_…" autocomplete="off"><button type="button" class="btn btn-primary" id="gh-save">Connect</button></div>
+             </div></details>`;
+      root.querySelector("#gh-remove")?.addEventListener("click", () => { lsSet(TOKEN_KEY, null); lsSet(USER_KEY, null); draw("disconnected"); renderQuick(document.getElementById("quick-log")); });
+      root.querySelector("#gh-save")?.addEventListener("click", async () => {
+        const t = root.querySelector("#gh-token").value.trim(); if (!t) return;
+        lsSet(TOKEN_KEY, t);
+        try { const u = await gh("/user"); lsSet(USER_KEY, u.login); draw("connected ✓"); }
+        catch (e) { lsSet(TOKEN_KEY, null); draw(`token rejected (${e.message})`); return; }
+        renderQuick(document.getElementById("quick-log"));
+      });
+    };
+    draw();
+  }
+
   // ───────── quick log: one item at a time, merged into today's entry ─────────
   function renderQuick(root) {
     const t = get(TODAY_KEY);
     const now = () => { const d = new Date(); return fmtMin(d.getHours() * 60 + d.getMinutes()); };
     const issue = fields => { const q = new URLSearchParams({ template: CFG.issueTemplate || "log.yml", title: `log: ${TODAY_KEY}`, date: TODAY_KEY, ...fields }); return `https://github.com/${REPO}/issues/new?${q}`; };
-    const btn = (label, fields, on, title) => `<a class="chip quick ${on ? "on" : ""}" href="${issue(fields)}" target="_blank" rel="noopener" title="${esc(title || "")}">${label}</a>`;
+    const direct = !!token();
+    const btn = (label, fields, on, title) => direct
+      ? `<button type="button" class="chip quick ${on ? "on" : ""}" data-fields='${esc(JSON.stringify(fields))}' title="${esc(title || "")}">${label}</button>`
+      : `<a class="chip quick ${on ? "on" : ""}" href="${issue(fields)}" target="_blank" rel="noopener" title="${esc(title || "")}">${label}</a>`;
     let html = btn(`🏢 ${t && t.arrive != null ? `In at ${fmt12(t.arrive)}` : "Arrived now"}`, { arrive: now() }, !!(t && t.arrive != null), "Saves the current time as today's arrival");
     html += btn(`🚪 ${t && t.leave != null ? `Out at ${fmt12(t.leave)}` : "Leaving now"}`, { leave: now() }, !!(t && t.leave != null), "Saves the current time as today's departure");
     HABITS.forEach(h => { const on = !!(t && t.done.has(h.key)); html += btn(`${on ? "✓" : "+"} ${h.emoji} ${esc(h.label)}`, { done: h.key }, on, on ? "Already logged today" : `Mark ${h.label} done today`); });
-    root.innerHTML = `<div class="today-bar">${html}</div><p class="small muted" style="margin:.5rem 0 0">Each button opens the issue form with just that item filled in. Submit, and it's merged into today's entry (nothing else is overwritten). Times are saved when the button is clicked, so click when it happens. Already-logged items are highlighted; the page updates a minute or two after each submit.</p>`;
+    const note = direct
+      ? `Each button saves just that item straight to GitHub and merges it into today's entry. Times are taken when you click. The site catches up a minute or two later.`
+      : `Each button opens the GitHub issue form (new tab) with just that item filled in; press <b>Submit</b> there. Connect GitHub below to save without leaving this page.`;
+    root.innerHTML = `<div class="today-bar">${html}</div><p class="small muted" style="margin:.5rem 0 0" id="quick-status">${note}</p>`;
+    if (direct) root.querySelectorAll("button.quick").forEach(b => b.addEventListener("click", async () => {
+      const fields = JSON.parse(b.dataset.fields); const status = root.querySelector("#quick-status");
+      if (fields.arrive) fields.arrive = now(); if (fields.leave) fields.leave = now();   // time of the click, not of page load
+      b.disabled = true; b.textContent = "Saving…";
+      try { const url = await saveDirect(fields); status.innerHTML = `✓ Saved — <a href="${url}" target="_blank" rel="noopener">issue</a> created; the page reflects it now and syncs fully in a minute or two.`; }
+      catch (e) { status.innerHTML = `<span style="color:var(--danger)">Save failed: ${esc(e.message)}.</span> ${e.status === 401 || e.status === 403 ? "Check the token's permissions or reconnect below." : "Try again, or use the issue form."}`; }
+      renderQuick(root); if (document.getElementById("today-bar")) renderToday(document.getElementById("today-bar")); if (document.getElementById("stats") && !document.getElementById("stats").hidden) renderStats(document.getElementById("stats")); if (form) fillForm(TODAY_KEY, true);
+    }));
   }
 
   // ───────── log form → prefilled GitHub Issue form ─────────
@@ -386,6 +463,7 @@
           <div class="field"><label for="tr-focus">Focus (hours)</label><input id="tr-focus" type="number" name="focus" step="0.5" min="0" max="16" placeholder="3"></div>
         </div>
       </details>
+      <label class="check" style="margin-top:.8rem"><input type="checkbox" name="replace"> Replace the whole entry for this day (instead of merging)</label>
       <div class="form-actions">
         <button type="button" class="btn btn-primary" id="tr-save">Save to GitHub ↗</button>
         <button type="button" class="btn" id="tr-copy">Copy YAML</button>
@@ -406,14 +484,24 @@
     root.querySelector("#tr-copy").addEventListener("click", () => {
       navigator.clipboard.writeText(yaml()).then(() => flash("Copied ✓")).catch(() => flash("Copy failed — copy the YAML below manually"));
     });
-    root.querySelector("#tr-save").addEventListener("click", () => {
+    root.querySelector("[name=replace]").addEventListener("change", ev => ev.target.closest(".check").classList.toggle("on", ev.target.checked));
+    root.querySelector("#tr-save").addEventListener("click", async () => {
       const d = val("date"); if (!d) return flash("Please enter a date");
-      const q = new URLSearchParams({ template: CFG.issueTemplate || "log.yml", title: `log: ${d}`, date: d });
+      const fields = { date: d };
       const done = [...root.querySelectorAll("[name=done]:checked")].map(i => i.value);
       [["arrive", tval("arrive")], ["leave", tval("leave")], ["wake", tval("wake")], ["sleep", val("sleep")], ["mood", val("mood")], ["focus", val("focus")], ["note", val("note")]]
-        .forEach(([k, v]) => { if (v) q.set(k, v); });
-      if (done.length) q.set("done", done.join(", "));
+        .forEach(([k, v]) => { if (v) fields[k] = v; });
+      if (done.length) fields.done = done.join(", ");
+      const replace = root.querySelector("[name=replace]").checked;
+      if (token()) {
+        const b = root.querySelector("#tr-save"); b.disabled = true; flash("Saving…");
+        try { const url = await saveDirect({ ...fields, replace }); flash("✓ Saved"); root.querySelector("#tr-hint").innerHTML = `✓ Saved — <a href="${url}" target="_blank" rel="noopener">issue</a> created; syncs in a minute or two.`; if (document.getElementById("quick-log")) renderQuick(document.getElementById("quick-log")); if (document.getElementById("today-bar")) renderToday(document.getElementById("today-bar")); }
+        catch (e) { flash(`Save failed: ${e.message}`); }
+        b.disabled = false; return;
+      }
+      const q = new URLSearchParams({ template: CFG.issueTemplate || "log.yml", title: `log: ${d}`, ...fields });
       window.open(`https://github.com/${REPO}/issues/new?${q.toString()}`, "_blank", "noopener");
+      if (replace) flash("Tick \"Replace the whole entry\" in the GitHub form too — it can't be prefilled.");
     });
     root._update = update;
     if (get(TODAY_KEY)) fillForm(TODAY_KEY, true); else update();
@@ -435,7 +523,7 @@
     function update() {
       root.querySelector("#tr-yaml").textContent = yaml();
       const d = val("date");
-      root.querySelector("#tr-save").textContent = get(d) ? "Save to GitHub (merge into this day) ↗" : "Save to GitHub ↗";
+      root.querySelector("#tr-save").textContent = (get(d) ? "Save to GitHub (merge into this day)" : "Save to GitHub") + (token() ? "" : " ↗");
       root.querySelector("#tr-hint").textContent = `→ _data/days/${d || "YYYY-MM-DD"}.yml`;
     }
     function flash(msg) { root.querySelector("#tr-hint").textContent = msg; setTimeout(update, 4000); }
@@ -470,6 +558,7 @@
     if ($("data-sections")) $("data-sections").hidden = empty;
     if ($("today-bar")) renderToday($("today-bar"));
     if ($("stats")) { $("stats").hidden = empty; if (!empty) renderStats($("stats")); }
+    if ($("gh-connect")) renderConnect($("gh-connect"));
     if ($("quick-log")) renderQuick($("quick-log"));
     if ($("log-form")) initForm($("log-form"));
     if ($("heatmap")) renderHeatmap($("heatmap"), $("heatmap-select"));
@@ -485,6 +574,6 @@
     fetch((CFG.dataUrl || "/assets/data/days.json") + "?t=" + Date.now(), { cache: "no-store" })   // bypass the 10-minute CDN cache
       .then(r => r.ok ? r.json() : {})
       .catch(() => ({}))
-      .then(raw => { load(raw); mount(); });
+      .then(raw => { load(raw); applyPending(); mount(); });
   });
 })();

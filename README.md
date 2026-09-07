@@ -9,7 +9,7 @@ A GitHub Pages site for tracking grad school life. https://aiant5615.github.io
 | Method | When |
 |---|---|
 | **Phone** — add the [📝 Log today issue form](https://github.com/Aiant5615/Aiant5615.github.io/issues/new?template=log.yml) to your home screen and Submit | Fastest. An Action writes the file and closes the issue |
-| **Site** — the form at `/tracker/` → "Save to GitHub" | Opens the same issue form, prefilled |
+| **Site** — quick-log buttons or the form at `/tracker/` | With a GitHub token connected (Tracker → "GitHub: not connected"), saves in place; otherwise opens the prefilled issue form |
 | **Terminal** — `python scripts/log.py --arrive 9:10 english coding -n "note"` | When you're at the laptop |
 | **By hand** — write `_data/days/2026-09-07.yml` and push | Fixing several days at once |
 
