@@ -1,26 +1,21 @@
-# Reading queue. status: todo | reading | done. An item links to its review automatically when `link` matches the review's paper.link (or set `review:` explicitly).
-- title: Playing Atari with Deep Reinforcement Learning
-  authors: Mnih et al.
-  venue: NeurIPS Deep Learning Workshop
-  year: 2013
-  link: https://arxiv.org/abs/1312.5602
-  status: done
-- title: Human-level control through deep reinforcement learning
-  authors: Mnih et al.
-  venue: Nature
-  year: 2015
-  link: https://www.nature.com/articles/nature14236
-  status: reading
-  why: the full DQN paper, with the target network
-- title: Proximal Policy Optimization Algorithms
-  authors: Schulman et al.
-  year: 2017
-  link: https://arxiv.org/abs/1707.06347
-  status: todo
-  why: foundation for policy-gradient methods
-- title: Attention Is All You Need
-  authors: Vaswani et al.
-  venue: NeurIPS
-  year: 2017
-  link: https://arxiv.org/abs/1706.03762
-  status: todo
+# Reading queue. status: todo | reading | done. An item links to its review automatically when `link` matches the review's paper.link.
+- { title: A Neural Probabilistic Language Model, authors: Bengio et al., venue: JMLR, year: 2003, link: "https://www.jmlr.org/papers/volume3/bengio03a/bengio03a.pdf", status: done }
+- { title: Efficient Estimation of Word Representations in Vector Space, authors: Mikolov et al., year: 2013, link: "https://arxiv.org/abs/1301.3781", status: done }
+- { title: Learning Phrase Representations using RNN Encoder–Decoder for Statistical Machine Translation, authors: Cho et al., venue: EMNLP, year: 2014, link: "https://arxiv.org/abs/1406.1078", status: done }
+- { title: Sequence to Sequence Learning with Neural Networks, authors: "Sutskever, Vinyals, Le", venue: NeurIPS, year: 2014, link: "https://arxiv.org/abs/1409.3215", status: done }
+- { title: Neural Machine Translation by Jointly Learning to Align and Translate, authors: "Bahdanau, Cho, Bengio", venue: ICLR, year: 2015, link: "https://arxiv.org/abs/1409.0473", status: done }
+- { title: Effective Approaches to Attention-based Neural Machine Translation, authors: Luong et al., venue: EMNLP, year: 2015, link: "https://arxiv.org/abs/1508.04025", status: done }
+- { title: Neural Machine Translation of Rare Words with Subword Units, authors: Sennrich et al., venue: ACL, year: 2016, link: "https://arxiv.org/abs/1508.07909", status: done }
+- { title: Deep Residual Learning for Image Recognition, authors: He et al., venue: CVPR, year: 2016, link: "https://arxiv.org/abs/1512.03385", status: done }
+- { title: Layer Normalization, authors: "Ba, Kiros, Hinton", year: 2016, link: "https://arxiv.org/abs/1607.06450", status: done }
+- { title: Attention Is All You Need, authors: Vaswani et al., venue: NeurIPS, year: 2017, link: "https://arxiv.org/abs/1706.03762", status: done }
+- { title: Improving Language Understanding by Generative Pre-Training, authors: Radford et al. (OpenAI), year: 2018, link: "https://cdn.openai.com/research-covers/language-unsupervised/language_understanding_paper.pdf", status: done }
+- { title: "BERT: Pre-training of Deep Bidirectional Transformers for Language Understanding", authors: Devlin et al., venue: NAACL, year: 2019, link: "https://arxiv.org/abs/1810.04805", status: done }
+- { title: Language Models are Unsupervised Multitask Learners, authors: Radford et al. (OpenAI), year: 2019, link: "https://cdn.openai.com/better-language-models/language_models_are_unsupervised_multitask_learners.pdf", status: done }
+- { title: Exploring the Limits of Transfer Learning with a Unified Text-to-Text Transformer, authors: Raffel et al., venue: JMLR, year: 2020, link: "https://arxiv.org/abs/1910.10683", status: done }
+- { title: Language Models are Few-Shot Learners, authors: Brown et al., venue: NeurIPS, year: 2020, link: "https://arxiv.org/abs/2005.14165", status: done }
+- { title: Training Language Models to Follow Instructions with Human Feedback, authors: Ouyang et al., venue: NeurIPS, year: 2022, link: "https://arxiv.org/abs/2203.02155", status: done }
+- { title: Playing Atari with Deep Reinforcement Learning, authors: Mnih et al., venue: NeurIPS Deep Learning Workshop, year: 2013, link: "https://arxiv.org/abs/1312.5602", status: done }
+- { title: Human-level control through deep reinforcement learning, authors: Mnih et al., venue: Nature, year: 2015, link: "https://www.nature.com/articles/nature14236", status: reading, why: the full DQN paper, with the target network }
+- { title: Proximal Policy Optimization Algorithms, authors: Schulman et al., year: 2017, link: "https://arxiv.org/abs/1707.06347", status: todo, why: the RL algorithm inside InstructGPT }
+- { title: Direct Preference Optimization, authors: Rafailov et al., year: 2023, link: "https://arxiv.org/abs/2305.18290", status: todo, why: RLHF without the RL }

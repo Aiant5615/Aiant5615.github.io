@@ -314,3 +314,11 @@ button.chip.quick:disabled { opacity: .6; cursor: wait; }
 .tp-num { font-size: 13px; fill: var(--text); text-anchor: middle; dominant-baseline: central; pointer-events: none; font-variant-numeric: tabular-nums; }
 .tp-num.on { fill: #fff; font-weight: 700; }
 .tp-hint { text-align: center; margin: 0 0 .4rem; }
+
+/* ───────── paper reviews: figures, series nav ───────── */
+svg.figure { display: block; width: 100%; height: auto; max-width: 640px; margin: 1.2rem auto; background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); padding: .5rem; }
+.post-content table { display: block; overflow-x: auto; margin: 1rem 0; }
+.post-content .katex-display { overflow-x: auto; overflow-y: hidden; padding: .3rem 0; }
+.series-nav { margin-top: 2.5rem; padding: 1rem 1.1rem; background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); }
+.series-title { font-size: .85rem; color: var(--muted); margin-bottom: .5rem; }
+.series-links { display: flex; justify-content: space-between; gap: 1rem; flex-wrap: wrap; font-weight: 600; }

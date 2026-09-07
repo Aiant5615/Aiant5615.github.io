@@ -28,6 +28,19 @@ layout: default
     {{ content }}
   </div>
 
+  {% if page.series %}
+  {% assign sp = site.posts | where: "series", page.series | sort: "series_order" %}
+  {% assign prev_n = page.series_order | minus: 1 %}{% assign next_n = page.series_order | plus: 1 %}
+  {% assign prev = sp | where: "series_order", prev_n | first %}{% assign next = sp | where: "series_order", next_n | first %}
+  <nav class="series-nav">
+    <div class="series-title">Part {{ page.series_order }} of {{ sp.size }} · <a href="{{ '/blog/2026/09/07/transformer-lineage/' | relative_url }}">From n-gram LMs to InstructGPT</a></div>
+    <div class="series-links">
+      {% if prev %}<a href="{{ prev.url | relative_url }}">← {{ prev.title | split: " (" | first }}</a>{% else %}<span></span>{% endif %}
+      {% if next %}<a href="{{ next.url | relative_url }}">{{ next.title | split: " (" | first }} →</a>{% endif %}
+    </div>
+  </nav>
+  {% endif %}
+
   <footer class="post-footer">
     <a href="{{ '/blog/' | relative_url }}">← All posts</a>
   </footer>
@@ -37,5 +50,5 @@ layout: default
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.css">
 <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.js"></script>
 <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/contrib/auto-render.min.js"
-  onload="renderMathInElement(document.body,{delimiters:[{left:'$$',right:'$$',display:true},{left:'$',right:'$',display:false}]});"></script>
+  onload="renderMathInElement(document.querySelector('.post-content'),{delimiters:[{left:'$$',right:'$$',display:true},{left:'\\[',right:'\\]',display:true},{left:'\\(',right:'\\)',display:false},{left:'$',right:'$',display:false}],throwOnError:false});"></script>
 {% endif %}
