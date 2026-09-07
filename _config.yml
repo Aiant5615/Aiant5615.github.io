@@ -7,14 +7,16 @@ baseurl: ""
 lang: ko
 timezone: Asia/Seoul
 
-# GitHub 저장소 (트래커 "GitHub에 저장" 버튼이 사용)
+# GitHub 저장소 (트래커 "저장" 버튼이 Issue 폼을 열 때 사용)
 github_repo: Aiant5615/Aiant5615.github.io
 github_branch: main
+log_issue_template: log.yml
 
 # ── 트래커 설정 ─────────────────────────────────────────────
 # habits: 매일 체크할 항목. key는 _data/days/*.yml 의 done: 리스트에 들어갑니다.
 tracker:
   arrive_goal: "09:00"      # 목표 출근 시간
+  skip_weekends: true       # true면 토·일은 스트릭을 끊지도, 세지도 않음 (습관별 weekends: true 로 예외)
   habits:
     - key: english
       label: 영어 공부
@@ -28,6 +30,7 @@ tracker:
     - key: exercise
       label: 운동
       emoji: "🏃"
+      weekends: true        # 주말에도 스트릭 계산에 포함
 
 # ── Jekyll 설정 ─────────────────────────────────────────────
 markdown: kramdown
@@ -40,6 +43,7 @@ paginate_path: none
 plugins:
   - jekyll-feed
   - jekyll-seo-tag
+  - jekyll-sitemap
 
 defaults:
   - scope:

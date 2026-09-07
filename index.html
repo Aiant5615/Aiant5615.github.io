@@ -13,15 +13,19 @@ title: 홈
 </div>
 
 {% assign goals = site.data.goals %}
-{% if goals and goals.size > 0 %}
-{% assign g = goals | last %}
+{% assign now_week = site.time | date: "%G-W%V" %}
+{% assign cur = goals | where: "week", now_week | first %}
 <div class="grid grid-2" style="margin-top:.9rem">
   <div class="card">
-    <div class="section-head"><h3 style="margin:0">이번 주 목표</h3><span class="small muted">{{ g.week }}</span></div>
+    <div class="section-head"><h3 style="margin:0">이번 주 목표</h3><span class="small muted">{{ now_week }}</span></div>
+    {% if cur %}
     <ul class="goal-list" style="margin-top:.5rem">
-      {% for item in g.goals %}<li class="{% if item.done %}done{% endif %}"><span class="box">{% if item.done %}✓{% endif %}</span><span>{{ item.text }}</span></li>{% endfor %}
+      {% for item in cur.goals %}<li class="{% if item.done %}done{% endif %}"><span class="box">{% if item.done %}✓{% endif %}</span><span>{{ item.text }}</span></li>{% endfor %}
     </ul>
-    <p class="small muted" style="margin:.6rem 0 0">수정: <code>_data/goals.yml</code></p>
+    {% else %}
+    <div class="empty">이번 주 목표가 아직 없습니다.{% if goals and goals.size > 0 %}{% assign prev = goals | last %} 마지막 목표는 {{ prev.week }}.{% endif %}</div>
+    {% endif %}
+    <p class="small muted" style="margin:.6rem 0 0"><code>_data/goals.yml</code>에 <code>week: {{ now_week }}</code> 항목을 추가하세요.</p>
   </div>
   <div class="card">
     <div class="section-head"><h3 style="margin:0">읽는 중</h3><a class="small" href="{{ '/papers/' | relative_url }}">리딩 리스트 →</a></div>
@@ -30,13 +34,12 @@ title: 홈
       {% for r in reading limit: 4 %}
       <div class="reading-item" style="grid-template-columns:1fr">
         <div><div class="reading-title">{% if r.link %}<a href="{{ r.link }}" target="_blank" rel="noopener">{{ r.title }}</a>{% else %}{{ r.title }}{% endif %}</div>
-        <div class="reading-meta">{{ r.authors }}{% if r.venue %} · {{ r.venue }}{% endif %}</div></div>
+        <div class="reading-meta">{{ r.authors }}{% if r.venue %} · {{ r.venue }}{% endif %}{% if r.year %} {{ r.year }}{% endif %}</div></div>
       </div>
       {% endfor %}
     {% else %}<div class="empty">지금 읽는 논문이 없습니다.</div>{% endif %}
   </div>
 </div>
-{% endif %}
 
 <div class="section-head"><h2>최근 글</h2><a class="small" href="{{ '/blog/' | relative_url }}">전체 →</a></div>
 {% if site.posts.size > 0 %}

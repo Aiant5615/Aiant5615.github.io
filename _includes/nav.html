@@ -6,6 +6,13 @@
       <a href="{{ '/blog/' | relative_url }}" {% if page.url contains '/blog/' %}class="active"{% endif %}>블로그</a>
       <a href="{{ '/papers/' | relative_url }}" {% if page.url contains '/papers/' %}class="active"{% endif %}>논문 리뷰</a>
       <a href="{{ '/about/' | relative_url }}" {% if page.url contains '/about/' %}class="active"{% endif %}>소개</a>
+      <button type="button" class="theme-toggle" id="theme-toggle" title="라이트/다크 전환" aria-label="테마 전환">◐</button>
     </nav>
   </div>
 </header>
+<script>
+(function(){var b=document.getElementById("theme-toggle");if(!b)return;
+b.addEventListener("click",function(){var r=document.documentElement,cur=r.getAttribute("data-theme");
+var sys=window.matchMedia("(prefers-color-scheme: dark)").matches?"dark":"light";var now=(cur||sys)==="dark"?"light":"dark";
+r.setAttribute("data-theme",now);try{localStorage.setItem("theme",now);}catch(e){}});})();
+</script>

@@ -3,9 +3,9 @@ layout: default
 title: 루틴 트래커
 permalink: /tracker/
 ---
-<div class="section-head">
-  <h1 style="margin:0">루틴 트래커</h1>
-  <span class="small muted">총 <b id="total-days">0</b>일 기록 · <button type="button" class="btn btn-sm" id="export-csv">CSV 내보내기</button></span>
+<div class="page-head">
+  <h1>루틴 트래커</h1>
+  <span class="page-tools">총 <b id="total-days">0</b>일 기록 <button type="button" class="btn btn-sm" id="export-csv">CSV 내보내기</button></span>
 </div>
 <div class="today-bar" id="today-bar" style="margin:.6rem 0 1.4rem"><span class="muted">불러오는 중…</span></div>
 
@@ -19,6 +19,20 @@ permalink: /tracker/
 
 <h2>출근 시간 추이 <span class="small muted" style="font-weight:400">최근 30일</span></h2>
 <div class="card" id="arrive-chart"></div>
+
+<h2>주간 요약 <span class="small muted" style="font-weight:400">이번 주 vs 지난 주</span></h2>
+<div class="card" id="weekly"></div>
+
+<div class="grid grid-2" style="margin-top:2.2rem">
+  <div>
+    <h2 style="margin-top:0">월별 비교 <span class="small muted" style="font-weight:400">최근 6개월</span></h2>
+    <div class="card" id="monthly"></div>
+  </div>
+  <div>
+    <h2 style="margin-top:0">요일별 패턴</h2>
+    <div class="card" id="weekday"></div>
+  </div>
+</div>
 
 <h2>최근 2주 <span class="small muted" style="font-weight:400">행을 누르면 폼에 불러옵니다</span></h2>
 <div class="card" id="recent-log"></div>

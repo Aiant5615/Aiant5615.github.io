@@ -1,11 +1,10 @@
-# 읽을 논문 큐. status: todo | reading | done, review: 리뷰 글 URL (선택)
+# 읽을 논문 큐. status: todo | reading | done. link 가 리뷰 글의 paper.link 와 같으면 자동 연결 (review: 로 직접 지정도 가능)
 - title: Playing Atari with Deep Reinforcement Learning
   authors: Mnih et al.
   venue: NeurIPS Deep Learning Workshop
   year: 2013
   link: https://arxiv.org/abs/1312.5602
   status: done
-  review: /blog/2026/09/07/dqn-atari/
 - title: Human-level control through deep reinforcement learning
   authors: Mnih et al.
   venue: Nature

@@ -4,26 +4,45 @@ title: 논문 리뷰
 permalink: /papers/
 ---
 <h1>논문 리뷰</h1>
-<p class="muted">읽은 논문의 요약과 생각. 리뷰 글은 <code>categories: [paper]</code>로 작성합니다.</p>
+<p class="muted">읽은 논문의 요약과 생각. 리뷰 글은 <code>categories: [paper]</code>, 분야는 <code>tags: [RL, NLP]</code>로 적습니다.</p>
 
 {% assign papers = site.categories.paper %}
 {% if papers and papers.size > 0 %}
-<ul class="post-list">
+{% assign all_tags = "" | split: "" %}
+{% for p in papers %}{% assign all_tags = all_tags | concat: p.tags %}{% endfor %}
+{% assign all_tags = all_tags | uniq | sort %}
+{% if all_tags.size > 0 %}
+<div class="filter-bar">
+  <a class="btn btn-sm" href="#" data-tag="">전체</a>
+  {% for t in all_tags %}<a class="btn btn-sm" href="#{{ t }}" data-tag="{{ t }}">#{{ t }}</a>{% endfor %}
+</div>
+{% endif %}
+<ul class="post-list" id="paper-list">
   {% for post in papers %}
-  <li>
+  <li data-tags="{{ post.tags | join: ' ' }}">
     <time datetime="{{ post.date | date_to_xmlschema }}">{{ post.date | date: "%Y.%m.%d" }}</time>
     <div>
       <a class="t" href="{{ post.url | relative_url }}">{{ post.title }}</a>
       {% if post.rating %}<span class="tag" style="color:var(--warn)">{% for i in (1..post.rating) %}★{% endfor %}</span>{% endif %}
+      {% for t in post.tags %}<span class="tag">#{{ t }}</span>{% endfor %}
       <div class="x">{% if post.paper %}{{ post.paper.authors }}{% if post.paper.venue %} · {{ post.paper.venue }} {{ post.paper.year }}{% endif %}{% else %}{{ post.excerpt | strip_html | strip_newlines | truncate: 120 }}{% endif %}</div>
     </div>
   </li>
   {% endfor %}
 </ul>
+<script>
+(function(){
+  const bar=document.querySelector('.filter-bar'); if(!bar) return; const items=[...document.querySelectorAll('#paper-list li')];
+  function apply(){ const t=location.hash.replace('#',''); items.forEach(li=>{ li.style.display=!t||li.dataset.tags.split(' ').includes(t)?'':'none'; });
+    bar.querySelectorAll('a').forEach(a=>a.classList.toggle('btn-primary',a.dataset.tag===t)); }
+  bar.addEventListener('click',e=>{ const a=e.target.closest('a'); if(!a) return; if(a.dataset.tag===''){ e.preventDefault(); history.replaceState(null,'',location.pathname); apply(); } });
+  window.addEventListener('hashchange',apply); apply();
+})();
+</script>
 {% else %}<div class="empty">아직 리뷰가 없습니다.</div>{% endif %}
 
 <h2>리딩 리스트</h2>
-<p class="small muted">읽을 논문 큐. <code>_data/reading_list.yml</code>에서 관리합니다 (status: todo / reading / done).</p>
+<p class="small muted"><code>_data/reading_list.yml</code>에서 관리합니다 (status: todo / reading / done). 리뷰 글의 <code>paper.link</code>가 같으면 자동으로 연결됩니다.</p>
 {% assign rl = site.data.reading_list %}
 {% if rl and rl.size > 0 %}
 <div class="card">
@@ -31,13 +50,15 @@ permalink: /papers/
 {% for st in order %}
   {% assign items = rl | where: "status", st %}
   {% for r in items %}
+  {% assign review_url = r.review %}
+  {% if review_url == nil and r.link and papers %}{% assign match = papers | where_exp: "p", "p.paper.link == r.link" | first %}{% if match %}{% assign review_url = match.url %}{% endif %}{% endif %}
   <div class="reading-item">
     <span class="status status-{{ st }}">{% if st == "reading" %}읽는 중{% elsif st == "todo" %}읽을 것{% else %}완료{% endif %}</span>
     <div>
       <div class="reading-title">{% if r.link %}<a href="{{ r.link }}" target="_blank" rel="noopener">{{ r.title }}</a>{% else %}{{ r.title }}{% endif %}</div>
       <div class="reading-meta">{{ r.authors }}{% if r.venue %} · {{ r.venue }}{% endif %}{% if r.year %} {{ r.year }}{% endif %}{% if r.why %} — {{ r.why }}{% endif %}</div>
     </div>
-    <div class="small">{% if r.review %}<a href="{{ r.review | relative_url }}">리뷰 →</a>{% endif %}</div>
+    <div class="small">{% if review_url %}<a href="{{ review_url | relative_url }}">리뷰 →</a>{% endif %}</div>
   </div>
   {% endfor %}
 {% endfor %}

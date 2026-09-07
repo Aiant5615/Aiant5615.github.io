@@ -1,0 +1,60 @@
+name: 기록 반영 (Issue → _data/days)
+
+on:
+  issues:
+    types: [opened, edited]
+
+permissions:
+  contents: write
+  issues: write
+  pages: write
+
+jobs:
+  log:
+    # 저장소 소유자가 만든 'log' 라벨 이슈만 처리 (공개 저장소라 남이 만든 이슈는 무시)
+    if: >-
+      github.event.issue.user.login == github.repository_owner &&
+      (contains(github.event.issue.labels.*.name, 'log') || startsWith(github.event.issue.title, 'log'))
+    runs-on: ubuntu-latest
+    env:
+      GH_TOKEN: ${{ github.token }}
+      ISSUE_NUMBER: ${{ github.event.issue.number }}
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Issue 본문을 YAML 파일로 변환
+        id: parse
+        env:
+          ISSUE_BODY: ${{ github.event.issue.body }}
+          ISSUE_TITLE: ${{ github.event.issue.title }}
+        run: python3 scripts/issue_to_log.py
+
+      - name: 커밋 & 푸시
+        if: steps.parse.outputs.ok == 'true'
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add _data/days
+          if git diff --cached --quiet; then echo "변경 없음"; else
+            git commit -m "log: ${{ steps.parse.outputs.date }} (#${ISSUE_NUMBER})"
+            git push
+          fi
+
+      - name: Pages 빌드 요청
+        if: steps.parse.outputs.ok == 'true'
+        run: gh api -X POST "repos/${{ github.repository }}/pages/builds" >/dev/null && echo "빌드 요청됨" || echo "빌드 요청 실패 (push 로 자동 빌드될 수 있음)"
+
+      - name: 이슈에 결과 남기고 닫기
+        if: always() && steps.parse.outcome != 'skipped'
+        env:
+          OK: ${{ steps.parse.outputs.ok }}
+          DATE: ${{ steps.parse.outputs.date }}
+          ERR: ${{ steps.parse.outputs.error }}
+        run: |
+          if [ "$OK" = "true" ]; then
+            body=$(printf '✅ `_data/days/%s.yml` 저장됨. 1~2분 뒤 https://aiant5615.github.io/tracker/ 에 반영됩니다.\n\n```yaml\n%s\n```' "$DATE" "$(cat "_data/days/$DATE.yml")")
+            gh issue comment "$ISSUE_NUMBER" --repo "${{ github.repository }}" --body "$body"
+            gh issue close "$ISSUE_NUMBER" --repo "${{ github.repository }}" --reason completed
+          else
+            gh issue comment "$ISSUE_NUMBER" --repo "${{ github.repository }}" --body "❌ 저장 실패: $ERR — 이슈를 수정(Edit)하면 다시 시도합니다."
+          fi

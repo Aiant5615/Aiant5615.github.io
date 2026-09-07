@@ -14,7 +14,8 @@ permalink: /about/
 
 ## 관심 분야
 
-- 강화학습 (MAB, DQN, Policy/Value Iteration)
+<!-- TODO: 직접 채워 주세요 -->
+- 강화학습
 - 자연어 처리
 
 ## 연락
