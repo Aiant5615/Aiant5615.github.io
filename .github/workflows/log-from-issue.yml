@@ -7,7 +7,6 @@ on:
 permissions:
   contents: write
   issues: write
-  pages: write
 
 jobs:
   # log issues opened by anyone other than the owner: save nothing, close immediately
@@ -58,9 +57,6 @@ jobs:
             git push
           fi
 
-      - name: Request a Pages build
-        if: steps.parse.outputs.ok == 'true'
-        run: gh api -X POST "repos/${{ github.repository }}/pages/builds" >/dev/null && echo "build requested" || echo "build request failed (the push may trigger one anyway)"
 
       - name: Comment on the issue and close it
         if: always() && steps.parse.outcome != 'skipped'

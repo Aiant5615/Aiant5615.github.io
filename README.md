@@ -27,6 +27,14 @@ done: [english, coding, paper]
 note: "one-line retro"
 ```
 
+## LeetCode
+
+Solutions live in a separate repo, [Aiant5615/leetcode](https://github.com/Aiant5615/leetcode), one folder per problem
+(`0001-two-sum/0001-two-sum.{c,cpp,py}`). The [LeetHub](https://github.com/raphaelheinz/LeetHub-3.0) extension pushes every
+accepted submission there. `.github/workflows/sync-leetcode.yml` pulls that repo hourly (or on demand from the Actions tab),
+writes `_data/leetcode.json`, and checks the `coding` habit for each day a solution was first committed. The `/leetcode/` page
+shows stats, a daily heatmap, and the code for each language.
+
 ## Layout
 
 | Path | Purpose |
@@ -38,7 +46,9 @@ note: "one-line retro"
 | `_drafts/` | Not built. Contains two post templates |
 | `_config.yml` | Site info, `tracker.habits`, `arrive_goal`, `skip_weekends` |
 | `.github/ISSUE_TEMPLATE/log.yml` | The phone logging form |
-| `.github/workflows/log-from-issue.yml` | Issue → YAML → commit → Pages build → close issue |
+| `.github/workflows/log-from-issue.yml` | Issue → YAML → commit → close issue |
+| `.github/workflows/sync-leetcode.yml` | Hourly: leetcode repo → `_data/leetcode.json` + `coding` habit |
+| `scripts/sync_leetcode.py` | The converter used by that workflow |
 | `scripts/log.py`, `scripts/issue_to_log.py` | Terminal logger / Action converter |
 
 ## Tracker settings
