@@ -298,3 +298,19 @@ details.more > summary { cursor: pointer; color: var(--muted); font-size: .88rem
 
 button.chip.quick { font: inherit; }
 button.chip.quick:disabled { opacity: .6; cursor: wait; }
+
+/* ───────── clock-face picker ───────── */
+.tpick-modal { position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%); z-index: 60; }
+.tp-backdrop { position: fixed; inset: 0; background: rgba(0,0,0,.4); z-index: 55; }
+.tp-title { font-weight: 600; margin-bottom: .2rem; }
+.tp-seg { font: inherit; font-size: 1.6rem; font-weight: 700; background: none; border: 0; padding: 0 .1rem; cursor: pointer; color: var(--muted); font-variant-numeric: tabular-nums; }
+.tp-seg.on { color: var(--accent); }
+.tp-colon { font-size: 1.4rem; font-weight: 700; color: var(--muted); }
+.tp-clock { display: block; margin: .3rem auto; touch-action: none; cursor: pointer; user-select: none; -webkit-user-select: none; }
+.tp-face { fill: var(--surface-2); }
+.tp-hand { stroke: var(--accent); stroke-width: 2; }
+.tp-knob { fill: var(--accent); }
+.tp-center { fill: var(--accent); }
+.tp-num { font-size: 13px; fill: var(--text); text-anchor: middle; dominant-baseline: central; pointer-events: none; font-variant-numeric: tabular-nums; }
+.tp-num.on { fill: #fff; font-weight: 700; }
+.tp-hint { text-align: center; margin: 0 0 .4rem; }

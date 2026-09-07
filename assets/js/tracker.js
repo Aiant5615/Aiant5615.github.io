@@ -318,40 +318,60 @@
     root.querySelectorAll("tr[data-k]").forEach(tr => tr.addEventListener("click", () => fillForm(tr.dataset.k)));
   }
 
-  // ───────── time field + picker (12-hour, AM/PM) ─────────
-  const timeField = n => `<div class="timefield"><input id="tr-${n}" type="text" name="${n}" inputmode="text" autocomplete="off" placeholder="h:mm AM"><button type="button" class="clock" data-for="${n}" aria-label="Pick a time">🕒</button></div>`;
+  // ───────── time field + clock-face picker (12-hour, AM/PM) ─────────
+  const timeField = n => `<div class="timefield"><input id="tr-${n}" type="text" name="${n}" autocomplete="off" placeholder="h:mm AM"><button type="button" class="clock" data-for="${n}" aria-label="Pick a time">🕒</button></div>`;
   let picker = null;
-  function openPicker(input) {
-    if (picker && picker.input === input) return closePicker();
+  function closePicker() { if (!picker) return; picker.el.remove(); if (picker.backdrop) picker.backdrop.remove(); picker = null; document.removeEventListener("click", outsideClick); }
+  function outsideClick(ev) { if (!picker || !ev.target.isConnected) return; if (!picker.el.contains(ev.target) && !ev.target.closest(".clock")) closePicker(); }
+  // opts: { initial: minutes|null, anchor: input (popover) — or omitted for a centered modal, title, allowClear, doneLabel, onDone(minutes|null) }
+  function openClock(opts) {
     closePicker();
-    const cur = parseTime(input.value) ?? (new Date().getHours() * 60 + Math.round(new Date().getMinutes() / 5) * 5) % 1440;
-    let h = Math.floor(cur / 60), mi = Math.round(cur % 60 / 5) * 5 % 60;
-    const box = el("div", { class: "tpick", role: "dialog" });
-    box.input = input;
+    const nowMin = () => { const d = new Date(); return d.getHours() * 60 + d.getMinutes(); };
+    const start = opts.initial ?? nowMin();
+    let h = Math.floor(start / 60) % 24, mi = start % 60, mode = "h", dragging = false;
+    const R = 100, S = 2 * R + 16, C = S / 2;
+    const pos = (deg, r) => [C + r * Math.sin(deg * Math.PI / 180), C - r * Math.cos(deg * Math.PI / 180)];
+    const box = el("div", { class: "tpick" + (opts.anchor ? "" : " tpick-modal"), role: "dialog", "aria-label": opts.title || "Pick a time" });
     const render = () => {
       const ap = h < 12 ? "AM" : "PM", h12 = h % 12 || 12;
-      box.innerHTML = `<div class="tp-row"><span class="tp-cur">${h12}:${pad(mi)} ${ap}</span><span class="seg"><button type="button" data-ap="AM" class="${ap === "AM" ? "on" : ""}">AM</button><button type="button" data-ap="PM" class="${ap === "PM" ? "on" : ""}">PM</button></span></div>
-        <div class="tp-label">Hour</div><div class="tp-grid">${[12, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11].map(x => `<button type="button" data-h="${x}" class="${x === h12 ? "on" : ""}">${x}</button>`).join("")}</div>
-        <div class="tp-label">Minute</div><div class="tp-grid">${[0, 5, 10, 15, 20, 25, 30, 35, 40, 45, 50, 55].map(x => `<button type="button" data-m="${x}" class="${x === mi ? "on" : ""}">:${pad(x)}</button>`).join("")}</div>
-        <div class="tp-row"><button type="button" class="btn btn-sm" data-now>Now</button><span><button type="button" class="btn btn-sm" data-clear>Clear</button> <button type="button" class="btn btn-sm btn-primary" data-done>Done</button></span></div>`;
+      const sel = mode === "h" ? (h % 12) * 30 : mi * 6, [hx, hy] = pos(sel, 76);
+      const labels = mode === "h" ? [12, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11].map((n, i) => ({ t: n, deg: i * 30, on: n === h12 }))
+                                  : [0, 5, 10, 15, 20, 25, 30, 35, 40, 45, 50, 55].map(n => ({ t: pad(n), deg: n * 6, on: n === mi }));
+      box.innerHTML = `${opts.title ? `<div class="tp-title">${esc(opts.title)}</div>` : ""}
+        <div class="tp-row"><span class="tp-cur"><button type="button" class="tp-seg ${mode === "h" ? "on" : ""}" data-mode="h" aria-label="Hour">${h12}</button><span class="tp-colon">:</span><button type="button" class="tp-seg ${mode === "m" ? "on" : ""}" data-mode="m" aria-label="Minute">${pad(mi)}</button></span>
+          <span class="seg"><button type="button" data-ap="AM" class="${ap === "AM" ? "on" : ""}">AM</button><button type="button" data-ap="PM" class="${ap === "PM" ? "on" : ""}">PM</button></span></div>
+        <svg class="tp-clock" viewBox="0 0 ${S} ${S}" width="${S}" height="${S}">
+          <circle cx="${C}" cy="${C}" r="${R}" class="tp-face"/>
+          <line x1="${C}" y1="${C}" x2="${hx}" y2="${hy}" class="tp-hand"/>
+          <circle cx="${hx}" cy="${hy}" r="17" class="tp-knob"/>
+          <circle cx="${C}" cy="${C}" r="3.5" class="tp-center"/>
+          ${labels.map(l => { const [x, y] = pos(l.deg, 76); return `<text x="${x}" y="${y}" class="tp-num ${l.on ? "on" : ""}">${l.t}</text>`; }).join("")}
+        </svg>
+        <div class="tp-hint muted small">${mode === "h" ? "Tap or drag to pick the hour" : "Tap or drag to pick the minute"}</div>
+        <div class="tp-row"><span>${opts.allowClear ? `<button type="button" class="btn btn-sm" data-clear>Clear</button> ` : ""}<button type="button" class="btn btn-sm" data-now>Now</button></span><span><button type="button" class="btn btn-sm" data-cancel>Cancel</button> <button type="button" class="btn btn-sm btn-primary" data-done>${esc(opts.doneLabel || "Done")}</button></span></div>`;
     };
-    const apply = () => { input.value = fmt12(h * 60 + mi); input.classList.remove("bad"); input.dispatchEvent(new Event("input", { bubbles: true })); };
+    const degFrom = ev => { const r = box.querySelector("svg").getBoundingClientRect(); const x = (ev.clientX - r.left) * S / r.width - C, y = (ev.clientY - r.top) * S / r.height - C; let d = Math.atan2(x, -y) * 180 / Math.PI; return d < 0 ? d + 360 : d; };
+    const setFrom = ev => { const d = degFrom(ev); if (mode === "h") h = Math.round(d / 30) % 12 + (h >= 12 ? 12 : 0); else mi = Math.round(d / 6) % 60; render(); };
+    box.addEventListener("pointerdown", ev => { if (!ev.target.closest("svg")) return; ev.preventDefault(); dragging = true; setFrom(ev); });
+    box.addEventListener("pointermove", ev => { if (dragging) setFrom(ev); });
+    const endDrag = () => { if (!dragging) return; dragging = false; if (mode === "h") { mode = "m"; render(); } };
+    box.addEventListener("pointerup", endDrag); box.addEventListener("pointercancel", endDrag);
     box.addEventListener("click", ev => {
-      ev.stopPropagation();   // re-rendering detaches the clicked button; don't let the document handler treat it as an outside click
+      ev.stopPropagation();
       const b = ev.target.closest("button"); if (!b) return;
-      if (b.dataset.ap) { h = h % 12 + (b.dataset.ap === "PM" ? 12 : 0); apply(); render(); }
-      else if (b.dataset.h) { h = (+b.dataset.h % 12) + (h >= 12 ? 12 : 0); apply(); render(); }
-      else if (b.dataset.m) { mi = +b.dataset.m; apply(); render(); closePicker(); }
-      else if (b.hasAttribute("data-now")) { const d = new Date(); h = d.getHours(); mi = d.getMinutes(); apply(); closePicker(); }
-      else if (b.hasAttribute("data-clear")) { input.value = ""; input.dispatchEvent(new Event("input", { bubbles: true })); closePicker(); }
-      else if (b.hasAttribute("data-done")) { apply(); closePicker(); }
+      if (b.dataset.mode) { mode = b.dataset.mode; render(); }
+      else if (b.dataset.ap) { h = h % 12 + (b.dataset.ap === "PM" ? 12 : 0); render(); }
+      else if (b.hasAttribute("data-now")) { const n = nowMin(); h = Math.floor(n / 60); mi = n % 60; mode = "m"; render(); }
+      else if (b.hasAttribute("data-clear")) { closePicker(); opts.onDone(null); }
+      else if (b.hasAttribute("data-cancel")) closePicker();
+      else if (b.hasAttribute("data-done")) { closePicker(); opts.onDone(h * 60 + mi); }
     });
     render();
-    input.closest(".timefield").appendChild(box); picker = box;
-    setTimeout(() => document.addEventListener("click", outside), 0);
+    if (opts.anchor) { opts.anchor.closest(".timefield").appendChild(box); picker = { el: box }; }
+    else { const bd = el("div", { class: "tp-backdrop" }); bd.addEventListener("click", closePicker); document.body.appendChild(bd); document.body.appendChild(box); picker = { el: box, backdrop: bd }; }
+    setTimeout(() => document.addEventListener("click", outsideClick), 0);
   }
-  function outside(ev) { if (picker && !picker.contains(ev.target) && !ev.target.closest(".clock")) closePicker(); }
-  function closePicker() { if (picker) { picker.remove(); picker = null; document.removeEventListener("click", outside); } }
+  const fieldClock = input => openClock({ initial: parseTime(input.value), anchor: input, allowClear: true, onDone: m => { input.value = m == null ? "" : fmt12(m); input.classList.remove("bad"); input.dispatchEvent(new Event("input", { bubbles: true })); } });
 
   // ───────── GitHub connection (token stored only in this browser) ─────────
   const TOKEN_KEY = "gh_token", USER_KEY = "gh_user", PENDING_KEY = "tracker_pending";
@@ -418,27 +438,30 @@
 
   // ───────── quick log: one item at a time, merged into today's entry ─────────
   function renderQuick(root) {
-    const t = get(TODAY_KEY);
-    const now = () => { const d = new Date(); return fmtMin(d.getHours() * 60 + d.getMinutes()); };
+    const t = get(TODAY_KEY), direct = !!token();
     const issue = fields => { const q = new URLSearchParams({ template: CFG.issueTemplate || "log.yml", title: `log: ${TODAY_KEY}`, date: TODAY_KEY, ...fields }); return `https://github.com/${REPO}/issues/new?${q}`; };
-    const direct = !!token();
-    const btn = (label, fields, on, title) => direct
-      ? `<button type="button" class="chip quick ${on ? "on" : ""}" data-fields='${esc(JSON.stringify(fields))}' title="${esc(title || "")}">${label}</button>`
-      : `<a class="chip quick ${on ? "on" : ""}" href="${issue(fields)}" target="_blank" rel="noopener" title="${esc(title || "")}">${label}</a>`;
-    let html = btn(`🏢 ${t && t.arrive != null ? `In at ${fmt12(t.arrive)}` : "Arrived now"}`, { arrive: now() }, !!(t && t.arrive != null), "Saves the current time as today's arrival");
-    html += btn(`🚪 ${t && t.leave != null ? `Out at ${fmt12(t.leave)}` : "Leaving now"}`, { leave: now() }, !!(t && t.leave != null), "Saves the current time as today's departure");
+    const btn = (label, fields, on, title, kind) => `<button type="button" class="chip quick ${on ? "on" : ""}" data-fields='${esc(JSON.stringify(fields))}' ${kind ? `data-kind="${kind}"` : ""} title="${esc(title || "")}">${label}</button>`;
+    let html = btn(`🏢 ${t && t.arrive != null ? `In at ${fmt12(t.arrive)}` : "Arrived at…"}`, { arrive: "" }, !!(t && t.arrive != null), "Pick today's arrival time", "arrive");
+    html += btn(`🚪 ${t && t.leave != null ? `Out at ${fmt12(t.leave)}` : "Left at…"}`, { leave: "" }, !!(t && t.leave != null), "Pick today's departure time", "leave");
     HABITS.forEach(h => { const on = !!(t && t.done.has(h.key)); html += btn(`${on ? "✓" : "+"} ${h.emoji} ${esc(h.label)}`, { done: h.key }, on, on ? "Already logged today" : `Mark ${h.label} done today`); });
     const note = direct
-      ? `Each button saves just that item straight to GitHub and merges it into today's entry. Times are taken when you click. The site catches up a minute or two later.`
+      ? `Each button saves just that item straight to GitHub and merges it into today's entry. The arrival and departure buttons open a clock to pick the time (it starts at now). The site catches up a minute or two later.`
       : `Each button opens the GitHub issue form (new tab) with just that item filled in; press <b>Submit</b> there. Connect GitHub below to save without leaving this page.`;
     root.innerHTML = `<div class="today-bar">${html}</div><p class="small muted" style="margin:.5rem 0 0" id="quick-status">${note}</p>`;
-    if (direct) root.querySelectorAll("button.quick").forEach(b => b.addEventListener("click", async () => {
-      const fields = JSON.parse(b.dataset.fields); const status = root.querySelector("#quick-status");
-      if (fields.arrive) fields.arrive = now(); if (fields.leave) fields.leave = now();   // time of the click, not of page load
+    const status = () => root.querySelector("#quick-status");
+    const refresh = () => { renderQuick(root); if (document.getElementById("today-bar")) renderToday(document.getElementById("today-bar")); const st = document.getElementById("stats"); if (st && !st.hidden) renderStats(st); if (form) fillForm(TODAY_KEY, true); };
+    async function submit(fields, b) {
+      if (!direct) { window.open(issue(fields), "_blank", "noopener"); return; }
       b.disabled = true; b.textContent = "Saving…";
-      try { const url = await saveDirect(fields); status.innerHTML = `✓ Saved — <a href="${url}" target="_blank" rel="noopener">issue</a> created; the page reflects it now and syncs fully in a minute or two.`; }
-      catch (e) { status.innerHTML = `<span style="color:var(--danger)">Save failed: ${esc(e.message)}.</span> ${e.status === 401 || e.status === 403 ? "Check the token's permissions or reconnect below." : "Try again, or use the issue form."}`; }
-      renderQuick(root); if (document.getElementById("today-bar")) renderToday(document.getElementById("today-bar")); if (document.getElementById("stats") && !document.getElementById("stats").hidden) renderStats(document.getElementById("stats")); if (form) fillForm(TODAY_KEY, true);
+      try { const url = await saveDirect(fields); refresh(); root.querySelector("#quick-status").innerHTML = `✓ Saved — <a href="${url}" target="_blank" rel="noopener">issue</a> created; the page reflects it now and syncs fully in a minute or two.`; }
+      catch (e) { refresh(); root.querySelector("#quick-status").innerHTML = `<span style="color:var(--danger)">Save failed: ${esc(e.message)}.</span> ${e.status === 401 || e.status === 403 ? "Check the token's permissions or reconnect below." : "Try again, or use the issue form."}`; }
+    }
+    root.querySelectorAll("button.quick").forEach(b => b.addEventListener("click", () => {
+      const fields = JSON.parse(b.dataset.fields), kind = b.dataset.kind;
+      if (kind) {
+        const cur = t && t[kind] != null ? t[kind] : null;
+        openClock({ title: kind === "arrive" ? "Arrived at" : "Left at", initial: cur, doneLabel: direct ? "Save" : "Continue", onDone: m => { if (m == null) return; submit({ [kind]: fmtMin(m) }, b); } });
+      } else submit(fields, b);
     }));
   }
 
@@ -477,7 +500,7 @@
       i.addEventListener("blur", () => { const m = parseTime(i.value); if (m != null) i.value = fmt12(m); else if (i.value.trim()) i.classList.add("bad"); update(); });
       i.addEventListener("input", () => i.classList.remove("bad"));
     });
-    root.querySelectorAll(".timefield .clock").forEach(b => b.addEventListener("click", () => openPicker(root.querySelector(`[name=${b.dataset.for}]`))));
+    root.querySelectorAll(".timefield .clock").forEach(b => b.addEventListener("click", () => fieldClock(root.querySelector(`[name=${b.dataset.for}]`))));
     root.querySelectorAll(".check input").forEach(i => i.addEventListener("change", () => { i.closest(".check").classList.toggle("on", i.checked); update(); }));
     root.querySelectorAll("input,textarea,select").forEach(i => i.addEventListener("input", update));
     root.querySelector("[name=date]").addEventListener("change", ev => { const e = get(ev.target.value); if (e) fillForm(ev.target.value, true); else update(); });
