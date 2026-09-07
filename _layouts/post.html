@@ -1,0 +1,41 @@
+---
+layout: default
+---
+<article class="post">
+  <header class="post-header">
+    <div class="post-meta">
+      <time datetime="{{ page.date | date_to_xmlschema }}">{{ page.date | date: "%Y.%m.%d" }}</time>
+      {% for c in page.categories %}<a class="tag" href="{{ '/blog/#' | append: c | relative_url }}">{{ c }}</a>{% endfor %}
+    </div>
+    <h1 class="post-title">{{ page.title }}</h1>
+  </header>
+
+  {% if page.paper %}
+  <aside class="paper-card">
+    <div class="paper-card-label">Paper</div>
+    <div class="paper-card-title">{{ page.paper.title }}</div>
+    <div class="paper-card-meta">
+      {% if page.paper.authors %}{{ page.paper.authors }}{% endif %}
+      {% if page.paper.venue %} · {{ page.paper.venue }}{% endif %}
+      {% if page.paper.year %} {{ page.paper.year }}{% endif %}
+    </div>
+    {% if page.paper.link %}<a class="paper-card-link" href="{{ page.paper.link }}" target="_blank" rel="noopener">원문 보기 ↗</a>{% endif %}
+    {% if page.rating %}<div class="paper-card-rating">{% for i in (1..5) %}{% if i <= page.rating %}★{% else %}☆{% endif %}{% endfor %}</div>{% endif %}
+  </aside>
+  {% endif %}
+
+  <div class="post-content">
+    {{ content }}
+  </div>
+
+  <footer class="post-footer">
+    <a href="{{ '/blog/' | relative_url }}">← 글 목록</a>
+  </footer>
+</article>
+
+{% if page.math %}
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.css">
+<script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.js"></script>
+<script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/contrib/auto-render.min.js"
+  onload="renderMathInElement(document.body,{delimiters:[{left:'$$',right:'$$',display:true},{left:'$',right:'$',display:false}]});"></script>
+{% endif %}

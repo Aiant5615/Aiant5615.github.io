@@ -1,0 +1,11 @@
+# 주간 목표. 맨 마지막 항목이 홈에 표시됩니다.
+- week: 2026-W37
+  goals:
+    - text: 논문 리뷰 1편 작성
+      done: false
+    - text: 영어 공부 5일 이상
+      done: false
+    - text: 9시 이전 출근 4일 이상
+      done: false
+    - text: DQN 실습 코드 정리
+      done: false

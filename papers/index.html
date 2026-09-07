@@ -1,0 +1,45 @@
+---
+layout: default
+title: 논문 리뷰
+permalink: /papers/
+---
+<h1>논문 리뷰</h1>
+<p class="muted">읽은 논문의 요약과 생각. 리뷰 글은 <code>categories: [paper]</code>로 작성합니다.</p>
+
+{% assign papers = site.categories.paper %}
+{% if papers and papers.size > 0 %}
+<ul class="post-list">
+  {% for post in papers %}
+  <li>
+    <time datetime="{{ post.date | date_to_xmlschema }}">{{ post.date | date: "%Y.%m.%d" }}</time>
+    <div>
+      <a class="t" href="{{ post.url | relative_url }}">{{ post.title }}</a>
+      {% if post.rating %}<span class="tag" style="color:var(--warn)">{% for i in (1..post.rating) %}★{% endfor %}</span>{% endif %}
+      <div class="x">{% if post.paper %}{{ post.paper.authors }}{% if post.paper.venue %} · {{ post.paper.venue }} {{ post.paper.year }}{% endif %}{% else %}{{ post.excerpt | strip_html | strip_newlines | truncate: 120 }}{% endif %}</div>
+    </div>
+  </li>
+  {% endfor %}
+</ul>
+{% else %}<div class="empty">아직 리뷰가 없습니다.</div>{% endif %}
+
+<h2>리딩 리스트</h2>
+<p class="small muted">읽을 논문 큐. <code>_data/reading_list.yml</code>에서 관리합니다 (status: todo / reading / done).</p>
+{% assign rl = site.data.reading_list %}
+{% if rl and rl.size > 0 %}
+<div class="card">
+{% assign order = "reading,todo,done" | split: "," %}
+{% for st in order %}
+  {% assign items = rl | where: "status", st %}
+  {% for r in items %}
+  <div class="reading-item">
+    <span class="status status-{{ st }}">{% if st == "reading" %}읽는 중{% elsif st == "todo" %}읽을 것{% else %}완료{% endif %}</span>
+    <div>
+      <div class="reading-title">{% if r.link %}<a href="{{ r.link }}" target="_blank" rel="noopener">{{ r.title }}</a>{% else %}{{ r.title }}{% endif %}</div>
+      <div class="reading-meta">{{ r.authors }}{% if r.venue %} · {{ r.venue }}{% endif %}{% if r.year %} {{ r.year }}{% endif %}{% if r.why %} — {{ r.why }}{% endif %}</div>
+    </div>
+    <div class="small">{% if r.review %}<a href="{{ r.review | relative_url }}">리뷰 →</a>{% endif %}</div>
+  </div>
+  {% endfor %}
+{% endfor %}
+</div>
+{% else %}<div class="empty">리딩 리스트가 비어 있습니다.</div>{% endif %}

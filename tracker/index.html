@@ -1,0 +1,26 @@
+---
+layout: default
+title: 루틴 트래커
+permalink: /tracker/
+---
+<div class="section-head">
+  <h1 style="margin:0">루틴 트래커</h1>
+  <span class="small muted">총 <b id="total-days">0</b>일 기록 · <button type="button" class="btn btn-sm" id="export-csv">CSV 내보내기</button></span>
+</div>
+<div class="today-bar" id="today-bar" style="margin:.6rem 0 1.4rem"><span class="muted">불러오는 중…</span></div>
+
+<div id="stats"></div>
+
+<h2 id="log">오늘 기록하기</h2>
+<div class="card" id="log-form"></div>
+
+<div class="section-head"><h2>히트맵 <span class="small muted" style="font-weight:400">최근 26주</span></h2><div id="heatmap-select"></div></div>
+<div class="card" id="heatmap"></div>
+
+<h2>출근 시간 추이 <span class="small muted" style="font-weight:400">최근 30일</span></h2>
+<div class="card" id="arrive-chart"></div>
+
+<h2>최근 2주 <span class="small muted" style="font-weight:400">행을 누르면 폼에 불러옵니다</span></h2>
+<div class="card" id="recent-log"></div>
+
+{% include tracker-data.html %}

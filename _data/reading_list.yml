@@ -1,0 +1,27 @@
+# 읽을 논문 큐. status: todo | reading | done, review: 리뷰 글 URL (선택)
+- title: Playing Atari with Deep Reinforcement Learning
+  authors: Mnih et al.
+  venue: NeurIPS Deep Learning Workshop
+  year: 2013
+  link: https://arxiv.org/abs/1312.5602
+  status: done
+  review: /blog/2026/09/07/dqn-atari/
+- title: Human-level control through deep reinforcement learning
+  authors: Mnih et al.
+  venue: Nature
+  year: 2015
+  link: https://www.nature.com/articles/nature14236
+  status: reading
+  why: 타깃 네트워크가 추가된 DQN 본편
+- title: Proximal Policy Optimization Algorithms
+  authors: Schulman et al.
+  year: 2017
+  link: https://arxiv.org/abs/1707.06347
+  status: todo
+  why: 정책 기반 방법 기초
+- title: Attention Is All You Need
+  authors: Vaswani et al.
+  venue: NeurIPS
+  year: 2017
+  link: https://arxiv.org/abs/1706.03762
+  status: todo

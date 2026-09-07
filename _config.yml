@@ -1,0 +1,62 @@
+# ── 사이트 기본 정보 ─────────────────────────────────────────
+title: 승원의 연구 일지
+description: 대학원 생활 기록 — 논문 리뷰, 공부 루틴, 출근 시간 트래킹
+author: 국승원
+url: "https://aiant5615.github.io"
+baseurl: ""
+lang: ko
+timezone: Asia/Seoul
+
+# GitHub 저장소 (트래커 "GitHub에 저장" 버튼이 사용)
+github_repo: Aiant5615/Aiant5615.github.io
+github_branch: main
+
+# ── 트래커 설정 ─────────────────────────────────────────────
+# habits: 매일 체크할 항목. key는 _data/days/*.yml 의 done: 리스트에 들어갑니다.
+tracker:
+  arrive_goal: "09:00"      # 목표 출근 시간
+  habits:
+    - key: english
+      label: 영어 공부
+      emoji: "🇬🇧"
+    - key: coding
+      label: 코딩
+      emoji: "💻"
+    - key: paper
+      label: 논문 읽기
+      emoji: "📄"
+    - key: exercise
+      label: 운동
+      emoji: "🏃"
+
+# ── Jekyll 설정 ─────────────────────────────────────────────
+markdown: kramdown
+kramdown:
+  input: GFM
+  syntax_highlighter: rouge
+permalink: /blog/:year/:month/:day/:title/
+paginate_path: none
+
+plugins:
+  - jekyll-feed
+  - jekyll-seo-tag
+
+defaults:
+  - scope:
+      path: ""
+      type: posts
+    values:
+      layout: post
+  - scope:
+      path: ""
+    values:
+      layout: page
+
+exclude:
+  - scripts
+  - README.md
+  - Gemfile
+  - Gemfile.lock
+  - vendor
+  - .venv
+  - node_modules

@@ -1,0 +1,32 @@
+---
+layout: default
+title: 블로그
+permalink: /blog/
+---
+<h1>블로그</h1>
+<div class="filter-bar">
+  <a class="btn btn-sm" href="#" data-cat="">전체</a>
+  {% for cat in site.categories %}<a class="btn btn-sm" href="#{{ cat[0] }}" data-cat="{{ cat[0] }}">{{ cat[0] }} <span class="muted">{{ cat[1].size }}</span></a>{% endfor %}
+</div>
+{% if site.posts.size > 0 %}
+<ul class="post-list" id="post-list">
+  {% for post in site.posts %}
+  <li data-cats="{{ post.categories | join: ' ' }}">
+    <time datetime="{{ post.date | date_to_xmlschema }}">{{ post.date | date: "%Y.%m.%d" }}</time>
+    <div>
+      <a class="t" href="{{ post.url | relative_url }}">{{ post.title }}</a>{% for c in post.categories %}<span class="tag">{{ c }}</span>{% endfor %}
+      <div class="x">{{ post.excerpt | strip_html | strip_newlines | truncate: 140 }}</div>
+    </div>
+  </li>
+  {% endfor %}
+</ul>
+{% else %}<div class="empty">아직 글이 없습니다. <code>_posts/</code>에 마크다운 파일을 추가하세요.</div>{% endif %}
+<script>
+(function(){
+  const bar=document.querySelector('.filter-bar'), items=[...document.querySelectorAll('#post-list li')];
+  function apply(){ const c=location.hash.replace('#',''); items.forEach(li=>{ li.style.display=!c||li.dataset.cats.split(' ').includes(c)?'':'none'; });
+    bar.querySelectorAll('a').forEach(a=>a.classList.toggle('btn-primary',a.dataset.cat===c)); }
+  bar.addEventListener('click',e=>{ const a=e.target.closest('a'); if(!a) return; if(a.dataset.cat===''){ e.preventDefault(); history.replaceState(null,'',location.pathname); apply(); } });
+  window.addEventListener('hashchange',apply); apply();
+})();
+</script>

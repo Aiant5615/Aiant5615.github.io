@@ -1,0 +1,10 @@
+<script>
+  window.TRACKER_DATA = {{ site.data.days | jsonify }};
+  window.TRACKER_CONFIG = {
+    habits: {{ site.tracker.habits | jsonify }},
+    arriveGoal: {{ site.tracker.arrive_goal | jsonify }},
+    repo: {{ site.github_repo | jsonify }},
+    branch: {{ site.github_branch | default: "main" | jsonify }}
+  };
+</script>
+<script src="{{ '/assets/js/tracker.js' | relative_url }}"></script>

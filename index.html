@@ -1,0 +1,56 @@
+---
+layout: default
+title: 홈
+---
+<section class="hero">
+  <h1>{{ site.title }}</h1>
+  <p>{{ site.description }}</p>
+</section>
+
+<div class="card">
+  <div class="section-head"><h3 style="margin:0">오늘</h3><a class="small" href="{{ '/tracker/' | relative_url }}">트래커 전체 보기 →</a></div>
+  <div class="today-bar" id="today-bar" style="margin-top:.6rem"><span class="muted">불러오는 중…</span></div>
+</div>
+
+{% assign goals = site.data.goals %}
+{% if goals and goals.size > 0 %}
+{% assign g = goals | last %}
+<div class="grid grid-2" style="margin-top:.9rem">
+  <div class="card">
+    <div class="section-head"><h3 style="margin:0">이번 주 목표</h3><span class="small muted">{{ g.week }}</span></div>
+    <ul class="goal-list" style="margin-top:.5rem">
+      {% for item in g.goals %}<li class="{% if item.done %}done{% endif %}"><span class="box">{% if item.done %}✓{% endif %}</span><span>{{ item.text }}</span></li>{% endfor %}
+    </ul>
+    <p class="small muted" style="margin:.6rem 0 0">수정: <code>_data/goals.yml</code></p>
+  </div>
+  <div class="card">
+    <div class="section-head"><h3 style="margin:0">읽는 중</h3><a class="small" href="{{ '/papers/' | relative_url }}">리딩 리스트 →</a></div>
+    {% assign reading = site.data.reading_list | where: "status", "reading" %}
+    {% if reading.size > 0 %}
+      {% for r in reading limit: 4 %}
+      <div class="reading-item" style="grid-template-columns:1fr">
+        <div><div class="reading-title">{% if r.link %}<a href="{{ r.link }}" target="_blank" rel="noopener">{{ r.title }}</a>{% else %}{{ r.title }}{% endif %}</div>
+        <div class="reading-meta">{{ r.authors }}{% if r.venue %} · {{ r.venue }}{% endif %}</div></div>
+      </div>
+      {% endfor %}
+    {% else %}<div class="empty">지금 읽는 논문이 없습니다.</div>{% endif %}
+  </div>
+</div>
+{% endif %}
+
+<div class="section-head"><h2>최근 글</h2><a class="small" href="{{ '/blog/' | relative_url }}">전체 →</a></div>
+{% if site.posts.size > 0 %}
+<ul class="post-list">
+  {% for post in site.posts limit: 6 %}
+  <li>
+    <time datetime="{{ post.date | date_to_xmlschema }}">{{ post.date | date: "%Y.%m.%d" }}</time>
+    <div>
+      <a class="t" href="{{ post.url | relative_url }}">{{ post.title }}</a>{% for c in post.categories %}<span class="tag">{{ c }}</span>{% endfor %}
+      <div class="x">{{ post.excerpt | strip_html | strip_newlines | truncate: 110 }}</div>
+    </div>
+  </li>
+  {% endfor %}
+</ul>
+{% else %}<div class="empty">아직 글이 없습니다.</div>{% endif %}
+
+{% include tracker-data.html %}

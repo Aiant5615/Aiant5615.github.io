@@ -1,0 +1,11 @@
+<header class="site-header">
+  <div class="container nav-inner">
+    <a class="site-title" href="{{ '/' | relative_url }}">{{ site.title }}</a>
+    <nav class="site-nav">
+      <a href="{{ '/tracker/' | relative_url }}" {% if page.url contains '/tracker/' %}class="active"{% endif %}>트래커</a>
+      <a href="{{ '/blog/' | relative_url }}" {% if page.url contains '/blog/' %}class="active"{% endif %}>블로그</a>
+      <a href="{{ '/papers/' | relative_url }}" {% if page.url contains '/papers/' %}class="active"{% endif %}>논문 리뷰</a>
+      <a href="{{ '/about/' | relative_url }}" {% if page.url contains '/about/' %}class="active"{% endif %}>소개</a>
+    </nav>
+  </div>
+</header>
