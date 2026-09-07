@@ -13,7 +13,7 @@ A GitHub Pages site for tracking grad school life. https://aiant5615.github.io
 | **Terminal** — `python scripts/log.py --arrive 9:10 english coding -n "note"` | When you're at the laptop |
 | **By hand** — write `_data/days/2026-09-07.yml` and push | Fixing several days at once |
 
-Submitting the same date again overwrites it. The issue form only accepts issues opened by the repository owner; anyone else's are closed automatically.
+Entries are **merged**: submitting a date that already exists adds habits, replaces times, and appends notes, so you can log one thing at a time (the tracker's quick-log buttons do exactly that). Tick "Replace the whole entry" in the issue form, or pass `--replace` to the script, to start a day over. The issue form only accepts issues opened by the repository owner; anyone else's are closed automatically.
 
 ```yaml
 # _data/days/2026-09-07.yml

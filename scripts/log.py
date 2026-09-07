@@ -5,6 +5,8 @@ Examples:
   python scripts/log.py --arrive 9:10 english coding
   python scripts/log.py --arrive 8:50 --leave 18:30 --mood 4 --sleep 7 english coding paper -n "Finished the DQN review"
   python scripts/log.py --date 2026-09-06 english --no-push
+
+Fields are merged into the existing day (habits added, notes appended, times replaced). Use --replace to overwrite.
 """
 import argparse, json, os, re, subprocess, sys
 from datetime import date
@@ -65,6 +67,39 @@ def build_yaml(arrive=None, leave=None, wake=None, sleep=None, mood=None, focus=
     return "\n".join(lines) + "\n"
 
 
+def read_entry(path):
+    """Minimal parser for the YAML we write: scalar fields, done: [a, b], note: "json string"."""
+    e = {}
+    if not os.path.exists(path): return e
+    for line in open(path, encoding="utf-8"):
+        m = re.match(r"^(\w+):\s*(.*?)\s*$", line)
+        if not m: continue
+        k, v = m.group(1), m.group(2)
+        if k == "done":
+            e["done"] = [x.strip() for x in v.strip("[]").split(",") if x.strip()]
+        elif k == "note":
+            try: e["note"] = json.loads(v) if v.startswith('"') else v
+            except ValueError: e["note"] = v.strip('"')
+        else:
+            e[k] = v.strip('"')
+    return e
+
+
+def merge_entry(day, arrive=None, leave=None, wake=None, sleep=None, mood=None, focus=None, done=(), note=""):
+    """Overlay the given fields on the existing day file. Habits are unioned, notes appended, other fields replaced when given."""
+    old = read_entry(os.path.join(DAYS, f"{day}.yml"))
+    f = {k: old.get(k) for k in ("arrive", "leave", "wake", "sleep", "mood", "focus")}
+    for k, v in (("arrive", arrive), ("leave", leave), ("wake", wake), ("sleep", sleep), ("mood", mood), ("focus", focus)):
+        if v not in (None, ""): f[k] = v
+    dn = list(old.get("done", []))
+    for d in done:
+        if d not in dn: dn.append(d)
+    nt = (old.get("note") or "").strip()
+    note = (note or "").strip()
+    if note and note not in nt: nt = f"{nt} · {note}" if nt else note
+    return build_yaml(f["arrive"], f["leave"], f["wake"], f["sleep"], f["mood"], f["focus"], dn, nt)
+
+
 def write_entry(day, content):
     if not re.fullmatch(r"\d{4}-\d{2}-\d{2}", day): raise ValueError(f"Bad date format: {day}")
     os.makedirs(DAYS, exist_ok=True)
@@ -82,9 +117,11 @@ def main():
     p.add_argument("--sleep", type=float); p.add_argument("--mood", type=int, choices=range(1, 6)); p.add_argument("--focus", type=float)
     p.add_argument("-n", "--note", default="")
     p.add_argument("--no-push", action="store_true", help="write the file only, no commit/push")
+    p.add_argument("--replace", action="store_true", help="overwrite the day instead of merging into it")
     a = p.parse_args()
     try:
-        content = build_yaml(hhmm(a.arrive), hhmm(a.leave), hhmm(a.wake), a.sleep, a.mood, a.focus, parse_done(a.done), a.note)
+        args = (hhmm(a.arrive), hhmm(a.leave), hhmm(a.wake), a.sleep, a.mood, a.focus, parse_done(a.done), a.note)
+        content = build_yaml(*args) if a.replace else merge_entry(a.date, *args)
         path, existed = write_entry(a.date, content)
     except ValueError as e:
         sys.exit(f"Error: {e}")

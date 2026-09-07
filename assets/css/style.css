@@ -276,3 +276,22 @@ details.more > summary { cursor: pointer; color: var(--muted); font-size: .88rem
 .lc-code td { padding: 0; }
 .lc-code pre { margin: 0; border-radius: 0; border: 0; border-top: 1px solid var(--border); border-bottom: 1px solid var(--border); font-size: .82rem; max-height: 480px; overflow: auto; }
 .lc-code .code-head { display: flex; justify-content: space-between; font-size: .8rem; color: var(--muted); padding: .4rem .8rem; background: var(--surface-2); }
+
+/* ───────── time picker + quick log ───────── */
+.timefield { position: relative; display: flex; gap: .3rem; }
+.timefield input { flex: 1; min-width: 0; }
+.timefield input.bad { border-color: var(--danger); }
+.timefield .clock { flex: none; font: inherit; font-size: 1rem; line-height: 1; padding: 0 .55rem; border: 1px solid var(--border); border-radius: 8px; background: var(--surface-2); cursor: pointer; }
+.timefield .clock:hover { background: var(--surface); }
+.tpick { position: absolute; top: calc(100% + 4px); left: 0; z-index: 30; width: 268px; max-width: calc(100vw - 2.4rem); background: var(--surface); border: 1px solid var(--border); border-radius: 12px; padding: .7rem; box-shadow: 0 8px 28px rgba(0,0,0,.14); }
+.tp-row { display: flex; justify-content: space-between; align-items: center; gap: .5rem; margin: .2rem 0; }
+.tp-cur { font-weight: 700; font-variant-numeric: tabular-nums; font-size: 1.05rem; }
+.tp-label { color: var(--muted); font-size: .72rem; text-transform: uppercase; letter-spacing: .06em; margin: .5rem 0 .25rem; }
+.tp-grid { display: grid; grid-template-columns: repeat(6, 1fr); gap: .25rem; }
+.tp-grid button { font: inherit; font-size: .85rem; padding: .35rem 0; border: 1px solid var(--border); border-radius: 7px; background: var(--surface-2); color: var(--text); cursor: pointer; font-variant-numeric: tabular-nums; }
+.tp-grid button:hover { border-color: var(--accent); }
+.tp-grid button.on { background: var(--accent); border-color: var(--accent); color: #fff; font-weight: 600; }
+.chip.quick { cursor: pointer; color: var(--text); text-decoration: none; }
+.chip.quick:hover { border-color: var(--accent); }
+.chip.quick.on { color: var(--accent); }
+#full-form-wrap > summary { color: var(--muted); font-size: .92rem; cursor: pointer; }

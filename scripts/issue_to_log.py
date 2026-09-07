@@ -6,12 +6,12 @@ import os, re, sys
 from datetime import datetime, timedelta, timezone
 
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
-from log import build_yaml, hhmm, parse_done, write_entry  # noqa: E402
+from log import build_yaml, hhmm, merge_entry, parse_done, write_entry  # noqa: E402
 
 KST = timezone(timedelta(hours=9))
 # Issue-form label → field key (English labels first; Korean kept so older issues still parse)
 LABELS = {"date": "date", "arrived": "arrive", "left": "leave", "done": "done", "note": "note",
-          "woke": "wake", "sleep": "sleep", "mood": "mood", "focus": "focus",
+          "woke": "wake", "sleep": "sleep", "mood": "mood", "focus": "focus", "replace": "replace",
           "날짜": "date", "출근": "arrive", "퇴근": "leave", "오늘 한 것": "done", "메모": "note",
           "기상": "wake", "수면": "sleep", "컨디션": "mood", "집중": "focus"}
 
@@ -49,10 +49,11 @@ def main():
         if not m: raise ValueError(f"Bad date format: {day}")
         day = f"{m.group(1)}-{int(m.group(2)):02d}-{int(m.group(3)):02d}"
         num = lambda k: (f.get(k) or "").strip() or None
-        content = build_yaml(
-            arrive=hhmm(f.get("arrive")), leave=hhmm(f.get("leave")), wake=hhmm(f.get("wake")),
-            sleep=num("sleep"), mood=num("mood"), focus=num("focus"),
-            done=parse_done(re.split(r"[,\s/]+", f.get("done", ""))), note=f.get("note", ""))
+        kw = dict(arrive=hhmm(f.get("arrive")), leave=hhmm(f.get("leave")), wake=hhmm(f.get("wake")),
+                  sleep=num("sleep"), mood=num("mood"), focus=num("focus"),
+                  done=parse_done(re.split(r"[,\s/]+", f.get("done", ""))), note=f.get("note", ""))
+        replace = "[x]" in (f.get("replace") or "").lower()
+        content = build_yaml(**kw) if replace else merge_entry(day, **kw)
         path, existed = write_entry(day, content)
     except ValueError as e:
         print(f"::error::{e}"); out(ok="false", error=str(e)); return

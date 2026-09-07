@@ -23,6 +23,16 @@
     return m ? +m[1] * 60 + +m[2] : null;
   };
   const fmtMin = m => m == null ? "–" : `${pad(Math.floor(m / 60) % 24)}:${pad(Math.round(m % 60))}`;
+  const fmt12 = m => { if (m == null) return ""; const h = Math.floor(m / 60) % 24, mi = Math.round(m % 60); return `${h % 12 || 12}:${pad(mi)} ${h < 12 ? "AM" : "PM"}`; };
+  // "9:10 AM", "9:10pm", "09:10", "0910", "9" → minutes since midnight, or null
+  const parseTime = t => {
+    t = String(t || "").trim().toLowerCase(); if (!t) return null;
+    const m = t.match(/^(\d{1,2})(?::?(\d{2}))?\s*(a\.?m\.?|p\.?m\.?)?$/); if (!m) return null;
+    let h = +m[1]; const mi = +(m[2] || 0), ap = m[3] ? m[3][0] : null;
+    if (mi > 59) return null;
+    if (ap) { if (h < 1 || h > 12) return null; h = h % 12 + (ap === "p" ? 12 : 0); } else if (h > 23) return null;
+    return h * 60 + mi;
+  };
   const fmtNum = (v, d = 1) => v == null || isNaN(v) ? "–" : (Math.round(v * 10 ** d) / 10 ** d).toString();
   const avg = arr => { const a = arr.filter(v => v != null && !isNaN(v)); return a.length ? a.reduce((s, v) => s + v, 0) / a.length : null; };
   const pct = (n, d) => d ? Math.round(100 * n / d) : null;
@@ -308,6 +318,52 @@
     root.querySelectorAll("tr[data-k]").forEach(tr => tr.addEventListener("click", () => fillForm(tr.dataset.k)));
   }
 
+  // ───────── time field + picker (12-hour, AM/PM) ─────────
+  const timeField = n => `<div class="timefield"><input id="tr-${n}" type="text" name="${n}" inputmode="text" autocomplete="off" placeholder="9:10 AM"><button type="button" class="clock" data-for="${n}" aria-label="Pick a time">🕒</button></div>`;
+  let picker = null;
+  function openPicker(input) {
+    if (picker && picker.input === input) return closePicker();
+    closePicker();
+    const cur = parseTime(input.value) ?? (new Date().getHours() * 60 + Math.round(new Date().getMinutes() / 5) * 5) % 1440;
+    let h = Math.floor(cur / 60), mi = Math.round(cur % 60 / 5) * 5 % 60;
+    const box = el("div", { class: "tpick", role: "dialog" });
+    box.input = input;
+    const render = () => {
+      const ap = h < 12 ? "AM" : "PM", h12 = h % 12 || 12;
+      box.innerHTML = `<div class="tp-row"><span class="tp-cur">${h12}:${pad(mi)} ${ap}</span><span class="seg"><button type="button" data-ap="AM" class="${ap === "AM" ? "on" : ""}">AM</button><button type="button" data-ap="PM" class="${ap === "PM" ? "on" : ""}">PM</button></span></div>
+        <div class="tp-label">Hour</div><div class="tp-grid">${[12, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11].map(x => `<button type="button" data-h="${x}" class="${x === h12 ? "on" : ""}">${x}</button>`).join("")}</div>
+        <div class="tp-label">Minute</div><div class="tp-grid">${[0, 5, 10, 15, 20, 25, 30, 35, 40, 45, 50, 55].map(x => `<button type="button" data-m="${x}" class="${x === mi ? "on" : ""}">:${pad(x)}</button>`).join("")}</div>
+        <div class="tp-row"><button type="button" class="btn btn-sm" data-now>Now</button><span><button type="button" class="btn btn-sm" data-clear>Clear</button> <button type="button" class="btn btn-sm btn-primary" data-done>Done</button></span></div>`;
+    };
+    const apply = () => { input.value = fmt12(h * 60 + mi); input.classList.remove("bad"); input.dispatchEvent(new Event("input", { bubbles: true })); };
+    box.addEventListener("click", ev => {
+      const b = ev.target.closest("button"); if (!b) return;
+      if (b.dataset.ap) { h = h % 12 + (b.dataset.ap === "PM" ? 12 : 0); apply(); render(); }
+      else if (b.dataset.h) { h = (+b.dataset.h % 12) + (h >= 12 ? 12 : 0); apply(); render(); }
+      else if (b.dataset.m) { mi = +b.dataset.m; apply(); render(); closePicker(); }
+      else if (b.hasAttribute("data-now")) { const d = new Date(); h = d.getHours(); mi = d.getMinutes(); apply(); closePicker(); }
+      else if (b.hasAttribute("data-clear")) { input.value = ""; input.dispatchEvent(new Event("input", { bubbles: true })); closePicker(); }
+      else if (b.hasAttribute("data-done")) { apply(); closePicker(); }
+    });
+    render();
+    input.closest(".timefield").appendChild(box); picker = box;
+    setTimeout(() => document.addEventListener("click", outside), 0);
+  }
+  function outside(ev) { if (picker && !picker.contains(ev.target) && !ev.target.closest(".clock")) closePicker(); }
+  function closePicker() { if (picker) { picker.remove(); picker = null; document.removeEventListener("click", outside); } }
+
+  // ───────── quick log: one item at a time, merged into today's entry ─────────
+  function renderQuick(root) {
+    const t = get(TODAY_KEY);
+    const now = () => { const d = new Date(); return fmtMin(d.getHours() * 60 + d.getMinutes()); };
+    const issue = fields => { const q = new URLSearchParams({ template: CFG.issueTemplate || "log.yml", title: `log: ${TODAY_KEY}`, date: TODAY_KEY, ...fields }); return `https://github.com/${REPO}/issues/new?${q}`; };
+    const btn = (label, fields, on, title) => `<a class="chip quick ${on ? "on" : ""}" href="${issue(fields)}" target="_blank" rel="noopener" title="${esc(title || "")}">${label}</a>`;
+    let html = btn(`🏢 ${t && t.arrive != null ? `In at ${fmt12(t.arrive)}` : "Arrived now"}`, { arrive: now() }, !!(t && t.arrive != null), "Saves the current time as today's arrival");
+    html += btn(`🚪 ${t && t.leave != null ? `Out at ${fmt12(t.leave)}` : "Leaving now"}`, { leave: now() }, !!(t && t.leave != null), "Saves the current time as today's departure");
+    HABITS.forEach(h => { const on = !!(t && t.done.has(h.key)); html += btn(`${on ? "✓" : "+"} ${h.emoji} ${esc(h.label)}`, { done: h.key }, on, on ? "Already logged today" : `Mark ${h.label} done today`); });
+    root.innerHTML = `<div class="today-bar">${html}</div><p class="small muted" style="margin:.5rem 0 0">Each button opens the issue form with just that item filled in. Submit, and it's merged into today's entry (nothing else is overwritten). Times are saved when the button is clicked, so click when it happens. Already-logged items are highlighted; the page updates a minute or two after each submit.</p>`;
+  }
+
   // ───────── log form → prefilled GitHub Issue form ─────────
   let form = null;
   function initForm(root) {
@@ -315,15 +371,15 @@
     const habitChecks = HABITS.map(h => `<label class="check"><input type="checkbox" name="done" value="${h.key}"> ${h.emoji} ${esc(h.label)}</label>`).join("");
     root.innerHTML = `
       <div class="form-grid">
-        <div class="field"><label for="tr-date">Date</label><input id="tr-date" type="date" name="date" value="${TODAY_KEY}"></div>
-        <div class="field"><label for="tr-arrive">Arrived at</label><input id="tr-arrive" type="time" name="arrive" step="300"></div>
-        <div class="field"><label for="tr-leave">Left at</label><input id="tr-leave" type="time" name="leave" step="300"></div>
+        <div class="field"><label for="tr-date">Date</label><input id="tr-date" type="date" name="date" lang="en" value="${TODAY_KEY}"></div>
+        <div class="field"><label for="tr-arrive">Arrived at</label>${timeField("arrive")}</div>
+        <div class="field"><label for="tr-leave">Left at</label>${timeField("leave")}</div>
         <fieldset class="field field-wide" style="border:0;padding:0;margin:0"><legend class="small muted" style="padding:0;margin-bottom:.25rem">Done today</legend><div class="checks">${habitChecks}</div></fieldset>
         <div class="field field-wide"><label for="tr-note">Note · one-line retro</label><textarea id="tr-note" name="note" placeholder="What I did today, what's next"></textarea></div>
       </div>
       <details class="more"><summary>More (wake-up · sleep · mood · focus)</summary>
         <div class="form-grid">
-          <div class="field"><label for="tr-wake">Woke up at</label><input id="tr-wake" type="time" name="wake" step="300"></div>
+          <div class="field"><label for="tr-wake">Woke up at</label>${timeField("wake")}</div>
           <div class="field"><label for="tr-sleep">Sleep (hours)</label><input id="tr-sleep" type="number" name="sleep" step="0.5" min="0" max="16" placeholder="7"></div>
           <div class="field"><label for="tr-mood">Mood (1–5)</label><select id="tr-mood" name="mood"><option value="">–</option><option value="5">😄 5 great</option><option value="4">🙂 4 good</option><option value="3">😐 3 okay</option><option value="2">😕 2 meh</option><option value="1">😩 1 rough</option></select></div>
           <div class="field"><label for="tr-focus">Focus (hours)</label><input id="tr-focus" type="number" name="focus" step="0.5" min="0" max="16" placeholder="3"></div>
@@ -335,9 +391,14 @@
         <span class="small muted" id="tr-hint"></span>
       </div>
       <pre class="yaml-preview"><code id="tr-yaml"></code></pre>
-      <p class="small muted">Save opens a prefilled GitHub Issue form. Press <b>Submit</b> and the entry is committed automatically and shows up here in a minute or two. Submitting the same date again overwrites it.
+      <p class="small muted">Save opens a prefilled GitHub Issue form. Press <b>Submit</b> and the entry is committed automatically and shows up here in a minute or two. Fields you fill in are <b>merged</b> into that day's existing entry, so you can log one thing at a time; tick "Replace the whole entry" in the form to start the day over.
       On your phone, add <a href="https://github.com/${REPO}/issues/new?template=${encodeURIComponent(CFG.issueTemplate || "log.yml")}" target="_blank" rel="noopener">this Issue form</a> to your home screen to log without opening the site.
       From a terminal: <code>python scripts/log.py --arrive 9:10 english coding</code>.</p>`;
+    root.querySelectorAll(".timefield input").forEach(i => {
+      i.addEventListener("blur", () => { const m = parseTime(i.value); if (m != null) i.value = fmt12(m); else if (i.value.trim()) i.classList.add("bad"); update(); });
+      i.addEventListener("input", () => i.classList.remove("bad"));
+    });
+    root.querySelectorAll(".timefield .clock").forEach(b => b.addEventListener("click", () => openPicker(root.querySelector(`[name=${b.dataset.for}]`))));
     root.querySelectorAll(".check input").forEach(i => i.addEventListener("change", () => { i.closest(".check").classList.toggle("on", i.checked); update(); }));
     root.querySelectorAll("input,textarea,select").forEach(i => i.addEventListener("input", update));
     root.querySelector("[name=date]").addEventListener("change", ev => { const e = get(ev.target.value); if (e) fillForm(ev.target.value, true); else update(); });
@@ -348,7 +409,7 @@
       const d = val("date"); if (!d) return flash("Please enter a date");
       const q = new URLSearchParams({ template: CFG.issueTemplate || "log.yml", title: `log: ${d}`, date: d });
       const done = [...root.querySelectorAll("[name=done]:checked")].map(i => i.value);
-      [["arrive", val("arrive").slice(0, 5)], ["leave", val("leave").slice(0, 5)], ["wake", val("wake").slice(0, 5)], ["sleep", val("sleep")], ["mood", val("mood")], ["focus", val("focus")], ["note", val("note")]]
+      [["arrive", tval("arrive")], ["leave", tval("leave")], ["wake", tval("wake")], ["sleep", val("sleep")], ["mood", val("mood")], ["focus", val("focus")], ["note", val("note")]]
         .forEach(([k, v]) => { if (v) q.set(k, v); });
       if (done.length) q.set("done", done.join(", "));
       window.open(`https://github.com/${REPO}/issues/new?${q.toString()}`, "_blank", "noopener");
@@ -357,22 +418,23 @@
     if (get(TODAY_KEY)) fillForm(TODAY_KEY, true); else update();
 
     function val(n) { const i = root.querySelector(`[name=${n}]`); return i ? i.value.trim() : ""; }
+    function tval(n) { const m = parseTime(val(n)); return m == null ? "" : fmtMin(m); }   // 24h "HH:MM" for YAML/issue
     function yaml() {
       const lines = [];
-      if (val("arrive")) lines.push(`arrive: "${val("arrive").slice(0, 5)}"`);
-      if (val("leave")) lines.push(`leave: "${val("leave").slice(0, 5)}"`);
-      if (val("wake")) lines.push(`wake: "${val("wake").slice(0, 5)}"`);
+      if (tval("arrive")) lines.push(`arrive: "${tval("arrive")}"`);
+      if (tval("leave")) lines.push(`leave: "${tval("leave")}"`);
+      if (tval("wake")) lines.push(`wake: "${tval("wake")}"`);
       if (val("sleep")) lines.push(`sleep: ${+val("sleep")}`);
       if (val("mood")) lines.push(`mood: ${+val("mood")}`);
       if (val("focus")) lines.push(`focus: ${+val("focus")}`);
-      lines.push(`done: [${[...root.querySelectorAll("[name=done]:checked")].map(i => i.value).join(", ")}]`);
+      const dn = [...root.querySelectorAll("[name=done]:checked")].map(i => i.value); if (dn.length) lines.push(`done: [${dn.join(", ")}]`);
       if (val("note")) lines.push(`note: ${JSON.stringify(val("note"))}`);
       return lines.join("\n") + "\n";
     }
     function update() {
       root.querySelector("#tr-yaml").textContent = yaml();
       const d = val("date");
-      root.querySelector("#tr-save").textContent = get(d) ? "Save to GitHub (overwrite) ↗" : "Save to GitHub ↗";
+      root.querySelector("#tr-save").textContent = get(d) ? "Save to GitHub (merge into this day) ↗" : "Save to GitHub ↗";
       root.querySelector("#tr-hint").textContent = `→ _data/days/${d || "YYYY-MM-DD"}.yml`;
     }
     function flash(msg) { root.querySelector("#tr-hint").textContent = msg; setTimeout(update, 4000); }
@@ -381,8 +443,7 @@
     if (!form) return;
     const e = get(k); if (!e) return;
     const set = (n, v) => { const i = form.querySelector(`[name=${n}]`); if (i) i.value = v ?? ""; };
-    set("date", k); set("arrive", e.arrive != null ? fmtMin(e.arrive) : ""); set("leave", e.leave != null ? fmtMin(e.leave) : "");
-    set("wake", e.wake != null ? fmtMin(e.wake) : ""); set("sleep", e.sleep ?? ""); set("mood", e.mood ?? ""); set("focus", e.focus ?? ""); set("note", e.note);
+    set("date", k); set("arrive", fmt12(e.arrive)); set("leave", fmt12(e.leave)); set("wake", fmt12(e.wake)); set("sleep", e.sleep ?? ""); set("mood", e.mood ?? ""); set("focus", e.focus ?? ""); set("note", e.note);
     form.querySelectorAll("[name=done]").forEach(i => { i.checked = e.done.has(i.value); i.closest(".check").classList.toggle("on", i.checked); });
     if (e.wake != null || e.sleep != null || e.mood != null || e.focus != null) form.querySelector("details.more").open = true;
     form._update();
@@ -408,6 +469,7 @@
     if ($("data-sections")) $("data-sections").hidden = empty;
     if ($("today-bar")) renderToday($("today-bar"));
     if ($("stats")) { $("stats").hidden = empty; if (!empty) renderStats($("stats")); }
+    if ($("quick-log")) renderQuick($("quick-log"));
     if ($("log-form")) initForm($("log-form"));
     if ($("heatmap")) renderHeatmap($("heatmap"), $("heatmap-select"));
     if ($("arrive-chart")) renderArriveChart($("arrive-chart"));

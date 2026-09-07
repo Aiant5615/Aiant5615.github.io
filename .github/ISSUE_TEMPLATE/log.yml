@@ -5,7 +5,7 @@ labels: [log]
 body:
   - type: markdown
     attributes:
-      value: "Leave anything blank that doesn't apply. An empty date means today (KST). Submitting the same date again overwrites it."
+      value: "Fill in only what you want to add. Fields are merged into that day's existing entry (habits are added, times replaced, notes appended). An empty date means today (KST)."
   - type: input
     id: date
     attributes:
@@ -52,3 +52,9 @@ body:
     attributes:
       label: Focus hours
       placeholder: "3"
+  - type: checkboxes
+    id: replace
+    attributes:
+      label: Replace
+      options:
+        - label: Replace the whole entry for this day instead of merging (use this to un-check a habit)
