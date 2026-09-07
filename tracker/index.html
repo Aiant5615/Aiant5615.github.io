@@ -5,41 +5,49 @@ permalink: /tracker/
 ---
 <div class="page-head">
   <h1>Routine Tracker</h1>
-  <span class="page-tools"><b id="total-days">0</b> days logged <button type="button" class="btn btn-sm" id="export-csv">Export CSV</button></span>
-</div>
-<div class="today-bar" id="today-bar" style="margin:.6rem 0 1.4rem"><span class="muted">Loading…</span></div>
-
-<div id="stats"></div>
-<div class="card log-hint" id="onboarding" hidden>No entries yet. Log your first day below, or use the <a href="https://github.com/{{ site.github_repo }}/issues/new?template={{ site.log_issue_template }}">issue form</a> from your phone. Charts and streaks appear as entries accumulate.</div>
-
-<h2 id="log">Log today</h2>
-<div class="card" id="quick-log" style="margin-bottom:.9rem"></div>
-<div id="gh-connect" style="margin-bottom:.9rem"></div>
-<details class="more" id="full-form-wrap"><summary style="margin:0 0 .6rem">Full form (several fields at once, or another day)</summary><div class="card" id="log-form"></div></details>
-
-<div class="section-head"><h2>Heatmap <span class="small muted" style="font-weight:400">last 26 weeks</span></h2><div id="heatmap-select"></div></div>
-<div class="card" id="heatmap"></div>
-
-<div id="data-sections">
-<h2>Arrival time <span class="small muted" style="font-weight:400">last 30 days</span></h2>
-<div class="card" id="arrive-chart"></div>
-
-<h2>Weekly summary <span class="small muted" style="font-weight:400">this week vs last week</span></h2>
-<div class="card" id="weekly"></div>
-
-<div class="grid grid-2" style="margin-top:2.2rem">
-  <div>
-    <h2 style="margin-top:0">By month <span class="small muted" style="font-weight:400">last 6 months</span></h2>
-    <div class="card" id="monthly"></div>
-  </div>
-  <div>
-    <h2 style="margin-top:0">By weekday</h2>
-    <div class="card" id="weekday"></div>
-  </div>
+  <span class="page-tools"><span id="tracker-count" hidden><b id="total-days">0</b> days logged <button type="button" class="btn btn-sm" id="export-csv">Export CSV</button></span></span>
 </div>
 
-<h2>Last 2 weeks <span class="small muted" style="font-weight:400">click a row to load it into the form</span></h2>
-<div class="card" id="recent-log"></div>
+<div id="gh-connect" style="margin:.6rem 0 .9rem"></div>
+
+<div class="card log-hint" id="private-notice" hidden>
+  🔒 This page is private. The data lives in a private repository and is only shown in a browser where the owner has connected a GitHub token (above). Everything else on this site is public.
+</div>
+
+<div id="tracker-body" hidden>
+  <div class="today-bar" id="today-bar" style="margin:.6rem 0 1.4rem"><span class="muted">Loading…</span></div>
+
+  <div id="stats"></div>
+  <div class="card log-hint" id="onboarding" hidden>No entries yet. Log your first day below. Charts and streaks appear as entries accumulate.</div>
+
+  <h2 id="log">Log today</h2>
+  <div class="card" id="quick-log" style="margin-bottom:.9rem"></div>
+  <details class="more" id="full-form-wrap"><summary style="margin:0 0 .6rem">Full form (several fields at once, or another day)</summary><div class="card" id="log-form"></div></details>
+
+  <div class="section-head"><h2>Heatmap <span class="small muted" style="font-weight:400">last 26 weeks</span></h2><div id="heatmap-select"></div></div>
+  <div class="card" id="heatmap"></div>
+
+  <div id="data-sections">
+  <h2>Arrival time <span class="small muted" style="font-weight:400">last 30 days</span></h2>
+  <div class="card" id="arrive-chart"></div>
+
+  <h2>Weekly summary <span class="small muted" style="font-weight:400">this week vs last week</span></h2>
+  <div class="card" id="weekly"></div>
+
+  <div class="grid grid-2" style="margin-top:2.2rem">
+    <div>
+      <h2 style="margin-top:0">By month <span class="small muted" style="font-weight:400">last 6 months</span></h2>
+      <div class="card" id="monthly"></div>
+    </div>
+    <div>
+      <h2 style="margin-top:0">By weekday</h2>
+      <div class="card" id="weekday"></div>
+    </div>
+  </div>
+
+  <h2>Last 2 weeks <span class="small muted" style="font-weight:400">click a row to load it into the form</span></h2>
+  <div class="card" id="recent-log"></div>
+  </div>
 </div>
 
 {% include tracker-data.html %}

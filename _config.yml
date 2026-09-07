@@ -7,10 +7,14 @@ baseurl: ""
 lang: en
 timezone: Asia/Seoul
 
-# GitHub repo (used by the tracker's "Save to GitHub" button to open the Issue form)
+# This site's repo
 github_repo: Aiant5615/Aiant5615.github.io
 github_branch: main
-log_issue_template: log.yml
+
+# Private tracker data: the tracker page reads/writes this file through the GitHub API with a browser-stored token
+tracker_repo: Aiant5615/tracker
+tracker_branch: main
+tracker_file: days.json
 
 # LeetCode solutions repo (synced hourly by .github/workflows/sync-leetcode.yml)
 leetcode_repo: Aiant5615/leetcode
@@ -21,6 +25,7 @@ leetcode_branch: main
 tracker:
   arrive_goal: "09:00"      # target arrival time
   skip_weekends: true       # if true, Sat/Sun neither break nor count toward streaks (override per habit with weekends: true)
+  leetcode_habit: coding    # this habit is auto-checked on days with a new LeetCode solution (derived from _data/leetcode.json)
   habits:
     - key: english
       label: English

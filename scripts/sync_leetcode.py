@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """Read a LeetHub-style solutions repo and write _data/leetcode.json.
-Also checks off the `coding` habit in _data/days/<date>.yml for every day a solution was first committed.
+(The tracker page derives the `coding` habit from this file; nothing else is written.)
 
 Env: LEETCODE_DIR (path to a full clone of the solutions repo). Prints a summary; exit 0 always.
 """
@@ -8,7 +8,6 @@ import json, os, re, subprocess, sys
 from datetime import datetime, timedelta, timezone
 
 ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
-DAYS = os.path.join(ROOT, "_data", "days")
 OUT = os.path.join(ROOT, "_data", "leetcode.json")
 KST = timezone(timedelta(hours=9))
 EXT = {".c": "c", ".cpp": "cpp", ".cc": "cpp", ".cxx": "cpp", ".py": "py"}
@@ -69,26 +68,6 @@ def scan(repo):
     return problems
 
 
-def mark_coding(date):
-    """Ensure _data/days/<date>.yml has `coding` in done. Returns True if changed."""
-    path = os.path.join(DAYS, f"{date}.yml")
-    if os.path.exists(path):
-        s = open(path, encoding="utf-8").read()
-        m = re.search(r"^done:\s*\[(.*?)\]\s*$", s, re.M)
-        if m:
-            items = [x.strip() for x in m.group(1).split(",") if x.strip()]
-            if "coding" in items: return False
-            items.append("coding")
-            s = s[:m.start()] + f"done: [{', '.join(items)}]" + s[m.end():]
-        else:
-            s = s.rstrip("\n") + "\ndone: [coding]\n"
-    else:
-        os.makedirs(DAYS, exist_ok=True)
-        s = "done: [coding]\n"
-    open(path, "w", encoding="utf-8").write(s)
-    return True
-
-
 def main():
     repo = os.environ.get("LEETCODE_DIR")
     if not repo or not os.path.isdir(repo):
@@ -100,8 +79,7 @@ def main():
     changed_json = re.sub(r'"updated": "[^"]*"', "", old) != re.sub(r'"updated": "[^"]*"', "", new)
     if changed_json:
         open(OUT, "w", encoding="utf-8").write(new)
-    marked = sorted({l["date"] for p in problems for l in p["langs"].values() if l["date"] and mark_coding(l["date"])})
-    print(f"problems: {len(problems)} · json {'updated' if changed_json else 'unchanged'} · coding marked on: {marked or 'none'}")
+    print(f"problems: {len(problems)} · json {'updated' if changed_json else 'unchanged'}")
 
 
 if __name__ == "__main__":

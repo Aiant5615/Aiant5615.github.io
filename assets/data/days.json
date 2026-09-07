@@ -1,5 +1,0 @@
----
-layout: null
-sitemap: false
----
-{{ site.data.days | jsonify }}

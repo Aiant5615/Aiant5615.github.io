@@ -24,7 +24,7 @@ jobs:
       - name: Clone the solutions repo (full history, for commit dates)
         run: git clone --quiet "https://github.com/${LEETCODE_REPO}.git" /tmp/leetcode
 
-      - name: Build _data/leetcode.json and mark coding days
+      - name: Build _data/leetcode.json
         run: LEETCODE_DIR=/tmp/leetcode python3 scripts/sync_leetcode.py
 
       - name: Commit and push
@@ -32,7 +32,7 @@ jobs:
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-          git add _data/leetcode.json _data/days
+          git add _data/leetcode.json
           if git diff --cached --quiet; then echo "no changes"; echo "changed=false" >> "$GITHUB_OUTPUT"; else
             git commit -m "leetcode: sync"
             git push

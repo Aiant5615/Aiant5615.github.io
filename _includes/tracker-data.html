@@ -1,12 +1,13 @@
 <script>
+  window.LEETCODE_DATA = window.LEETCODE_DATA || {{ site.data.leetcode | jsonify }};
   window.TRACKER_CONFIG = {
-    dataUrl: {{ '/assets/data/days.json' | relative_url | jsonify }},
+    trackerRepo: {{ site.tracker_repo | jsonify }},
+    trackerBranch: {{ site.tracker_branch | default: "main" | jsonify }},
+    trackerFile: {{ site.tracker_file | default: "days.json" | jsonify }},
     habits: {{ site.tracker.habits | jsonify }},
     arriveGoal: {{ site.tracker.arrive_goal | jsonify }},
     skipWeekends: {{ site.tracker.skip_weekends | default: false | jsonify }},
-    repo: {{ site.github_repo | jsonify }},
-    branch: {{ site.github_branch | default: "main" | jsonify }},
-    issueTemplate: {{ site.log_issue_template | default: "log.yml" | jsonify }}
+    leetcodeHabit: {{ site.tracker.leetcode_habit | default: "" | jsonify }}
   };
 </script>
 <script src="{{ '/assets/js/tracker.js' | relative_url }}?v={{ site.time | date: '%s' }}"></script>

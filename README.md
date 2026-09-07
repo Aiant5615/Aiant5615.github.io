@@ -2,54 +2,49 @@
 
 A GitHub Pages site for tracking grad school life. https://aiant5615.github.io
 
-> ⚠️ This site is public. Everything in `_data/days/` (arrival times, notes, mood) is visible in the repo and on the site. Only log what you're comfortable sharing.
+The blog, papers, LeetCode, and about pages are public. **The tracker is private**: its data lives in the private repo
+[Aiant5615/tracker](https://github.com/Aiant5615/tracker) (`days.json`) and the tracker page only shows anything in a browser where
+the owner has connected a GitHub token.
 
 ## Logging a day
 
-| Method | When |
-|---|---|
-| **Phone** — add the [📝 Log today issue form](https://github.com/Aiant5615/Aiant5615.github.io/issues/new?template=log.yml) to your home screen and Submit | Fastest. An Action writes the file and closes the issue |
-| **Site** — quick-log buttons or the form at `/tracker/` | With a GitHub token connected (Tracker → "GitHub: not connected"), saves in place; otherwise opens the prefilled issue form |
-| **Terminal** — `python scripts/log.py --arrive 9:10 english coding -n "note"` | When you're at the laptop |
-| **By hand** — write `_data/days/2026-09-07.yml` and push | Fixing several days at once |
+1. **Connect once per device**: Tracker page → "Private · not connected" → paste a fine-grained personal access token with
+   *Repository access: only `Aiant5615/tracker`* and *Permissions: Contents → Read and write*. It is kept in that browser's
+   localStorage only.
+2. **Quick buttons** on the tracker (arrival/departure open a clock; habit buttons toggle) save one item at a time and merge it
+   into the day. The **full form** saves several fields at once or another day; tick *Replace the whole entry* to start a day over.
+3. **Terminal**: `python scripts/log.py --arrive 9:10 english coding -n "note"` (uses `gh` auth; `--remove`, `--replace`, `--show`).
 
-Entries are **merged**: submitting a date that already exists adds habits, replaces times, and appends notes, so you can log one thing at a time (the tracker's quick-log buttons do exactly that). Tick "Replace the whole entry" in the issue form, or pass `--replace` to the script, to start a day over. The issue form only accepts issues opened by the repository owner; anyone else's are closed automatically.
+Day format (`days.json`, keyed by date):
 
-```yaml
-# _data/days/2026-09-07.yml
-arrive: "09:10"      # quote times, or YAML reads 09:10 as an integer
-leave: "18:30"       # past midnight is handled
-wake: "07:30"
-sleep: 7
-mood: 4              # 1–5
-focus: 3             # hours of deep work
-done: [english, coding, paper]
-note: "one-line retro"
+```json
+{ "2026-09-07": { "arrive": "09:10", "leave": "18:30", "wake": "07:30", "sleep": 7, "mood": 4, "focus": 3,
+                  "done": ["english", "coding", "paper"], "note": "one-line retro" } }
 ```
+
+Times are 24-hour `HH:MM` in the data and shown as 12-hour AM/PM on the page. The `coding` habit is also checked automatically
+on days with a new LeetCode solution (derived from the public `_data/leetcode.json`, nothing is written).
 
 ## LeetCode
 
 Solutions live in a separate repo, [Aiant5615/leetcode](https://github.com/Aiant5615/leetcode), one folder per problem
 (`0001-two-sum/0001-two-sum.{c,cpp,py}`). The [LeetHub](https://github.com/raphaelheinz/LeetHub-3.0) extension pushes every
 accepted submission there. `.github/workflows/sync-leetcode.yml` pulls that repo hourly (or on demand from the Actions tab),
-writes `_data/leetcode.json`, and checks the `coding` habit for each day a solution was first committed. The `/leetcode/` page
+writes `_data/leetcode.json`. The `/leetcode/` page
 shows stats, a daily heatmap, and the code for each language.
 
 ## Layout
 
 | Path | Purpose |
 |---|---|
-| `_data/days/YYYY-MM-DD.yml` | One file per day |
 | `_data/goals.yml` | Weekly goals. The entry whose `week` matches the current ISO week (`2026-W37`) shows on the home page |
 | `_data/reading_list.yml` | Reading queue. Links to a review automatically when `link` matches the review's `paper.link` |
 | `_posts/` | Blog posts. `categories: [paper]` marks a paper review; `tags: [RL]` powers the field filter |
 | `_drafts/` | Not built. Contains two post templates |
-| `_config.yml` | Site info, `tracker.habits`, `arrive_goal`, `skip_weekends` |
-| `.github/ISSUE_TEMPLATE/log.yml` | The phone logging form |
-| `.github/workflows/log-from-issue.yml` | Issue → YAML → commit → close issue |
+| `_config.yml` | Site info, `tracker_repo` (private data), `tracker.habits`, `arrive_goal`, `skip_weekends` |
 | `.github/workflows/sync-leetcode.yml` | Hourly: leetcode repo → `_data/leetcode.json` + `coding` habit |
 | `scripts/sync_leetcode.py` | The converter used by that workflow |
-| `scripts/log.py`, `scripts/issue_to_log.py` | Terminal logger / Action converter |
+| `scripts/log.py` | Terminal logger (edits the private `days.json` via `gh api`) |
 
 ## Tracker settings
 
