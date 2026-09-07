@@ -70,7 +70,7 @@ Table 1 compares what each normalizer is invariant to:
 
 Layer norm is invariant to scaling and shifting the *whole weight matrix* and to scaling *one input example*, but not to scaling a single weight vector (since one unit's change alters the shared mean and variance). Batch norm is the mirror image. The "single example re-scaling" invariance is what makes LN robust to inputs with very different magnitudes, including a long sequence's late time steps.
 
-**Geometry (Section 5).** The paper analyses the parameter space with the Fisher information metric and shows that for a normalized layer the metric along the direction of scaling a weight vector shrinks as $$\|w\|$$ grows, so the effective learning rate for that direction is $$1/\|w\|^2$$ smaller: growing the weights automatically damps their own updates. This is an early version of the "normalization = implicit learning-rate scheduling" argument.
+**Geometry (Section 5).** The paper analyses the parameter space with the Fisher information metric and shows that for a normalized layer the metric along the direction of scaling a weight vector shrinks as $$\\lvert w\\rvert $$ grows, so the effective learning rate for that direction is $$1/\\lvert w\\rvert ^2$$ smaller: growing the weights automatically damps their own updates. This is an early version of the "normalization = implicit learning-rate scheduling" argument.
 
 ## Figures, explained
 

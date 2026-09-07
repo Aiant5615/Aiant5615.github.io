@@ -28,7 +28,7 @@ Before this paper, the standard language model was a smoothed $$n$$-gram: count 
 
 The goal is a conditional distribution $$P(w_t \mid w_{t-1}, \dots, w_{t-n+1})$$ over a vocabulary $$V$$. The model has two parts.
 
-**1. A shared lookup table.** Each word $$i \in V$$ has a feature vector $$C(i) \in \mathbb{R}^m$$, a row of a matrix $$C \in \mathbb{R}^{|V| \times m}$$. The input to the network is the concatenation of the previous words' vectors:
+**1. A shared lookup table.** Each word $$i \in V$$ has a feature vector $$C(i) \in \mathbb{R}^m$$, a row of a matrix $$C \in \mathbb{R}^{\lvert V\rvert  \times m}$$. The input to the network is the concatenation of the previous words' vectors:
 
 $$
 x = \big(C(w_{t-1}), C(w_{t-2}), \dots, C(w_{t-n+1})\big) \in \mathbb{R}^{(n-1)m}
@@ -36,19 +36,19 @@ $$
 
 The same $$C$$ is used at every position, so what the model learns about a word in one context transfers to every other context. This sharing is the whole point.
 
-**2. A one-hidden-layer network with optional skip connections.** The pre-softmax scores for the $$|V|$$ candidate next words are
+**2. A one-hidden-layer network with optional skip connections.** The pre-softmax scores for the $$\lvert V\rvert $$ candidate next words are
 
 $$
 y = b + Wx + U \tanh(d + Hx)
 $$
 
-where $$H \in \mathbb{R}^{h \times (n-1)m}$$ and $$d$$ form the hidden layer of size $$h$$, $$U \in \mathbb{R}^{|V| \times h}$$ maps hidden units to output scores, $$b$$ is the output bias, and $$W \in \mathbb{R}^{|V| \times (n-1)m}$$ is a *direct* connection from the input vectors to the output (set $$W = 0$$ to remove it; the paper finds it speeds up convergence but slightly hurts generalization). The scores become probabilities with a softmax:
+where $$H \in \mathbb{R}^{h \times (n-1)m}$$ and $$d$$ form the hidden layer of size $$h$$, $$U \in \mathbb{R}^{\lvert V\rvert  \times h}$$ maps hidden units to output scores, $$b$$ is the output bias, and $$W \in \mathbb{R}^{\lvert V\rvert  \times (n-1)m}$$ is a *direct* connection from the input vectors to the output (set $$W = 0$$ to remove it; the paper finds it speeds up convergence but slightly hurts generalization). The scores become probabilities with a softmax:
 
 $$
 P(w_t = i \mid w_{t-1}, \dots, w_{t-n+1}) = \frac{e^{y_i}}{\sum_{j} e^{y_j}}
 $$
 
-The full parameter set is $$\theta = (b, d, W, U, H, C)$$ and its size is dominated by the output layer: $$|V|(1 + nm + h) + h(1 + (n-1)m)$$ numbers. With $$|V| = 17{,}000$$, that output layer is why the model is slow.
+The full parameter set is $$\theta = (b, d, W, U, H, C)$$ and its size is dominated by the output layer: $$\lvert V\rvert (1 + nm + h) + h(1 + (n-1)m)$$ numbers. With $$\lvert V\rvert  = 17{,}000$$, that output layer is why the model is slow.
 
 **3. Training.** Maximize the regularized log-likelihood of the corpus,
 
@@ -58,7 +58,7 @@ $$
 
 with plain stochastic gradient ascent, $$\theta \leftarrow \theta + \varepsilon \frac{\partial \log P(w_t \mid \cdot)}{\partial \theta}$$. Note that the gradient flows into $$C$$: the embeddings are learned jointly with the predictor, not fixed beforehand. $$R$$ is a weight decay on everything except biases.
 
-**Cost.** One forward pass costs about $$|V| \times (h + nm)$$ multiply-adds because every candidate word needs a score. The authors parallelized over the vocabulary across 40 CPUs and still needed weeks. This bottleneck is exactly what hierarchical softmax and negative sampling attack in [Word2Vec](/blog/2026/09/07/word2vec/).
+**Cost.** One forward pass costs about $$\lvert V\rvert  \times (h + nm)$$ multiply-adds because every candidate word needs a score. The authors parallelized over the vocabulary across 40 CPUs and still needed weeks. This bottleneck is exactly what hierarchical softmax and negative sampling attack in [Word2Vec](/blog/2026/09/07/word2vec/).
 
 ## Figures, explained
 
