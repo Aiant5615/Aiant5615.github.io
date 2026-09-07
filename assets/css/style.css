@@ -208,7 +208,9 @@ details.more > summary { cursor: pointer; color: var(--muted); font-size: .88rem
 
 /* post list */
 .post-list { list-style: none; padding: 0; margin: 0; }
-.post-list li { display: grid; grid-template-columns: 88px 1fr; gap: 1rem; padding: .8rem 0; border-bottom: 1px solid var(--border); }
+.post-list li { display: grid; grid-template-columns: 84px 1fr; gap: .2rem 1rem; padding: .8rem 0; border-bottom: 1px solid var(--border); }
+.post-list .when { color: var(--muted); font-size: .85rem; font-variant-numeric: tabular-nums; padding-top: .15rem; white-space: nowrap; }
+@media (max-width: 480px) { .post-list li { grid-template-columns: 1fr; } }
 .post-list li:last-child { border-bottom: 0; }
 .post-list time { color: var(--muted); font-size: .85rem; font-variant-numeric: tabular-nums; padding-top: .15rem; }
 .post-list .t { font-weight: 600; color: var(--text); }
@@ -216,7 +218,7 @@ details.more > summary { cursor: pointer; color: var(--muted); font-size: .88rem
 .tag { display: inline-block; font-size: .72rem; padding: .1rem .5rem; border-radius: 999px; background: var(--surface-2); color: var(--muted); margin-left: .4rem; vertical-align: middle; }
 .tag:hover { text-decoration: none; background: var(--accent-soft); color: var(--accent); }
 .filter-bar { display: flex; flex-wrap: wrap; gap: .4rem; margin: .5rem 0 1.2rem; }
-@media (max-width: 480px) { .post-list li { grid-template-columns: 1fr; gap: .1rem; } }
+
 
 /* post body */
 .post-header { margin-bottom: 1.5rem; }
@@ -327,3 +329,8 @@ svg.figure { display: block; width: 100%; height: auto; max-width: 640px; margin
 .paper-fig { margin: 1.2rem 0 1.4rem; }
 .paper-fig img { display: block; max-width: 100%; height: auto; margin: 0 auto; background: #fff; border: 1px solid var(--border); border-radius: 8px; padding: .5rem; }
 .paper-fig figcaption { font-size: .8rem; color: var(--muted); text-align: center; margin-top: .4rem; }
+
+ol.post-list.numbered { counter-reset: item; }
+ol.post-list.numbered li { grid-template-columns: 2rem 84px 1fr; counter-increment: item; }
+@media (max-width: 480px) { ol.post-list.numbered li { grid-template-columns: 2rem 1fr; } ol.post-list.numbered .when { grid-column: 2; } }
+ol.post-list.numbered li::before { content: counter(item); color: var(--muted); font-variant-numeric: tabular-nums; font-size: .9rem; padding-top: .1rem; }

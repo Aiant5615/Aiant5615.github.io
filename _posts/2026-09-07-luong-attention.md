@@ -1,7 +1,7 @@
 ---
 title: "Effective Approaches to Attention-based Neural Machine Translation (Luong, Pham & Manning, 2015)"
 date: 2026-09-07 09:06:00 +0900
-categories: [paper]
+categories: [paper, llm-basic]
 tags: [NLP]
 math: true
 rating: 4
@@ -10,6 +10,7 @@ series_order: 6
 description: "Global vs local attention, the three score functions (dot, general, concat), the Gaussian-windowed local model, and input feeding. Each formula explained, plus what the alignment and length figures show."
 paper:
   title: Effective Approaches to Attention-based Neural Machine Translation
+  published: 2015-08
   authors: Minh-Thang Luong, Hieu Pham, Christopher D. Manning (Stanford)
   venue: EMNLP
   year: 2015
@@ -22,7 +23,7 @@ A cleaner and cheaper attention layer on top of a stacked LSTM: compare several 
 
 ## Why it matters
 
-[Bahdanau's](/blog/2026/09/07/bahdanau-attention/) attention used a small MLP as the score and a bidirectional GRU encoder. Luong et al. show that a plain **dot product** between decoder and encoder states works about as well, which is the score function the [Transformer](/blog/2026/09/07/transformer/) adopts (with scaling). They also fix the "which decoder state" question by scoring with the *current* top-layer state, and introduce input feeding.
+[Bahdanau's](/blog/bahdanau-attention/) attention used a small MLP as the score and a bidirectional GRU encoder. Luong et al. show that a plain **dot product** between decoder and encoder states works about as well, which is the score function the [Transformer](/blog/transformer/) adopts (with scaling). They also fix the "which decoder state" question by scoring with the *current* top-layer state, and introduce input feeding.
 
 ## Global attention, equation by equation
 
@@ -125,4 +126,4 @@ WMT'14 English–German: a single attention model reaches **20.9 BLEU** (dot, lo
 - Local attention is an early answer to the quadratic cost of attending everywhere; sparse and windowed Transformers rediscover it.
 - Input feeding is the paper's least-cited but most reused trick: any decoder that conditions on its own previous attention output (including a Transformer decoder through its residual stream) is doing a version of it.
 
-Next: [Byte-pair encoding](/blog/2026/09/07/bpe-subword/), which makes the vocabulary problem in these models go away.
+Next: [Byte-pair encoding](/blog/bpe-subword/), which makes the vocabulary problem in these models go away.

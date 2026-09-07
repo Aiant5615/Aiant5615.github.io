@@ -4,7 +4,7 @@ layout: default
 <article class="post">
   <header class="post-header">
     <div class="post-meta">
-      <time datetime="{{ page.date | date_to_xmlschema }}">{{ page.date | date: "%b %-d, %Y" }}</time>{% assign words = content | strip_html | number_of_words %} · {{ words | divided_by: 200 | plus: 1 }} min read
+{% if page.paper.published %}<span title="When the paper came out">Paper: {{ page.paper.published | append: "-01" | date: "%b %Y" }}</span> · {% endif %}{% assign words = content | strip_html | number_of_words %}<span>{{ words | divided_by: 200 | plus: 1 }} min read</span>
       {% for c in page.categories %}<a class="tag" href="{{ '/blog/#' | append: c | relative_url }}">{{ c }}</a>{% endfor %}{% for t in page.tags %}<a class="tag" href="{{ '/papers/#' | append: t | relative_url }}">#{{ t }}</a>{% endfor %}
     </div>
     <h1 class="post-title">{{ page.title }}</h1>
@@ -33,7 +33,8 @@ layout: default
   {% assign prev_n = page.series_order | minus: 1 %}{% assign next_n = page.series_order | plus: 1 %}
   {% assign prev = sp | where: "series_order", prev_n | first %}{% assign next = sp | where: "series_order", next_n | first %}
   <nav class="series-nav">
-    <div class="series-title">Part {{ page.series_order }} of {{ sp.size }} · <a href="{{ '/blog/2026/09/07/transformer-lineage/' | relative_url }}">From n-gram LMs to InstructGPT</a></div>
+    {% assign sinfo = site.data.series[page.series] %}
+    <div class="series-title">Part {{ page.series_order }} of {{ sp.size }} · <a href="{{ sinfo.index | default: '/blog/' | relative_url }}">{{ sinfo.title | default: page.series }}</a></div>
     <div class="series-links">
       {% if prev %}<a href="{{ prev.url | relative_url }}">← {{ prev.title | split: " (" | first }}</a>{% else %}<span></span>{% endif %}
       {% if next %}<a href="{{ next.url | relative_url }}">{{ next.title | split: " (" | first }} →</a>{% endif %}

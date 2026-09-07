@@ -1,0 +1,13 @@
+# Reading series. Posts reference these with `series:` + `series_order:`; `index` is the overview post.
+transformer-lineage:
+  title: "LLM basics: from n-gram LMs to InstructGPT"
+  index: /blog/transformer-lineage/
+  category: llm-basic
+llm-rl:
+  title: "LLM RL: from PPO to DeepSeek-R1"
+  index: /blog/llm-rl-lineage/
+  category: llm-rl
+multimodal-llm:
+  title: "Multimodal LLMs: from ViT to Qwen2-VL"
+  index: /blog/multimodal-lineage/
+  category: multimodal

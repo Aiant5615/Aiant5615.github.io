@@ -1,7 +1,7 @@
 ---
 title: "Attention Is All You Need (Vaswani et al., 2017)"
 date: 2026-09-07 09:10:00 +0900
-categories: [paper]
+categories: [paper, llm-basic]
 tags: [NLP, DL]
 math: true
 rating: 5
@@ -10,6 +10,7 @@ series_order: 10
 description: "The Transformer, every equation explained: scaled dot-product attention and why the scaling, multi-head attention, the position-wise FFN, sinusoidal positions, masking, the learning-rate schedule, and the complexity table. Plus a walk through the architecture figure."
 paper:
   title: Attention Is All You Need
+  published: 2017-06
   authors: Ashish Vaswani, Noam Shazeer, Niki Parmar, Jakob Uszkoreit, Llion Jones, Aidan N. Gomez, Łukasz Kaiser, Illia Polosukhin (Google)
   venue: NeurIPS
   year: 2017
@@ -66,7 +67,7 @@ $$
 \operatorname{Attention}(Q, K, V) = \operatorname{softmax}\!\Big(\frac{QK^{\top}}{\sqrt{d_k}}\Big) V
 $$
 
-Row $$i$$ of $$QK^{\top}$$ holds the dot products of query $$i$$ with every key; the row-wise softmax turns them into weights; multiplying by $$V$$ takes the weighted average of the values. It is [Luong's dot attention](/blog/2026/09/07/luong-attention/) for all queries at once, as one matrix product, which is why it runs fast.
+Row $$i$$ of $$QK^{\top}$$ holds the dot products of query $$i$$ with every key; the row-wise softmax turns them into weights; multiplying by $$V$$ takes the weighted average of the values. It is [Luong's dot attention](/blog/luong-attention/) for all queries at once, as one matrix product, which is why it runs fast.
 
 **Why divide by $$\sqrt{d_k}$$.** If the components of $$q$$ and $$k$$ are independent with mean 0 and variance 1, their dot product $$q \cdot k = \sum_{i=1}^{d_k} q_i k_i$$ has mean 0 and variance $$d_k$$. With $$d_k = 64$$ the logits would have standard deviation 8, the softmax would saturate on the largest entry, and the gradient through it would be tiny. Dividing by $$\sqrt{d_k}$$ restores unit variance. Footnote 4 of the paper notes that unscaled dot-product attention loses to additive attention at large $$d_k$$ for exactly this reason.
 
@@ -104,7 +105,7 @@ Each dimension pair is a sinusoid with a different wavelength, from $$2\pi$$ up 
 
 ## Residuals, normalization, regularization
 
-Each sublayer is wrapped as $$\operatorname{LayerNorm}(x + \operatorname{Sublayer}(x))$$ ([ResNet](/blog/2026/09/07/resnet/) shortcut, [layer norm](/blog/2026/09/07/layer-normalization/)), with dropout (0.1) on the sublayer output and on the summed embeddings. Label smoothing $$\epsilon_{ls} = 0.1$$ hurts perplexity but improves BLEU. $$N = 6$$ blocks per side.
+Each sublayer is wrapped as $$\operatorname{LayerNorm}(x + \operatorname{Sublayer}(x))$$ ([ResNet](/blog/resnet/) shortcut, [layer norm](/blog/layer-normalization/)), with dropout (0.1) on the sublayer output and on the summed embeddings. Label smoothing $$\epsilon_{ls} = 0.1$$ hurts perplexity but improves BLEU. $$N = 6$$ blocks per side.
 
 ## Training schedule
 
@@ -153,7 +154,7 @@ WMT'14 English–German **28.4 BLEU** (big model), more than 2 BLEU above the be
 ## Thoughts
 
 - Everything is a matrix product plus a softmax, so the model scales with hardware. That, more than accuracy, is why it won.
-- The decoder alone (masked self-attention + FFN) is [GPT](/blog/2026/09/07/gpt1/); the encoder alone is [BERT](/blog/2026/09/07/bert/); the full pair is [T5](/blog/2026/09/07/t5/). The three papers after this one are the three ways of cutting this figure in half.
+- The decoder alone (masked self-attention + FFN) is [GPT](/blog/gpt1/); the encoder alone is [BERT](/blog/bert/); the full pair is [T5](/blog/t5/). The three papers after this one are the three ways of cutting this figure in half.
 - The $$O(n^2)$$ attention and the fixed sinusoidal positions are the two design points most revised since: sparse/linear attention and rotary/ALiBi positions.
 
-Next: [GPT](/blog/2026/09/07/gpt1/), the decoder stack as a pretrained language model.
+Next: [GPT](/blog/gpt1/), the decoder stack as a pretrained language model.

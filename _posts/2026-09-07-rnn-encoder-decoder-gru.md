@@ -1,7 +1,7 @@
 ---
 title: "Learning Phrase Representations using RNN Encoder–Decoder (Cho et al., 2014)"
 date: 2026-09-07 09:03:00 +0900
-categories: [paper]
+categories: [paper, llm-basic]
 tags: [NLP]
 math: true
 rating: 4
@@ -10,6 +10,7 @@ series_order: 3
 description: "The encoder–decoder recipe and the GRU, equation by equation. Why the gates exist, how the model was used inside a phrase-based SMT system, and what the phrase-embedding plots show."
 paper:
   title: Learning Phrase Representations using RNN Encoder–Decoder for Statistical Machine Translation
+  published: 2014-06
   authors: Kyunghyun Cho, Bart van Merriënboer, Caglar Gulcehre, Dzmitry Bahdanau, Fethi Bougares, Holger Schwenk, Yoshua Bengio
   venue: EMNLP
   year: 2014
@@ -22,7 +23,7 @@ Encode a variable-length source phrase into a fixed vector with one RNN, decode 
 
 ## Why it matters
 
-This is the paper that names the **RNN Encoder–Decoder**. [Sutskever et al.](/blog/2026/09/07/seq2seq/) scaled the same idea into a full translation system a few months later, and [Bahdanau et al.](/blog/2026/09/07/bahdanau-attention/) fixed its bottleneck with attention. The GRU introduced here is still one of the two standard recurrent cells.
+This is the paper that names the **RNN Encoder–Decoder**. [Sutskever et al.](/blog/seq2seq/) scaled the same idea into a full translation system a few months later, and [Bahdanau et al.](/blog/bahdanau-attention/) fixed its bottleneck with attention. The GRU introduced here is still one of the two standard recurrent cells.
 
 ## The encoder–decoder, equation by equation
 
@@ -102,4 +103,4 @@ Adding the RNN score raised BLEU on the WMT'14 En–Fr test set from 33.30 (base
 - The fixed-size vector $$c$$ must carry a whole phrase. It works for phrases; the next two papers show it breaks for long sentences, and the fix (attention) keeps every encoder state instead of the last one.
 - The gate design is worth memorizing: "interpolate between old and new" appears again as the ResNet identity path and the Transformer's residual connection.
 
-Next: [Sequence to Sequence Learning](/blog/2026/09/07/seq2seq/), the same idea with LSTMs, four layers, and a reversed source sentence.
+Next: [Sequence to Sequence Learning](/blog/seq2seq/), the same idea with LSTMs, four layers, and a reversed source sentence.

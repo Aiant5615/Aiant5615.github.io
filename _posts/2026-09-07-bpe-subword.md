@@ -1,7 +1,7 @@
 ---
 title: "Neural Machine Translation of Rare Words with Subword Units (Sennrich, Haddow & Birch, 2016)"
 date: 2026-09-07 09:07:00 +0900
-categories: [paper]
+categories: [paper, llm-basic]
 tags: [NLP]
 math: true
 rating: 4
@@ -10,6 +10,7 @@ series_order: 7
 description: "Byte-pair encoding for tokenization. The merge algorithm worked through by hand, why it beats a back-off dictionary, joint vs separate vocabularies, and how the rare-word F1 tables should be read."
 paper:
   title: Neural Machine Translation of Rare Words with Subword Units
+  published: 2015-08
   authors: Rico Sennrich, Barry Haddow, Alexandra Birch (Edinburgh)
   venue: ACL
   year: 2016
@@ -22,7 +23,7 @@ Represent words as sequences of frequent character chunks learned by repeatedly 
 
 ## Why it matters
 
-Every model so far had a hard vocabulary cap (30k–160k words) and replaced the rest with an UNK token, then patched the output with dictionaries. Sennrich et al. move the problem to preprocessing. Their BPE is the tokenizer of the [Transformer](/blog/2026/09/07/transformer/) paper (37k joint vocabulary), of [GPT](/blog/2026/09/07/gpt1/), of [GPT-2 and 3](/blog/2026/09/07/gpt2/) in byte-level form, and of most LLMs since. Even T5's SentencePiece is a cousin.
+Every model so far had a hard vocabulary cap (30k–160k words) and replaced the rest with an UNK token, then patched the output with dictionaries. Sennrich et al. move the problem to preprocessing. Their BPE is the tokenizer of the [Transformer](/blog/transformer/) paper (37k joint vocabulary), of [GPT](/blog/gpt1/), of [GPT-2 and 3](/blog/gpt2/) in byte-level form, and of most LLMs since. Even T5's SentencePiece is a cousin.
 
 ## The algorithm
 
@@ -68,4 +69,4 @@ On WMT'15 English→German, BPE-J90k reached 22.8 BLEU on newstest2015 (vs 22.0 
 - GPT-2 later applies the same merges to *bytes* rather than Unicode characters, so the base vocabulary is 256 and any string is encodable.
 - A lot of LLM behaviour (arithmetic on digits, spelling, tokens that split mid-word) traces back to this frequency-driven segmentation. When a model "cannot count letters", this table of merges is why.
 
-Next, a detour into vision: [ResNet](/blog/2026/09/07/resnet/) and the residual connection every Transformer block uses.
+Next, a detour into vision: [ResNet](/blog/resnet/) and the residual connection every Transformer block uses.

@@ -1,7 +1,7 @@
 ---
 title: "Layer Normalization (Ba, Kiros & Hinton, 2016)"
 date: 2026-09-07 09:09:00 +0900
-categories: [paper]
+categories: [paper, llm-basic]
 tags: [DL]
 math: true
 rating: 4
@@ -10,6 +10,7 @@ series_order: 9
 description: "Normalize across the features of one example instead of across the batch. The formulas, the invariance table, the RNN version, why it suits variable-length sequences, and what the convergence figures show."
 paper:
   title: Layer Normalization
+  published: 2016-07
   authors: Jimmy Lei Ba, Jamie Ryan Kiros, Geoffrey E. Hinton (Toronto)
   venue: arXiv
   year: 2016
@@ -108,4 +109,4 @@ Consistent speed-ups on six RNN tasks (order embeddings, attentive reader, skip-
 - The Transformer authors picked LN without much discussion; it was simply the normalization that worked on sequences. RMSNorm (Zhang & Sennrich, 2019), which drops the mean subtraction and keeps only the scale term $$\frac{a}{\text{RMS}(a)} \odot g$$, is the version in LLaMA-style models today.
 - Where LN sits relative to the residual add ("post-norm" in Vaswani, "pre-norm" in GPT-2) turned out to matter more than the choice of normalizer.
 
-Next: the paper the series is named for, [Attention Is All You Need](/blog/2026/09/07/transformer/).
+Next: the paper the series is named for, [Attention Is All You Need](/blog/transformer/).

@@ -1,7 +1,7 @@
 ---
 title: "Training Language Models to Follow Instructions with Human Feedback (InstructGPT, Ouyang et al., 2022)"
 date: 2026-09-07 09:16:00 +0900
-categories: [paper]
+categories: [paper, llm-basic]
 tags: [NLP, RL]
 math: true
 rating: 5
@@ -10,6 +10,7 @@ series_order: 16
 description: "RLHF in three steps: supervised fine-tuning, a reward model trained on pairwise comparisons, and PPO against that reward with a KL penalty and a pretraining-mix term. Every loss explained, the labeler setup, the win-rate and truthfulness figures, and the alignment tax."
 paper:
   title: Training Language Models to Follow Instructions with Human Feedback
+  published: 2022-03
   authors: Long Ouyang, Jeff Wu, Xu Jiang, Diogo Almeida, Carroll L. Wainwright, Pamela Mishkin, Chong Zhang, Sandhini Agarwal, Katarina Slama, Alex Ray, et al. (OpenAI)
   venue: NeurIPS
   year: 2022
@@ -18,7 +19,7 @@ paper:
 
 ## One-line summary
 
-Turn a raw [GPT-3](/blog/2026/09/07/gpt3/) into a model that does what the user asks by (1) fine-tuning on human-written demonstrations, (2) training a reward model on human rankings of model outputs, and (3) optimizing the language model with reinforcement learning against that reward. Labelers prefer the 1.3B-parameter InstructGPT over the 175B GPT-3, and the model is more truthful and slightly less toxic, with little loss on standard benchmarks.
+Turn a raw [GPT-3](/blog/gpt3/) into a model that does what the user asks by (1) fine-tuning on human-written demonstrations, (2) training a reward model on human rankings of model outputs, and (3) optimizing the language model with reinforcement learning against that reward. Labelers prefer the 1.3B-parameter InstructGPT over the 175B GPT-3, and the model is more truthful and slightly less toxic, with little loss on standard benchmarks.
 
 ## Why it matters
 
@@ -89,7 +90,7 @@ The model is aligned to ~40 labelers' judgments under instructions written by Op
 ## Thoughts
 
 - The reward-model loss is Bradley–Terry; the PPO objective is "reward minus KL plus pretraining likelihood". Later methods (DPO) show the KL-regularized objective has a closed form that avoids RL entirely, but the three-step decomposition remains the mental model.
-- The paper's own framing, "the objective was wrong, not the model", closes the loop with [Bengio 2003](/blog/2026/09/07/nplm-bengio/): twenty years of making $$p(\text{next word})$$ better, and then one paper about the fact that $$p(\text{next word})$$ was never the goal.
+- The paper's own framing, "the objective was wrong, not the model", closes the loop with [Bengio 2003](/blog/nplm-bengio/): twenty years of making $$p(\text{next word})$$ better, and then one paper about the fact that $$p(\text{next word})$$ was never the goal.
 - What to read next from here: Constitutional AI (AI feedback instead of human labels), DPO (the closed form), and the scaling-law papers referenced by GPT-3.
 
-This is the last paper in the series. The [index post](/blog/2026/09/07/transformer-lineage/) lists all sixteen in order.
+This is the last paper in the series. The [index post](/blog/transformer-lineage/) lists all sixteen in order.

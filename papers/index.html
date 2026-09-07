@@ -4,39 +4,43 @@ title: Paper Reviews
 permalink: /papers/
 ---
 <h1>Paper Reviews</h1>
-<p class="muted">Summaries and thoughts on papers I've read, with the equations and figures explained. Start with the <a href="/blog/2026/09/07/transformer-lineage/">16-paper reading path</a>.</p>
+<p class="muted">Summaries with the equations and figures explained. Grouped into reading paths; each path has an overview post and part-by-part navigation.</p>
 
 {% assign papers = site.categories.paper %}
-{% if papers and papers.size > 0 %}
-{% assign all_tags = "" | split: "" %}
-{% for p in papers %}{% assign all_tags = all_tags | concat: p.tags %}{% endfor %}
-{% assign all_tags = all_tags | uniq | sort %}
-{% if all_tags.size > 0 %}
-<div class="filter-bar">
-  <a class="btn btn-sm" href="#" data-tag="">All</a>
-  {% for t in all_tags %}<a class="btn btn-sm" href="#{{ t }}" data-tag="{{ t }}">#{{ t }}</a>{% endfor %}
-</div>
-{% endif %}
-<ul class="post-list" id="paper-list">
-  {% for post in papers %}
-  <li data-tags="{{ post.tags | join: ' ' }}">
-    <time datetime="{{ post.date | date_to_xmlschema }}">{{ post.date | date: "%b %-d, %Y" }}</time>
+{% for entry in site.data.series %}
+{% assign key = entry[0] %}{% assign info = entry[1] %}
+{% assign in_series = papers | where: "series", key | sort: "series_order" %}
+{% if in_series.size > 0 %}
+<div class="section-head" id="{{ info.category }}"><h2>{{ info.title }}</h2><a class="small" href="{{ info.index | relative_url }}">Overview →</a></div>
+<ol class="post-list numbered">
+  {% for post in in_series %}
+  <li>
+    <span class="when">{% if post.paper.published %}{{ post.paper.published | append: "-01" | date: "%b %Y" }}{% endif %}</span>
     <div>
       <a class="t" href="{{ post.url | relative_url }}">{{ post.title }}</a>
       {% if post.rating %}<span class="tag" style="color:var(--warn)">{% for i in (1..post.rating) %}★{% endfor %}</span>{% endif %}
       {% for t in post.tags %}<span class="tag">#{{ t }}</span>{% endfor %}
-      <div class="x">{% if post.paper %}{{ post.paper.authors }}{% if post.paper.venue %} · {{ post.paper.venue }} {{ post.paper.year }}{% endif %}{% else %}{{ post.description | default: post.excerpt | strip_html | strip_newlines | truncate: 120 }}{% endif %}</div>
+      <div class="x">{% if post.paper %}{{ post.paper.authors }}{% if post.paper.venue %} · {{ post.paper.venue }}{% endif %}{% else %}{{ post.description | default: post.excerpt | strip_html | strip_newlines | truncate: 120 }}{% endif %}</div>
+    </div>
+  </li>
+  {% endfor %}
+</ol>
+{% endif %}
+{% endfor %}
+
+{% assign loose = papers | where_exp: "p", "p.series == nil" %}
+{% if loose.size > 0 %}
+<h2>Other reviews</h2>
+<ul class="post-list">
+  {% for post in loose %}
+  <li>
+    <div>
+      <a class="t" href="{{ post.url | relative_url }}">{{ post.title }}</a>
+      {% if post.rating %}<span class="tag" style="color:var(--warn)">{% for i in (1..post.rating) %}★{% endfor %}</span>{% endif %}
+      {% for t in post.tags %}<span class="tag">#{{ t }}</span>{% endfor %}
+      <div class="x">{% if post.paper %}{{ post.paper.authors }}{% if post.paper.venue %} · {{ post.paper.venue }}{% endif %}{% if post.paper.year %} {{ post.paper.year }}{% endif %}{% else %}{{ post.description | default: post.excerpt | strip_html | strip_newlines | truncate: 120 }}{% endif %}</div>
     </div>
   </li>
   {% endfor %}
 </ul>
-<script>
-(function(){
-  const bar=document.querySelector('.filter-bar'); if(!bar) return; const items=[...document.querySelectorAll('#paper-list li')];
-  function apply(){ const t=location.hash.replace('#',''); items.forEach(li=>{ li.style.display=!t||li.dataset.tags.split(' ').includes(t)?'':'none'; });
-    bar.querySelectorAll('a').forEach(a=>a.classList.toggle('btn-primary',a.dataset.tag===t)); }
-  bar.addEventListener('click',e=>{ const a=e.target.closest('a'); if(!a) return; if(a.dataset.tag===''){ e.preventDefault(); history.replaceState(null,'',location.pathname); apply(); } });
-  window.addEventListener('hashchange',apply); apply();
-})();
-</script>
-{% else %}<div class="empty">No reviews yet.</div>{% endif %}
+{% endif %}

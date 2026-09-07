@@ -1,7 +1,7 @@
 ---
 title: "Neural Machine Translation by Jointly Learning to Align and Translate (Bahdanau, Cho & Bengio, 2015)"
 date: 2026-09-07 09:05:00 +0900
-categories: [paper]
+categories: [paper, llm-basic]
 tags: [NLP]
 math: true
 rating: 5
@@ -10,6 +10,7 @@ series_order: 5
 description: "Additive attention, derived line by line. Why the fixed-length vector was the bottleneck, how the alignment weights are computed, how to read the alignment heatmaps, and what the BLEU-vs-length plot proves."
 paper:
   title: Neural Machine Translation by Jointly Learning to Align and Translate
+  published: 2014-09
   authors: Dzmitry Bahdanau, Kyunghyun Cho, Yoshua Bengio
   venue: ICLR
   year: 2015
@@ -46,7 +47,7 @@ This is where attention enters NLP. Every later model in this series is built on
 
 ## The problem with a fixed vector
 
-In the [RNN encoder–decoder](/blog/2026/09/07/rnn-encoder-decoder-gru/), the decoder conditions on one vector $$c$$ for the whole output. The authors' Figure 2 shows what that costs: an encoder–decoder trained on sentences up to 30 words (RNNenc-30) degrades steeply on longer test sentences, and even the 50-word version drops after 40 words. A vector of a few thousand numbers cannot hold a 60-word sentence at the fidelity translation needs.
+In the [RNN encoder–decoder](/blog/rnn-encoder-decoder-gru/), the decoder conditions on one vector $$c$$ for the whole output. The authors' Figure 2 shows what that costs: an encoder–decoder trained on sentences up to 30 words (RNNenc-30) degrades steeply on longer test sentences, and even the 50-word version drops after 40 words. A vector of a few thousand numbers cannot hold a 60-word sentence at the fidelity translation needs.
 
 ## The model, equation by equation
 
@@ -109,7 +110,7 @@ On WMT'14 English–French (Table 1): RNNsearch-50 reaches **28.45 BLEU** on all
 ## Thoughts
 
 - The three-step recipe (score every key against the query, softmax, weighted sum of values) is the Transformer's attention with a different score function. Here queries are decoder states, keys and values are both $$h_j$$.
-- Using $$s_{i-1}$$ rather than $$s_i$$ in the score is a design detail [Luong et al.](/blog/2026/09/07/luong-attention/) change, and it matters for how the computation can be parallelized.
+- Using $$s_{i-1}$$ rather than $$s_i$$ in the score is a design detail [Luong et al.](/blog/luong-attention/) change, and it matters for how the computation can be parallelized.
 - Attention was sold as a fix for long sentences, but the alignment heatmaps hint at the bigger idea: the model produces an interpretable map of *which input mattered for which output*, which becomes the main tool for analysing Transformers.
 
-Next: [Luong et al.](/blog/2026/09/07/luong-attention/) simplify the scoring, add local windows, and feed attention back into the decoder.
+Next: [Luong et al.](/blog/luong-attention/) simplify the scoring, add local windows, and feed attention back into the decoder.

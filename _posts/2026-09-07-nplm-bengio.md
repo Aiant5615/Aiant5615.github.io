@@ -1,7 +1,7 @@
 ---
 title: "A Neural Probabilistic Language Model (Bengio et al., 2003)"
 date: 2026-09-07 09:01:00 +0900
-categories: [paper]
+categories: [paper, llm-basic]
 tags: [NLP]
 math: true
 rating: 4
@@ -10,6 +10,7 @@ series_order: 1
 description: "The paper that put word embeddings inside a neural language model. Every equation of the model, the training cost that motivated a decade of tricks, and what its figures show."
 paper:
   title: A Neural Probabilistic Language Model
+  published: 2003-02
   authors: Yoshua Bengio, Réjean Ducharme, Pascal Vincent, Christian Jauvin
   venue: Journal of Machine Learning Research
   year: 2003
@@ -58,7 +59,7 @@ $$
 
 with plain stochastic gradient ascent, $$\theta \leftarrow \theta + \varepsilon \frac{\partial \log P(w_t \mid \cdot)}{\partial \theta}$$. Note that the gradient flows into $$C$$: the embeddings are learned jointly with the predictor, not fixed beforehand. $$R$$ is a weight decay on everything except biases.
 
-**Cost.** One forward pass costs about $$\lvert V\rvert  \times (h + nm)$$ multiply-adds because every candidate word needs a score. The authors parallelized over the vocabulary across 40 CPUs and still needed weeks. This bottleneck is exactly what hierarchical softmax and negative sampling attack in [Word2Vec](/blog/2026/09/07/word2vec/).
+**Cost.** One forward pass costs about $$\lvert V\rvert  \times (h + nm)$$ multiply-adds because every candidate word needs a score. The authors parallelized over the vocabulary across 40 CPUs and still needed weeks. This bottleneck is exactly what hierarchical softmax and negative sampling attack in [Word2Vec](/blog/word2vec/).
 
 ## Figures, explained
 
@@ -74,7 +75,7 @@ On the 1.2M-word Brown corpus (vocabulary 16,383) the neural model reached perpl
 ## Thoughts
 
 - Everything here is still in a modern LM: a learned embedding matrix, a nonlinear predictor, a softmax over the vocabulary, and maximum likelihood by SGD. What changed is the predictor (RNN, then attention) and the scale.
-- The "direct connection" $$W$$ is an early residual-style shortcut, fifteen years before [ResNet](/blog/2026/09/07/resnet/) made it standard.
+- The "direct connection" $$W$$ is an early residual-style shortcut, fifteen years before [ResNet](/blog/resnet/) made it standard.
 - The paper's own future-work list already mentions energy-based models, decomposed output layers, and using the representations for other tasks. All three happened.
 
-Next in the series: [Word2Vec](/blog/2026/09/07/word2vec/), which keeps the lookup table and throws away the hidden layer.
+Next in the series: [Word2Vec](/blog/word2vec/), which keeps the lookup table and throws away the hidden layer.

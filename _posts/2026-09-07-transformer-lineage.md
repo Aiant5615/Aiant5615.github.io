@@ -1,7 +1,7 @@
 ---
-title: "From n-gram LMs to InstructGPT: a 16-paper reading path"
+title: "LLM basics: from n-gram LMs to InstructGPT, a 16-paper reading path"
 date: 2026-09-07 09:17:00 +0900
-categories: [paper, study]
+categories: [paper, llm-basic]
 tags: [NLP]
 description: "The sixteen papers that get you from the first neural language model to RLHF, grouped by what each one added, with a detailed review of every one."
 ---
@@ -10,22 +10,22 @@ Sixteen papers, read in order, that explain where today's language models come f
 
 | | Year | Paper | What it added |
 |---|---|---|---|
-| **Word representations** | 2003 | [A Neural Probabilistic Language Model](/blog/2026/09/07/nplm-bengio/) — Bengio et al. | Learned word vectors inside a neural LM |
-| | 2013 | [Efficient Estimation of Word Representations](/blog/2026/09/07/word2vec/) — Mikolov et al. | Word2Vec: cheap embeddings at scale |
-| **RNN Seq2Seq** | 2014 | [RNN Encoder–Decoder](/blog/2026/09/07/rnn-encoder-decoder-gru/) — Cho et al. | The encoder–decoder and the GRU |
-| | 2014 | [Sequence to Sequence Learning](/blog/2026/09/07/seq2seq/) — Sutskever, Vinyals, Le | Deep LSTM seq2seq beats SMT |
-| **Attention** | 2015 | [Jointly Learning to Align and Translate](/blog/2026/09/07/bahdanau-attention/) — Bahdanau, Cho, Bengio | Additive attention over all encoder states |
-| | 2015 | [Effective Approaches to Attention](/blog/2026/09/07/luong-attention/) — Luong et al. | Dot-product scores, local attention, input feeding |
-| | 2016 | [Subword Units](/blog/2026/09/07/bpe-subword/) — Sennrich et al. | BPE tokenization, open vocabulary |
-| **Transformer parts** | 2016 | [Deep Residual Learning](/blog/2026/09/07/resnet/) — He et al. | Residual connections |
-| | 2016 | [Layer Normalization](/blog/2026/09/07/layer-normalization/) — Ba, Kiros, Hinton | Per-example normalization for sequences |
-| | 2017 | [Attention Is All You Need](/blog/2026/09/07/transformer/) — Vaswani et al. | The Transformer |
-| **Pretraining** | 2018 | [Generative Pre-Training](/blog/2026/09/07/gpt1/) — Radford et al. | GPT: decoder LM, then fine-tune |
-| | 2018 | [BERT](/blog/2026/09/07/bert/) — Devlin et al. | Masked LM on a bidirectional encoder |
-| | 2019 | [Unsupervised Multitask Learners](/blog/2026/09/07/gpt2/) — Radford et al. | GPT-2: scale and zero-shot |
-| | 2020 | [Unified Text-to-Text Transformer](/blog/2026/09/07/t5/) — Raffel et al. | T5: everything is text-to-text |
-| | 2020 | [Few-Shot Learners](/blog/2026/09/07/gpt3/) — Brown et al. | GPT-3: in-context learning at 175B |
-| **Alignment** | 2022 | [Instructions with Human Feedback](/blog/2026/09/07/instructgpt/) — Ouyang et al. | InstructGPT: SFT, reward model, PPO |
+| **Word representations** | 2003 | [A Neural Probabilistic Language Model](/blog/nplm-bengio/) — Bengio et al. | Learned word vectors inside a neural LM |
+| | 2013 | [Efficient Estimation of Word Representations](/blog/word2vec/) — Mikolov et al. | Word2Vec: cheap embeddings at scale |
+| **RNN Seq2Seq** | 2014 | [RNN Encoder–Decoder](/blog/rnn-encoder-decoder-gru/) — Cho et al. | The encoder–decoder and the GRU |
+| | 2014 | [Sequence to Sequence Learning](/blog/seq2seq/) — Sutskever, Vinyals, Le | Deep LSTM seq2seq beats SMT |
+| **Attention** | 2015 | [Jointly Learning to Align and Translate](/blog/bahdanau-attention/) — Bahdanau, Cho, Bengio | Additive attention over all encoder states |
+| | 2015 | [Effective Approaches to Attention](/blog/luong-attention/) — Luong et al. | Dot-product scores, local attention, input feeding |
+| | 2016 | [Subword Units](/blog/bpe-subword/) — Sennrich et al. | BPE tokenization, open vocabulary |
+| **Transformer parts** | 2016 | [Deep Residual Learning](/blog/resnet/) — He et al. | Residual connections |
+| | 2016 | [Layer Normalization](/blog/layer-normalization/) — Ba, Kiros, Hinton | Per-example normalization for sequences |
+| | 2017 | [Attention Is All You Need](/blog/transformer/) — Vaswani et al. | The Transformer |
+| **Pretraining** | 2018 | [Generative Pre-Training](/blog/gpt1/) — Radford et al. | GPT: decoder LM, then fine-tune |
+| | 2018 | [BERT](/blog/bert/) — Devlin et al. | Masked LM on a bidirectional encoder |
+| | 2019 | [Unsupervised Multitask Learners](/blog/gpt2/) — Radford et al. | GPT-2: scale and zero-shot |
+| | 2020 | [Unified Text-to-Text Transformer](/blog/t5/) — Raffel et al. | T5: everything is text-to-text |
+| | 2020 | [Few-Shot Learners](/blog/gpt3/) — Brown et al. | GPT-3: in-context learning at 175B |
+| **Alignment** | 2022 | [Instructions with Human Feedback](/blog/instructgpt/) — Ouyang et al. | InstructGPT: SFT, reward model, PPO |
 
 ## How to read them
 
