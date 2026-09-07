@@ -319,7 +319,7 @@
   }
 
   // ───────── time field + picker (12-hour, AM/PM) ─────────
-  const timeField = n => `<div class="timefield"><input id="tr-${n}" type="text" name="${n}" inputmode="text" autocomplete="off" placeholder="9:10 AM"><button type="button" class="clock" data-for="${n}" aria-label="Pick a time">🕒</button></div>`;
+  const timeField = n => `<div class="timefield"><input id="tr-${n}" type="text" name="${n}" inputmode="text" autocomplete="off" placeholder="h:mm AM"><button type="button" class="clock" data-for="${n}" aria-label="Pick a time">🕒</button></div>`;
   let picker = null;
   function openPicker(input) {
     if (picker && picker.input === input) return closePicker();
