@@ -7,13 +7,14 @@
       <a href="{{ '/blog/' | relative_url }}" {% if page.url contains '/blog/' %}class="active"{% endif %}>Blog</a>
       <a href="{{ '/papers/' | relative_url }}" {% if page.url contains '/papers/' %}class="active"{% endif %}>Papers</a>
       <a href="{{ '/about/' | relative_url }}" {% if page.url contains '/about/' %}class="active"{% endif %}>About</a>
-      <button type="button" class="theme-toggle" id="theme-toggle" title="Toggle light/dark" aria-label="Toggle theme">◐</button>
+      <button type="button" class="theme-toggle" id="theme-toggle" title="Toggle light/dark" aria-label="Toggle theme">☾</button>
     </nav>
   </div>
 </header>
 <script>
-(function(){var b=document.getElementById("theme-toggle");if(!b)return;
-b.addEventListener("click",function(){var r=document.documentElement,cur=r.getAttribute("data-theme");
-var sys=window.matchMedia("(prefers-color-scheme: dark)").matches?"dark":"light";var now=(cur||sys)==="dark"?"light":"dark";
-r.setAttribute("data-theme",now);try{localStorage.setItem("theme",now);}catch(e){}});})();
+(function(){var b=document.getElementById("theme-toggle");if(!b)return;var r=document.documentElement;
+function cur(){return r.getAttribute("data-theme")||(window.matchMedia("(prefers-color-scheme: dark)").matches?"dark":"light");}
+function paint(){var d=cur()==="dark";b.textContent=d?"☀":"☾";b.title=d?"Switch to light":"Switch to dark";}
+b.addEventListener("click",function(){var now=cur()==="dark"?"light":"dark";r.setAttribute("data-theme",now);try{localStorage.setItem("theme",now);}catch(e){}paint();});
+window.matchMedia("(prefers-color-scheme: dark)").addEventListener("change",paint);paint();})();
 </script>

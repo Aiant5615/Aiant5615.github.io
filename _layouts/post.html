@@ -4,7 +4,7 @@ layout: default
 <article class="post">
   <header class="post-header">
     <div class="post-meta">
-      <time datetime="{{ page.date | date_to_xmlschema }}">{{ page.date | date: "%b %-d, %Y" }}</time>
+      <time datetime="{{ page.date | date_to_xmlschema }}">{{ page.date | date: "%b %-d, %Y" }}</time>{% assign words = content | strip_html | number_of_words %} · {{ words | divided_by: 200 | plus: 1 }} min read
       {% for c in page.categories %}<a class="tag" href="{{ '/blog/#' | append: c | relative_url }}">{{ c }}</a>{% endfor %}{% for t in page.tags %}<a class="tag" href="{{ '/papers/#' | append: t | relative_url }}">#{{ t }}</a>{% endfor %}
     </div>
     <h1 class="post-title">{{ page.title }}</h1>

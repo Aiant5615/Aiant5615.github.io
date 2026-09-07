@@ -3,11 +3,11 @@ layout: default
 title: Home
 ---
 <section class="hero">
-  <h1>{{ site.title }}</h1>
+  <h1>Hi, I'm Seungwon.</h1>
   <p>{{ site.description }}</p>
 </section>
 
-<div class="card">
+<div class="card" id="today-card" hidden>
   <div class="section-head"><h3 style="margin:0">Today</h3><a class="small" href="{{ '/tracker/' | relative_url }}">Open the tracker →</a></div>
   <div class="today-bar" id="today-bar" style="margin-top:.6rem"><span class="muted">Loading…</span></div>
 </div>

@@ -60,10 +60,12 @@ defaults:
       type: posts
     values:
       layout: post
+      image: /assets/og.png
   - scope:
       path: ""
     values:
       layout: page
+      image: /assets/og.png
 
 exclude:
   - scripts

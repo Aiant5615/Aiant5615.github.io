@@ -153,8 +153,9 @@
   }
 
   // ───────── heatmap ─────────
+  let heatMetric = "all";   // survives re-renders after a save
   function renderHeatmap(root, selectRoot) {
-    let metric = "all";
+    let metric = heatMetric;
     const cell = 12, gap = 3, step = cell + gap, left = 22, top = 18;
     const weeksFor = () => { const w = root.clientWidth; return w < 200 ? 26 : Math.max(8, Math.min(26, Math.floor((w - 40 - left) / step))); };   // unknown width (hidden tab) → full 26 weeks
     const level = e => {
@@ -205,12 +206,13 @@
     if (selectRoot) {
       const opts = [["all", "All"], ...HABITS.map(h => [h.key, `${h.emoji} ${h.label}`]), ["arrive", "🏢 Arrival"]];
       selectRoot.innerHTML = `<div class="seg">${opts.map(([v, l]) => `<button type="button" data-v="${v}" class="${v === metric ? "on" : ""}">${esc(l)}</button>`).join("")}</div>`;
-      selectRoot.querySelectorAll("button").forEach(b => b.addEventListener("click", () => { metric = b.dataset.v; selectRoot.querySelectorAll("button").forEach(x => x.classList.toggle("on", x === b)); draw(); }));
+      selectRoot.querySelectorAll("button").forEach(b => b.addEventListener("click", () => { metric = heatMetric = b.dataset.v; selectRoot.querySelectorAll("button").forEach(x => x.classList.toggle("on", x === b)); draw(); }));
     }
     draw();
     let rt, lastWeeks = weeksFor();
-    const onResize = () => { clearTimeout(rt); rt = setTimeout(() => { const w = weeksFor(); if (w !== lastWeeks) { lastWeeks = w; draw(); } }, 150); };
-    if (window.ResizeObserver) new ResizeObserver(onResize).observe(root); else window.addEventListener("resize", onResize);
+    const onResize = () => { clearTimeout(rt); rt = setTimeout(() => { const w = weeksFor(); if (w !== lastWeeks) { lastWeeks = w; (root._redraw || draw)(); } }, 150); };
+    if (!root._observed) { root._observed = true; if (window.ResizeObserver) new ResizeObserver(onResize).observe(root); else window.addEventListener("resize", onResize); }
+    root._redraw = draw;
   }
 
   // ───────── arrival chart (last 30 days) ─────────
@@ -558,7 +560,7 @@
     form.querySelectorAll("[name=done]").forEach(i => { i.checked = e.done.has(i.value); i.closest(".check").classList.toggle("on", i.checked); });
     if (e.wake != null || e.sleep != null || e.mood != null || e.focus != null) form.querySelector("details.more").open = true;
     form._update();
-    if (!silent) form.scrollIntoView({ behavior: "smooth", block: "start" });
+    if (!silent) { const w = document.getElementById("full-form-wrap"); if (w) w.open = true; form.scrollIntoView({ behavior: "smooth", block: "start" }); }
   }
 
   // ───────── CSV export ─────────
@@ -596,6 +598,7 @@
     const connected = !!token();
     if ($("private-notice")) $("private-notice").hidden = connected;
     if ($("tracker-body")) $("tracker-body").hidden = !connected;
+    if ($("today-card")) $("today-card").hidden = !connected;   // home: the whole card is owner-only
     if (!connected) {
       if ($("today-bar")) $("today-bar").innerHTML = `<span class="muted">🔒 Private — <a href="/tracker/">connect on the tracker page</a> to see today.</span>`;
       if ($("tracker-count")) $("tracker-count").hidden = true;
