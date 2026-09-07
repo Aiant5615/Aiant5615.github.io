@@ -346,6 +346,7 @@
       if (done.length) q.set("done", done.join(", "));
       window.open(`https://github.com/${REPO}/issues/new?${q.toString()}`, "_blank", "noopener");
     });
+    root._update = update;
     if (get(TODAY_KEY)) fillForm(TODAY_KEY, true); else update();
 
     function val(n) { const i = root.querySelector(`[name=${n}]`); return i ? i.value.trim() : ""; }
@@ -368,7 +369,6 @@
       root.querySelector("#tr-hint").textContent = `→ _data/days/${d || "YYYY-MM-DD"}.yml`;
     }
     function flash(msg) { root.querySelector("#tr-hint").textContent = msg; setTimeout(update, 4000); }
-    root._update = update;
   }
   function fillForm(k, silent) {
     if (!form) return;
@@ -409,7 +409,7 @@
     if ($("total-days")) $("total-days").textContent = KEYS.length;
   }
   document.addEventListener("DOMContentLoaded", () => {
-    fetch(CFG.dataUrl || "/assets/data/days.json", { cache: "no-cache" })
+    fetch((CFG.dataUrl || "/assets/data/days.json") + "?t=" + Date.now(), { cache: "no-store" })   // CDN 캐시(10분) 우회
       .then(r => r.ok ? r.json() : {})
       .catch(() => ({}))
       .then(raw => { load(raw); mount(); });
