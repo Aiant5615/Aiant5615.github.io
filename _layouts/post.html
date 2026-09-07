@@ -4,7 +4,7 @@ layout: default
 <article class="post">
   <header class="post-header">
     <div class="post-meta">
-      <time datetime="{{ page.date | date_to_xmlschema }}">{{ page.date | date: "%Y.%m.%d" }}</time>
+      <time datetime="{{ page.date | date_to_xmlschema }}">{{ page.date | date: "%b %-d, %Y" }}</time>
       {% for c in page.categories %}<a class="tag" href="{{ '/blog/#' | append: c | relative_url }}">{{ c }}</a>{% endfor %}{% for t in page.tags %}<a class="tag" href="{{ '/papers/#' | append: t | relative_url }}">#{{ t }}</a>{% endfor %}
     </div>
     <h1 class="post-title">{{ page.title }}</h1>
@@ -19,7 +19,7 @@ layout: default
       {% if page.paper.venue %} · {{ page.paper.venue }}{% endif %}
       {% if page.paper.year %} {{ page.paper.year }}{% endif %}
     </div>
-    {% if page.paper.link %}<a class="paper-card-link" href="{{ page.paper.link }}" target="_blank" rel="noopener">원문 보기 ↗</a>{% endif %}
+    {% if page.paper.link %}<a class="paper-card-link" href="{{ page.paper.link }}" target="_blank" rel="noopener">Read the paper ↗</a>{% endif %}
     {% if page.rating %}<div class="paper-card-rating">{% for i in (1..5) %}{% if i <= page.rating %}★{% else %}☆{% endif %}{% endfor %}</div>{% endif %}
   </aside>
   {% endif %}
@@ -29,7 +29,7 @@ layout: default
   </div>
 
   <footer class="post-footer">
-    <a href="{{ '/blog/' | relative_url }}">← 글 목록</a>
+    <a href="{{ '/blog/' | relative_url }}">← All posts</a>
   </footer>
 </article>
 

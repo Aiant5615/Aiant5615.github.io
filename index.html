@@ -1,6 +1,6 @@
 ---
 layout: default
-title: 홈
+title: Home
 ---
 <section class="hero">
   <h1>{{ site.title }}</h1>
@@ -8,8 +8,8 @@ title: 홈
 </section>
 
 <div class="card">
-  <div class="section-head"><h3 style="margin:0">오늘</h3><a class="small" href="{{ '/tracker/' | relative_url }}">트래커 전체 보기 →</a></div>
-  <div class="today-bar" id="today-bar" style="margin-top:.6rem"><span class="muted">불러오는 중…</span></div>
+  <div class="section-head"><h3 style="margin:0">Today</h3><a class="small" href="{{ '/tracker/' | relative_url }}">Open the tracker →</a></div>
+  <div class="today-bar" id="today-bar" style="margin-top:.6rem"><span class="muted">Loading…</span></div>
 </div>
 
 {% assign goals = site.data.goals %}
@@ -17,18 +17,18 @@ title: 홈
 {% assign cur = goals | where: "week", now_week | first %}
 <div class="grid grid-2" style="margin-top:.9rem">
   <div class="card">
-    <div class="section-head"><h3 style="margin:0">이번 주 목표</h3><span class="small muted">{{ now_week }}</span></div>
+    <div class="section-head"><h3 style="margin:0">This week's goals</h3><span class="small muted">{{ now_week }}</span></div>
     {% if cur %}
     <ul class="goal-list" style="margin-top:.5rem">
       {% for item in cur.goals %}<li class="{% if item.done %}done{% endif %}"><span class="box">{% if item.done %}✓{% endif %}</span><span>{{ item.text }}</span></li>{% endfor %}
     </ul>
     {% else %}
-    <div class="empty">이번 주 목표가 아직 없습니다.{% if goals and goals.size > 0 %}{% assign prev = goals | last %} 마지막 목표는 {{ prev.week }}.{% endif %}</div>
+    <div class="empty">No goals for this week yet.{% if goals and goals.size > 0 %}{% assign prev = goals | last %} Last entry: {{ prev.week }}.{% endif %}</div>
     {% endif %}
-    <p class="small muted" style="margin:.6rem 0 0"><code>_data/goals.yml</code>에 <code>week: {{ now_week }}</code> 항목을 추가하세요.</p>
+    <p class="small muted" style="margin:.6rem 0 0">Add a <code>week: {{ now_week }}</code> entry to <code>_data/goals.yml</code>.</p>
   </div>
   <div class="card">
-    <div class="section-head"><h3 style="margin:0">읽는 중</h3><a class="small" href="{{ '/papers/' | relative_url }}">리딩 리스트 →</a></div>
+    <div class="section-head"><h3 style="margin:0">Currently reading</h3><a class="small" href="{{ '/papers/' | relative_url }}">Reading list →</a></div>
     {% assign reading = site.data.reading_list | where: "status", "reading" %}
     {% if reading.size > 0 %}
       {% for r in reading limit: 4 %}
@@ -37,16 +37,16 @@ title: 홈
         <div class="reading-meta">{{ r.authors }}{% if r.venue %} · {{ r.venue }}{% endif %}{% if r.year %} {{ r.year }}{% endif %}</div></div>
       </div>
       {% endfor %}
-    {% else %}<div class="empty">지금 읽는 논문이 없습니다.</div>{% endif %}
+    {% else %}<div class="empty">Nothing in progress right now.</div>{% endif %}
   </div>
 </div>
 
-<div class="section-head"><h2>최근 글</h2><a class="small" href="{{ '/blog/' | relative_url }}">전체 →</a></div>
+<div class="section-head"><h2>Recent posts</h2><a class="small" href="{{ '/blog/' | relative_url }}">All posts →</a></div>
 {% if site.posts.size > 0 %}
 <ul class="post-list">
   {% for post in site.posts limit: 6 %}
   <li>
-    <time datetime="{{ post.date | date_to_xmlschema }}">{{ post.date | date: "%Y.%m.%d" }}</time>
+    <time datetime="{{ post.date | date_to_xmlschema }}">{{ post.date | date: "%b %-d, %Y" }}</time>
     <div>
       <a class="t" href="{{ post.url | relative_url }}">{{ post.title }}</a>{% for c in post.categories %}<span class="tag">{{ c }}</span>{% endfor %}
       <div class="x">{{ post.excerpt | strip_html | strip_newlines | truncate: 110 }}</div>
@@ -54,6 +54,6 @@ title: 홈
   </li>
   {% endfor %}
 </ul>
-{% else %}<div class="empty">아직 글이 없습니다.</div>{% endif %}
+{% else %}<div class="empty">No posts yet.</div>{% endif %}
 
 {% include tracker-data.html %}

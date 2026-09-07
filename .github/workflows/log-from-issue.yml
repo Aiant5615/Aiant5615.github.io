@@ -1,4 +1,4 @@
-name: 기록 반영 (Issue → _data/days)
+name: Log from issue (Issue → _data/days)
 
 on:
   issues:
@@ -10,7 +10,7 @@ permissions:
   pages: write
 
 jobs:
-  # 소유자가 아닌 사람이 연 log 이슈는 아무것도 저장하지 않고 바로 닫음
+  # log issues opened by anyone other than the owner: save nothing, close immediately
   reject:
     if: >-
       github.event.action == 'opened' &&
@@ -21,7 +21,7 @@ jobs:
       issues: write
     steps:
       - run: |
-          gh issue comment "$N" --repo "$R" --body "이 폼은 저장소 소유자 전용입니다. 기록은 저장되지 않았습니다."
+          gh issue comment "$N" --repo "$R" --body "This form is for the repository owner only. Nothing was saved."
           gh issue close "$N" --repo "$R" --reason "not planned"
         env:
           GH_TOKEN: ${{ github.token }}
@@ -29,7 +29,7 @@ jobs:
           R: ${{ github.repository }}
 
   log:
-    # 저장소 소유자가 만든 'log' 라벨 이슈만 처리 (공개 저장소라 남이 만든 이슈는 무시)
+    # only 'log' issues created by the repository owner (public repo: ignore everyone else)
     if: >-
       github.event.issue.user.login == github.repository_owner &&
       (contains(github.event.issue.labels.*.name, 'log') || startsWith(github.event.issue.title, 'log'))
@@ -40,29 +40,29 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
-      - name: Issue 본문을 YAML 파일로 변환
+      - name: Convert issue body to a YAML entry
         id: parse
         env:
           ISSUE_BODY: ${{ github.event.issue.body }}
           ISSUE_TITLE: ${{ github.event.issue.title }}
         run: python3 scripts/issue_to_log.py
 
-      - name: 커밋 & 푸시
+      - name: Commit and push
         if: steps.parse.outputs.ok == 'true'
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
           git add _data/days
-          if git diff --cached --quiet; then echo "변경 없음"; else
+          if git diff --cached --quiet; then echo "no changes"; else
             git commit -m "log: ${{ steps.parse.outputs.date }} (#${ISSUE_NUMBER})"
             git push
           fi
 
-      - name: Pages 빌드 요청
+      - name: Request a Pages build
         if: steps.parse.outputs.ok == 'true'
-        run: gh api -X POST "repos/${{ github.repository }}/pages/builds" >/dev/null && echo "빌드 요청됨" || echo "빌드 요청 실패 (push 로 자동 빌드될 수 있음)"
+        run: gh api -X POST "repos/${{ github.repository }}/pages/builds" >/dev/null && echo "build requested" || echo "build request failed (the push may trigger one anyway)"
 
-      - name: 이슈에 결과 남기고 닫기
+      - name: Comment on the issue and close it
         if: always() && steps.parse.outcome != 'skipped'
         env:
           OK: ${{ steps.parse.outputs.ok }}
@@ -70,9 +70,9 @@ jobs:
           ERR: ${{ steps.parse.outputs.error }}
         run: |
           if [ "$OK" = "true" ]; then
-            body=$(printf '✅ `_data/days/%s.yml` 저장됨. 1~2분 뒤 https://aiant5615.github.io/tracker/ 에 반영됩니다.\n\n```yaml\n%s\n```' "$DATE" "$(cat "_data/days/$DATE.yml")")
+            body=$(printf '✅ Saved `_data/days/%s.yml`. It will appear at https://aiant5615.github.io/tracker/ in a minute or two.\n\n```yaml\n%s\n```' "$DATE" "$(cat "_data/days/$DATE.yml")")
             gh issue comment "$ISSUE_NUMBER" --repo "${{ github.repository }}" --body "$body"
             gh issue close "$ISSUE_NUMBER" --repo "${{ github.repository }}" --reason completed
           else
-            gh issue comment "$ISSUE_NUMBER" --repo "${{ github.repository }}" --body "❌ 저장 실패: $ERR — 이슈를 수정(Edit)하면 다시 시도합니다."
+            gh issue comment "$ISSUE_NUMBER" --repo "${{ github.repository }}" --body "❌ Not saved: $ERR — edit the issue to retry."
           fi

@@ -1,10 +1,10 @@
 ---
 layout: default
-title: 논문 리뷰
+title: Paper Reviews
 permalink: /papers/
 ---
-<h1>논문 리뷰</h1>
-<p class="muted">읽은 논문의 요약과 생각. 리뷰 글은 <code>categories: [paper]</code>, 분야는 <code>tags: [RL, NLP]</code>로 적습니다.</p>
+<h1>Paper Reviews</h1>
+<p class="muted">Summaries and thoughts on papers I've read. Reviews use <code>categories: [paper]</code> and a field tag like <code>tags: [RL, NLP]</code>.</p>
 
 {% assign papers = site.categories.paper %}
 {% if papers and papers.size > 0 %}
@@ -13,14 +13,14 @@ permalink: /papers/
 {% assign all_tags = all_tags | uniq | sort %}
 {% if all_tags.size > 0 %}
 <div class="filter-bar">
-  <a class="btn btn-sm" href="#" data-tag="">전체</a>
+  <a class="btn btn-sm" href="#" data-tag="">All</a>
   {% for t in all_tags %}<a class="btn btn-sm" href="#{{ t }}" data-tag="{{ t }}">#{{ t }}</a>{% endfor %}
 </div>
 {% endif %}
 <ul class="post-list" id="paper-list">
   {% for post in papers %}
   <li data-tags="{{ post.tags | join: ' ' }}">
-    <time datetime="{{ post.date | date_to_xmlschema }}">{{ post.date | date: "%Y.%m.%d" }}</time>
+    <time datetime="{{ post.date | date_to_xmlschema }}">{{ post.date | date: "%b %-d, %Y" }}</time>
     <div>
       <a class="t" href="{{ post.url | relative_url }}">{{ post.title }}</a>
       {% if post.rating %}<span class="tag" style="color:var(--warn)">{% for i in (1..post.rating) %}★{% endfor %}</span>{% endif %}
@@ -39,10 +39,10 @@ permalink: /papers/
   window.addEventListener('hashchange',apply); apply();
 })();
 </script>
-{% else %}<div class="empty">아직 리뷰가 없습니다.</div>{% endif %}
+{% else %}<div class="empty">No reviews yet.</div>{% endif %}
 
-<h2>리딩 리스트</h2>
-<p class="small muted"><code>_data/reading_list.yml</code>에서 관리합니다 (status: todo / reading / done). 리뷰 글의 <code>paper.link</code>가 같으면 자동으로 연결됩니다.</p>
+<h2>Reading list</h2>
+<p class="small muted">Managed in <code>_data/reading_list.yml</code> (status: todo / reading / done). An item links to its review automatically when its <code>link</code> matches the review's <code>paper.link</code>.</p>
 {% assign rl = site.data.reading_list %}
 {% if rl and rl.size > 0 %}
 <div class="card">
@@ -53,14 +53,14 @@ permalink: /papers/
   {% assign review_url = r.review %}
   {% if review_url == nil and r.link and papers %}{% assign match = papers | where_exp: "p", "p.paper.link == r.link" | first %}{% if match %}{% assign review_url = match.url %}{% endif %}{% endif %}
   <div class="reading-item">
-    <span class="status status-{{ st }}">{% if st == "reading" %}읽는 중{% elsif st == "todo" %}읽을 것{% else %}완료{% endif %}</span>
+    <span class="status status-{{ st }}">{% if st == "reading" %}Reading{% elsif st == "todo" %}To read{% else %}Done{% endif %}</span>
     <div>
       <div class="reading-title">{% if r.link %}<a href="{{ r.link }}" target="_blank" rel="noopener">{{ r.title }}</a>{% else %}{{ r.title }}{% endif %}</div>
       <div class="reading-meta">{{ r.authors }}{% if r.venue %} · {{ r.venue }}{% endif %}{% if r.year %} {{ r.year }}{% endif %}{% if r.why %} — {{ r.why }}{% endif %}</div>
     </div>
-    <div class="small">{% if review_url %}<a href="{{ review_url | relative_url }}">리뷰 →</a>{% endif %}</div>
+    <div class="small">{% if review_url %}<a href="{{ review_url | relative_url }}">Review →</a>{% endif %}</div>
   </div>
   {% endfor %}
 {% endfor %}
 </div>
-{% else %}<div class="empty">리딩 리스트가 비어 있습니다.</div>{% endif %}
+{% else %}<div class="empty">The reading list is empty.</div>{% endif %}

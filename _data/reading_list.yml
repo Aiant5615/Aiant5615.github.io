@@ -1,4 +1,4 @@
-# 읽을 논문 큐. status: todo | reading | done. link 가 리뷰 글의 paper.link 와 같으면 자동 연결 (review: 로 직접 지정도 가능)
+# Reading queue. status: todo | reading | done. An item links to its review automatically when `link` matches the review's paper.link (or set `review:` explicitly).
 - title: Playing Atari with Deep Reinforcement Learning
   authors: Mnih et al.
   venue: NeurIPS Deep Learning Workshop
@@ -11,13 +11,13 @@
   year: 2015
   link: https://www.nature.com/articles/nature14236
   status: reading
-  why: 타깃 네트워크가 추가된 DQN 본편
+  why: the full DQN paper, with the target network
 - title: Proximal Policy Optimization Algorithms
   authors: Schulman et al.
   year: 2017
   link: https://arxiv.org/abs/1707.06347
   status: todo
-  why: 정책 기반 방법 기초
+  why: foundation for policy-gradient methods
 - title: Attention Is All You Need
   authors: Vaswani et al.
   venue: NeurIPS

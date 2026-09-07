@@ -1,23 +1,23 @@
 ---
 layout: page
-title: 소개
+title: About
 permalink: /about/
 ---
 
-안녕하세요, **국승원**입니다. 데이터사이언스 대학원(GSDS)에서 공부하고 있습니다.
+Hi, I'm **Seungwon Kook**, a graduate student at the Graduate School of Data Science (GSDS).
 
-이 사이트는 대학원 생활을 꾸준히 기록하기 위해 만들었습니다.
+I built this site to keep a steady record of grad school life.
 
-- **트래커** — 출근 시간, 영어 공부, 코딩, 논문 읽기 같은 일일 루틴을 기록하고 스트릭과 추이를 봅니다.
-- **논문 리뷰** — 읽은 논문을 정리하고, 읽을 논문 큐를 관리합니다.
-- **블로그** — 공부 노트와 주간 회고.
+- **Tracker** — daily routines such as lab arrival time, English study, coding, and paper reading, with streaks and trends.
+- **Papers** — reviews of papers I've read, plus a queue of what to read next.
+- **Blog** — study notes and weekly retrospectives.
 
-## 관심 분야
+## Interests
 
-<!-- TODO: 직접 채워 주세요 -->
-- 강화학습
-- 자연어 처리
+<!-- TODO: fill in -->
+- Reinforcement learning
+- Natural language processing
 
-## 연락
+## Contact
 
 - GitHub: [@Aiant5615](https://github.com/Aiant5615)

@@ -1,54 +1,54 @@
-name: 📝 오늘 기록
-description: 루틴 트래커에 하루 기록을 남깁니다. Submit 하면 자동으로 _data/days/ 에 저장됩니다.
+name: 📝 Log today
+description: Add a day to the routine tracker. Submitting saves it to _data/days/ automatically.
 title: "log"
 labels: [log]
 body:
   - type: markdown
     attributes:
-      value: "빈 칸은 그냥 두면 됩니다. 날짜를 비우면 오늘(KST)로 저장되고, 같은 날짜를 다시 보내면 덮어씁니다."
+      value: "Leave anything blank that doesn't apply. An empty date means today (KST). Submitting the same date again overwrites it."
   - type: input
     id: date
     attributes:
-      label: 날짜
-      description: YYYY-MM-DD (비우면 오늘)
+      label: Date
+      description: YYYY-MM-DD (blank = today)
       placeholder: "2026-09-07"
   - type: input
     id: arrive
     attributes:
-      label: 출근 시간
+      label: Arrived at
       placeholder: "09:10"
   - type: input
     id: leave
     attributes:
-      label: 퇴근 시간
+      label: Left at
       placeholder: "18:30"
   - type: input
     id: done
     attributes:
-      label: 오늘 한 것
-      description: "쉼표나 띄어쓰기로 구분: english, coding, paper, exercise (한글 이름도 됩니다: 영어, 코딩, 논문, 운동)"
+      label: Done today
+      description: "Comma- or space-separated: english, coding, paper, exercise"
       placeholder: "english, coding"
   - type: textarea
     id: note
     attributes:
-      label: 메모 · 한 줄 회고
+      label: Note
   - type: input
     id: wake
     attributes:
-      label: 기상 시간
+      label: Woke up at
       placeholder: "07:30"
   - type: input
     id: sleep
     attributes:
-      label: 수면 시간
+      label: Sleep hours
       placeholder: "7"
   - type: input
     id: mood
     attributes:
-      label: 컨디션 (1~5)
+      label: Mood (1-5)
       placeholder: "4"
   - type: input
     id: focus
     attributes:
-      label: 집중 시간
+      label: Focus hours
       placeholder: "3"

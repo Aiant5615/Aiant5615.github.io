@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
-"""GitHub Issue 폼(.github/ISSUE_TEMPLATE/log.yml) 본문을 _data/days/YYYY-MM-DD.yml 로 변환.
-GitHub Actions 에서 실행되며 ISSUE_BODY / ISSUE_TITLE 환경변수를 읽고 GITHUB_OUTPUT 에 ok/date/error 를 씁니다.
+"""Convert a GitHub Issue form body (.github/ISSUE_TEMPLATE/log.yml) into _data/days/YYYY-MM-DD.yml.
+Runs in GitHub Actions: reads ISSUE_BODY / ISSUE_TITLE and writes ok/date/error to GITHUB_OUTPUT.
 """
 import os, re, sys
 from datetime import datetime, timedelta, timezone
@@ -9,18 +9,20 @@ sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 from log import build_yaml, hhmm, parse_done, write_entry  # noqa: E402
 
 KST = timezone(timedelta(hours=9))
-# 이슈 폼의 label → 필드 키
-LABELS = {"날짜": "date", "출근": "arrive", "퇴근": "leave", "오늘 한 것": "done", "메모": "note",
+# Issue-form label → field key (English labels first; Korean kept so older issues still parse)
+LABELS = {"date": "date", "arrived": "arrive", "left": "leave", "done": "done", "note": "note",
+          "woke": "wake", "sleep": "sleep", "mood": "mood", "focus": "focus",
+          "날짜": "date", "출근": "arrive", "퇴근": "leave", "오늘 한 것": "done", "메모": "note",
           "기상": "wake", "수면": "sleep", "컨디션": "mood", "집중": "focus"}
 
 
 def parse_body(body):
-    """'### 라벨\\n\\n값' 블록들을 {필드: 값} 으로. '_No response_' 는 빈 값."""
+    """Turn '### Label\\n\\nvalue' blocks into {field: value}. '_No response_' means empty."""
     fields = {}
     for m in re.finditer(r"^###\s+(.+?)\s*\n(.*?)(?=^###\s|\Z)", body.replace("\r\n", "\n"), re.S | re.M):
         label, val = m.group(1).strip(), m.group(2).strip()
         if val == "_No response_": val = ""
-        key = next((k for lbl, k in LABELS.items() if label.startswith(lbl)), None)
+        key = next((k for lbl, k in LABELS.items() if label.lower().startswith(lbl)), None)
         if key: fields[key] = val
     return fields
 
@@ -44,7 +46,7 @@ def main():
             day = m.group(0) if m else datetime.now(KST).date().isoformat()
         day = day.replace(".", "-").replace("/", "-")
         m = re.fullmatch(r"(\d{4})-(\d{1,2})-(\d{1,2})", day)
-        if not m: raise ValueError(f"날짜 형식 오류: {day}")
+        if not m: raise ValueError(f"Bad date format: {day}")
         day = f"{m.group(1)}-{int(m.group(2)):02d}-{int(m.group(3)):02d}"
         num = lambda k: (f.get(k) or "").strip() or None
         content = build_yaml(
@@ -54,7 +56,7 @@ def main():
         path, existed = write_entry(day, content)
     except ValueError as e:
         print(f"::error::{e}"); out(ok="false", error=str(e)); return
-    print(f"{'수정' if existed else '생성'}: {path}\n{content}")
+    print(f"{'Updated' if existed else 'Created'}: {path}\n{content}")
     out(ok="true", date=day, error="")
 
 

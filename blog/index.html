@@ -1,19 +1,19 @@
 ---
 layout: default
-title: 블로그
+title: Blog
 permalink: /blog/
 ---
-<h1>블로그</h1>
-<input type="search" class="search" id="post-search" placeholder="제목·내용 검색" autocomplete="off">
+<h1>Blog</h1>
+<input type="search" class="search" id="post-search" placeholder="Search titles and content" autocomplete="off">
 <div class="filter-bar">
-  <a class="btn btn-sm" href="#" data-cat="">전체</a>
+  <a class="btn btn-sm" href="#" data-cat="">All</a>
   {% for cat in site.categories %}<a class="btn btn-sm" href="#{{ cat[0] }}" data-cat="{{ cat[0] }}">{{ cat[0] }} <span class="muted">{{ cat[1].size }}</span></a>{% endfor %}
 </div>
 {% if site.posts.size > 0 %}
 <ul class="post-list" id="post-list">
   {% for post in site.posts %}
   <li data-cats="{{ post.categories | join: ' ' }}" data-text="{{ post.title | downcase | escape }} {{ post.content | strip_html | strip_newlines | downcase | truncate: 4000 | escape }}">
-    <time datetime="{{ post.date | date_to_xmlschema }}">{{ post.date | date: "%Y.%m.%d" }}</time>
+    <time datetime="{{ post.date | date_to_xmlschema }}">{{ post.date | date: "%b %-d, %Y" }}</time>
     <div>
       <a class="t" href="{{ post.url | relative_url }}">{{ post.title }}</a>{% for c in post.categories %}<span class="tag">{{ c }}</span>{% endfor %}{% for t in post.tags %}<span class="tag">#{{ t }}</span>{% endfor %}
       <div class="x">{{ post.excerpt | strip_html | strip_newlines | truncate: 140 }}</div>
@@ -21,8 +21,8 @@ permalink: /blog/
   </li>
   {% endfor %}
 </ul>
-<div class="empty" id="post-empty" hidden>검색 결과가 없습니다.</div>
-{% else %}<div class="empty">아직 글이 없습니다. <code>_posts/</code>에 마크다운 파일을 추가하세요.</div>{% endif %}
+<div class="empty" id="post-empty" hidden>No matching posts.</div>
+{% else %}<div class="empty">No posts yet. Add a markdown file to <code>_posts/</code>.</div>{% endif %}
 <script>
 (function(){
   const bar=document.querySelector('.filter-bar'), items=[...document.querySelectorAll('#post-list li')], q=document.getElementById('post-search'), empty=document.getElementById('post-empty');

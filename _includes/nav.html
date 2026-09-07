@@ -2,11 +2,11 @@
   <div class="container nav-inner">
     <a class="site-title" href="{{ '/' | relative_url }}">{{ site.title }}</a>
     <nav class="site-nav">
-      <a href="{{ '/tracker/' | relative_url }}" {% if page.url contains '/tracker/' %}class="active"{% endif %}>트래커</a>
-      <a href="{{ '/blog/' | relative_url }}" {% if page.url contains '/blog/' %}class="active"{% endif %}>블로그</a>
-      <a href="{{ '/papers/' | relative_url }}" {% if page.url contains '/papers/' %}class="active"{% endif %}>논문 리뷰</a>
-      <a href="{{ '/about/' | relative_url }}" {% if page.url contains '/about/' %}class="active"{% endif %}>소개</a>
-      <button type="button" class="theme-toggle" id="theme-toggle" title="라이트/다크 전환" aria-label="테마 전환">◐</button>
+      <a href="{{ '/tracker/' | relative_url }}" {% if page.url contains '/tracker/' %}class="active"{% endif %}>Tracker</a>
+      <a href="{{ '/blog/' | relative_url }}" {% if page.url contains '/blog/' %}class="active"{% endif %}>Blog</a>
+      <a href="{{ '/papers/' | relative_url }}" {% if page.url contains '/papers/' %}class="active"{% endif %}>Papers</a>
+      <a href="{{ '/about/' | relative_url }}" {% if page.url contains '/about/' %}class="active"{% endif %}>About</a>
+      <button type="button" class="theme-toggle" id="theme-toggle" title="Toggle light/dark" aria-label="Toggle theme">◐</button>
     </nav>
   </div>
 </header>

@@ -1,29 +1,29 @@
 ---
-title: "주간 회고 템플릿 (2026-W36)"
+title: "Weekly review template (2026-W36)"
 categories: [weekly]
 ---
 
-매주 일요일에 한 편씩 쓰는 회고 형식입니다. 복사해서 사용하세요.
+A retrospective written every Sunday. Copy this file to `_posts/` and fill it in. The tracker's "Weekly summary" section has a button that copies the numbers table as Markdown.
 
-## 이번 주 숫자
+## The numbers
 
-| 항목 | 결과 |
-|---|---|
-| 출근 9시 이전 | 3 / 5일 |
-| 영어 공부 | 4일 |
-| 코딩 | 5일 |
-| 논문 읽기 | 2편 |
+| Metric | This week | Last week |
+|---|---|---|
+| In by 09:00 | 3 / 5 | |
+| English | 4 days | |
+| Coding | 5 days | |
+| Papers read | 2 | |
 
-## 잘한 것
-
-- 
-
-## 아쉬운 것
+## What went well
 
 - 
 
-## 다음 주 목표
+## What didn't
 
-`_data/goals.yml`에 옮겨 적기.
+- 
+
+## Goals for next week
+
+Also copy these into `_data/goals.yml`.
 
 - 

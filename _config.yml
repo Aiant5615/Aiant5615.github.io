@@ -1,38 +1,38 @@
-# ── 사이트 기본 정보 ─────────────────────────────────────────
-title: 승원의 연구 일지
-description: 대학원 생활 기록 — 논문 리뷰, 공부 루틴, 출근 시간 트래킹
-author: 국승원
+# ── Site ─────────────────────────────────────────────────────
+title: Seungwon's Research Log
+description: Grad school life, tracked — paper reviews, study habits, and lab arrival times
+author: Seungwon Kook
 url: "https://aiant5615.github.io"
 baseurl: ""
-lang: ko
+lang: en
 timezone: Asia/Seoul
 
-# GitHub 저장소 (트래커 "저장" 버튼이 Issue 폼을 열 때 사용)
+# GitHub repo (used by the tracker's "Save to GitHub" button to open the Issue form)
 github_repo: Aiant5615/Aiant5615.github.io
 github_branch: main
 log_issue_template: log.yml
 
-# ── 트래커 설정 ─────────────────────────────────────────────
-# habits: 매일 체크할 항목. key는 _data/days/*.yml 의 done: 리스트에 들어갑니다.
+# ── Tracker ──────────────────────────────────────────────────
+# habits: things to check off daily. `key` is what goes in `done:` in _data/days/*.yml.
 tracker:
-  arrive_goal: "09:00"      # 목표 출근 시간
-  skip_weekends: true       # true면 토·일은 스트릭을 끊지도, 세지도 않음 (습관별 weekends: true 로 예외)
+  arrive_goal: "09:00"      # target arrival time
+  skip_weekends: true       # if true, Sat/Sun neither break nor count toward streaks (override per habit with weekends: true)
   habits:
     - key: english
-      label: 영어 공부
+      label: English
       emoji: "🇬🇧"
     - key: coding
-      label: 코딩
+      label: Coding
       emoji: "💻"
     - key: paper
-      label: 논문 읽기
+      label: Paper reading
       emoji: "📄"
     - key: exercise
-      label: 운동
+      label: Exercise
       emoji: "🏃"
-      weekends: true        # 주말에도 스트릭 계산에 포함
+      weekends: true        # count weekends for this habit
 
-# ── Jekyll 설정 ─────────────────────────────────────────────
+# ── Jekyll ───────────────────────────────────────────────────
 markdown: kramdown
 kramdown:
   input: GFM
