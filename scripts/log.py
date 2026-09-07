@@ -19,9 +19,12 @@ def hhmm(s):
     """'9:10', '09:10', '0910' → '09:10'. Empty → None."""
     s = (s or "").strip()
     if not s: return None
-    m = re.fullmatch(r"(\d{1,2})\s*[:시]?\s*(\d{2})\s*분?", s)
-    if not m: raise ValueError(f"Time must be H:MM or HHMM, got: {s}")
-    h, mi = int(m.group(1)), int(m.group(2))
+    m = re.fullmatch(r"(\d{1,2})\s*(?::\s*(\d{2})|(\d{2}))?\s*([ap])\.?m?\.?", s, re.I) or re.fullmatch(r"(\d{1,2})\s*[:시]?\s*(\d{2})()()\s*분?", s)
+    if not m: raise ValueError(f"Time must be like 9:10, 0910, or 9:10 AM — got: {s}")
+    h, mi, ap = int(m.group(1)), int(m.group(2) or m.group(3) or 0), (m.group(4) or "").lower()
+    if ap:
+        if h < 1 or h > 12: raise ValueError(f"Time out of range: {s}")
+        h = h % 12 + (12 if ap == "p" else 0)
     if h > 23 or mi > 59: raise ValueError(f"Time out of range: {s}")
     return f"{h:02d}:{mi:02d}"
 
