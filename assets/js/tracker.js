@@ -337,6 +337,7 @@
     };
     const apply = () => { input.value = fmt12(h * 60 + mi); input.classList.remove("bad"); input.dispatchEvent(new Event("input", { bubbles: true })); };
     box.addEventListener("click", ev => {
+      ev.stopPropagation();   // re-rendering detaches the clicked button; don't let the document handler treat it as an outside click
       const b = ev.target.closest("button"); if (!b) return;
       if (b.dataset.ap) { h = h % 12 + (b.dataset.ap === "PM" ? 12 : 0); apply(); render(); }
       else if (b.dataset.h) { h = (+b.dataset.h % 12) + (h >= 12 ? 12 : 0); apply(); render(); }
