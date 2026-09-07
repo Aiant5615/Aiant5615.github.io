@@ -129,8 +129,8 @@
     const wkLabel = SKIP_WEEKENDS ? "(weekdays)" : "";
     const tiles = [
       tile("📝 Logging streak", `${streak(logged, SKIP_WEEKENDS)}<span class="unit">days</span>`, `best ${bestStreak(logged, SKIP_WEEKENDS)} · ${wk.length} logged this week ${wkLabel}`),
-      tile("🏢 Avg arrival this month", fmtMin(avg(moArr.map(e => e.arrive))), moArr.length ? `by ${fmtMin(GOAL)} on ${onTime}/${moArr.length} days (${pct(onTime, moArr.length)}%)` : "no data"),
-      tile("⏱ Avg hours in lab", `${fmtNum(avg(mo.map(e => e.hours)))}<span class="unit">h</span>`, `avg leave ${fmtMin(avg(mo.map(e => e.leave)))} · this month`),
+      tile("🏢 Avg arrival this month", fmt12(avg(moArr.map(e => e.arrive))) || "–", moArr.length ? `by ${fmt12(GOAL)} on ${onTime}/${moArr.length} days (${pct(onTime, moArr.length)}%)` : "no data"),
+      tile("⏱ Avg hours in lab", `${fmtNum(avg(mo.map(e => e.hours)))}<span class="unit">h</span>`, `avg leave ${fmt12(avg(mo.map(e => e.leave))) || "–"} · this month`),
       tile("🌙 Sleep · Mood · Focus", `${fmtNum(avg(mo.map(e => e.sleep)))}<span class="unit">h</span> · ${moodStr(avg(mo.map(e => e.mood)))} · ${fmtNum(avg(mo.map(e => e.focus)))}<span class="unit">h</span>`, "monthly averages")
     ];
     root.innerHTML = `<div class="grid grid-4">${tiles.join("")}</div>`;
@@ -157,7 +157,7 @@
     const tip = e => {
       if (!e) return "no entry";
       const parts = [];
-      if (e.arrive != null) parts.push(`in at ${fmtMin(e.arrive)}`);
+      if (e.arrive != null) parts.push(`in at ${fmt12(e.arrive)}`);
       const hs = HABITS.filter(h => e.done.has(h.key)).map(h => h.label);
       parts.push(hs.length ? hs.join(", ") : "nothing checked");
       if (e.note) parts.push(e.note);
@@ -220,23 +220,23 @@
     const axis = svgEl("g", { class: "axis" });
     for (let v = lo; v <= hi; v += tickStep) {
       axis.appendChild(svgEl("line", { x1: L, x2: W - R, y1: y(v), y2: y(v), class: "grid-line" }));
-      const t = svgEl("text", { x: L - 6, y: y(v) + 3, "text-anchor": "end" }); t.textContent = fmtMin(v); axis.appendChild(t);
+      const t = svgEl("text", { x: L - 6, y: y(v) + 3, "text-anchor": "end" }); t.textContent = fmt12(v); axis.appendChild(t);
     }
     for (let i = 0; i <= 29; i += 5) { const d = addDays(x0, i); const t = svgEl("text", { x: x(d), y: H - 8, "text-anchor": "middle" }); t.textContent = `${d.getMonth() + 1}/${d.getDate()}`; axis.appendChild(t); }
     svg.appendChild(axis);
     svg.appendChild(svgEl("line", { x1: L, x2: W - R, y1: y(GOAL), y2: y(GOAL), class: "goal" }));
-    const gl = svgEl("text", { x: W - R, y: y(GOAL) - 4, "text-anchor": "end" }); gl.textContent = `goal ${fmtMin(GOAL)}`; gl.style.fill = "var(--warn)"; gl.style.fontSize = "10px"; svg.appendChild(gl);
+    const gl = svgEl("text", { x: W - R, y: y(GOAL) - 4, "text-anchor": "end" }); gl.textContent = `goal ${fmt12(GOAL)}`; gl.style.fill = "var(--warn)"; gl.style.fontSize = "10px"; svg.appendChild(gl);
     const path = pts.map((p, i) => `${i ? "L" : "M"}${x(p.date).toFixed(1)},${y(p.arrive).toFixed(1)}`).join(" ");
     svg.appendChild(svgEl("path", { d: `${path} L${x(pts[pts.length - 1].date).toFixed(1)},${H - B} L${x(pts[0].date).toFixed(1)},${H - B} Z`, class: "area" }));
     svg.appendChild(svgEl("path", { d: path, class: "line" }));
     pts.forEach(p => {
       const c = svgEl("circle", { cx: x(p.date), cy: y(p.arrive), r: 3.5, class: `dot${p.arrive > GOAL ? " late" : ""}` });
-      const t = svgEl("title"); t.textContent = `${p.key} (${WD[p.date.getDay()]}) in at ${fmtMin(p.arrive)}${p.leave != null ? ` · out at ${fmtMin(p.leave)}` : ""}`; c.appendChild(t);
+      const t = svgEl("title"); t.textContent = `${p.key} (${WD[p.date.getDay()]}) in at ${fmt12(p.arrive)}${p.leave != null ? ` · out at ${fmt12(p.leave)}` : ""}`; c.appendChild(t);
       svg.appendChild(c);
     });
     root.innerHTML = ""; root.appendChild(svg);
     const late = vals.filter(v => v > GOAL).length;
-    root.insertAdjacentHTML("beforeend", `<div class="small muted">${pts.length} of the last 30 days logged · avg arrival <b>${fmtMin(avg(vals))}</b> · later than goal on ${late} days</div>`);
+    root.insertAdjacentHTML("beforeend", `<div class="small muted">${pts.length} of the last 30 days logged · avg arrival <b>${fmt12(avg(vals))}</b> · later than goal on ${late} days</div>`);
   }
 
   // ───────── weekly summary (this week / last week) + markdown copy ─────────
@@ -246,8 +246,8 @@
     const onTime = arr.filter(e => e.arrive <= GOAL).length;
     const rows = [
       ["Days logged", `${entries.length}`],
-      [`In by ${fmtMin(GOAL)}`, arr.length ? `${onTime} / ${arr.length}` : "–"],
-      ["Avg arrival", fmtMin(avg(arr.map(e => e.arrive)))],
+      [`In by ${fmt12(GOAL)}`, arr.length ? `${onTime} / ${arr.length}` : "–"],
+      ["Avg arrival", fmt12(avg(arr.map(e => e.arrive))) || "–"],
       ["Avg hours in lab", arr.length ? `${fmtNum(avg(wd.map(e => e.hours)))}h` : "–"],
     ];
     HABITS.forEach(h => { const base = habitSkipsWeekend(h.key) ? wd : entries; rows.push([`${h.emoji} ${h.label}`, `${base.filter(hasHabit(h.key)).length} days`]); });
@@ -278,7 +278,7 @@
     const rows = ms.map(m => {
       const es = months[m], wd = SKIP_WEEKENDS ? es.filter(e => !isWeekend(e.date)) : es, arr = wd.filter(e => e.arrive != null);
       const onTime = arr.filter(e => e.arrive <= GOAL).length;
-      const cells = [`${MON[+m.slice(5) - 1]} ${m.slice(0, 4)}`, `${es.length}`, fmtMin(avg(arr.map(e => e.arrive))), arr.length ? `${pct(onTime, arr.length)}%` : "–", arr.length ? `${fmtNum(avg(wd.map(e => e.hours)))}h` : "–",
+      const cells = [`${MON[+m.slice(5) - 1]} ${m.slice(0, 4)}`, `${es.length}`, fmt12(avg(arr.map(e => e.arrive))) || "–", arr.length ? `${pct(onTime, arr.length)}%` : "–", arr.length ? `${fmtNum(avg(wd.map(e => e.hours)))}h` : "–",
         ...HABITS.map(h => { const base = habitSkipsWeekend(h.key) ? wd : es; const p = pct(base.filter(hasHabit(h.key)).length, base.length); return p == null ? "–" : bar(p); })];
       return `<tr>${cells.map(c => `<td>${c}</td>`).join("")}</tr>`;
     });
@@ -292,7 +292,7 @@
     const byDay = [1, 2, 3, 4, 5, 6, 0].map(dow => ({ dow, es: KEYS.map(k => E[k]).filter(e => e.date.getDay() === dow) }));
     const rows = byDay.map(({ dow, es }) => {
       const arr = es.filter(e => e.arrive != null);
-      const cells = [WD[dow], `${es.length}`, fmtMin(avg(arr.map(e => e.arrive))), arr.length ? `${pct(arr.filter(e => e.arrive <= GOAL).length, arr.length)}%` : "–",
+      const cells = [WD[dow], `${es.length}`, fmt12(avg(arr.map(e => e.arrive))) || "–", arr.length ? `${pct(arr.filter(e => e.arrive <= GOAL).length, arr.length)}%` : "–",
         ...HABITS.map(h => { const p = pct(es.filter(hasHabit(h.key)).length, es.length); return p == null ? "–" : bar(p); })];
       return `<tr class="${isWeekend(new Date(2024, 0, 7 + dow)) ? "dim" : ""}">${cells.map(c => `<td>${c}</td>`).join("")}</tr>`;
     });
@@ -309,8 +309,8 @@
       if (!e) { rows.push(`<tr class="dim"><td>${dl}</td><td colspan="7" class="small">no entry</td></tr>`); continue; }
       const hab = HABITS.map(h => `<span title="${esc(h.label)}" style="opacity:${e.done.has(h.key) ? 1 : .18}">${h.emoji}</span>`).join(" ");
       rows.push(`<tr style="cursor:pointer" data-k="${k}"><td>${dl}</td>
-        <td class="num ${e.arrive != null && e.arrive > GOAL ? "late" : ""}">${fmtMin(e.arrive)}</td>
-        <td class="num hide-sm">${fmtMin(e.leave)}</td><td class="num hide-sm">${e.hours != null ? fmtNum(e.hours) + "h" : "–"}</td>
+        <td class="num ${e.arrive != null && e.arrive > GOAL ? "late" : ""}">${fmt12(e.arrive) || "–"}</td>
+        <td class="num hide-sm">${fmt12(e.leave) || "–"}</td><td class="num hide-sm">${e.hours != null ? fmtNum(e.hours) + "h" : "–"}</td>
         <td class="emojis">${hab}</td><td class="mood hide-sm">${moodStr(e.mood)}</td>
         <td class="num hide-sm">${e.sleep != null ? fmtNum(e.sleep) + "h" : "–"}</td><td class="note">${esc(e.note)}</td></tr>`);
     }
@@ -352,10 +352,9 @@
     };
     const degFrom = ev => { const r = box.querySelector("svg").getBoundingClientRect(); const x = (ev.clientX - r.left) * S / r.width - C, y = (ev.clientY - r.top) * S / r.height - C; let d = Math.atan2(x, -y) * 180 / Math.PI; return d < 0 ? d + 360 : d; };
     const setFrom = ev => { const d = degFrom(ev); if (mode === "h") h = Math.round(d / 30) % 12 + (h >= 12 ? 12 : 0); else mi = Math.round(d / 6) % 60; render(); };
-    box.addEventListener("pointerdown", ev => { if (!ev.target.closest("svg")) return; ev.preventDefault(); dragging = true; setFrom(ev); });
-    box.addEventListener("pointermove", ev => { if (dragging) setFrom(ev); });
-    const endDrag = () => { if (!dragging) return; dragging = false; if (mode === "h") { mode = "m"; render(); } };
-    box.addEventListener("pointerup", endDrag); box.addEventListener("pointercancel", endDrag);
+    const onMove = ev => { if (dragging) setFrom(ev); };
+    const endDrag = () => { if (!dragging) return; dragging = false; document.removeEventListener("pointermove", onMove); document.removeEventListener("pointerup", endDrag); document.removeEventListener("pointercancel", endDrag); if (mode === "h") { mode = "m"; render(); } };
+    box.addEventListener("pointerdown", ev => { if (!ev.target.closest("svg")) return; ev.preventDefault(); dragging = true; setFrom(ev); document.addEventListener("pointermove", onMove); document.addEventListener("pointerup", endDrag); document.addEventListener("pointercancel", endDrag); });
     box.addEventListener("click", ev => {
       ev.stopPropagation();
       const b = ev.target.closest("button"); if (!b) return;

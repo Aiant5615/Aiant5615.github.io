@@ -300,7 +300,7 @@ button.chip.quick { font: inherit; }
 button.chip.quick:disabled { opacity: .6; cursor: wait; }
 
 /* ───────── clock-face picker ───────── */
-.tpick-modal { position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%); z-index: 60; }
+.tpick-modal { position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%); z-index: 60; max-height: 92vh; overflow: auto; }
 .tp-backdrop { position: fixed; inset: 0; background: rgba(0,0,0,.4); z-index: 55; }
 .tp-title { font-weight: 600; margin-bottom: .2rem; }
 .tp-seg { font: inherit; font-size: 1.6rem; font-weight: 700; background: none; border: 0; padding: 0 .1rem; cursor: pointer; color: var(--muted); font-variant-numeric: tabular-nums; }
