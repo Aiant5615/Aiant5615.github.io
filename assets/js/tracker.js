@@ -137,7 +137,7 @@
   function renderHeatmap(root, selectRoot) {
     let metric = "all";
     const cell = 12, gap = 3, step = cell + gap, left = 22, top = 18;
-    const weeksFor = () => Math.max(8, Math.min(26, Math.floor((root.clientWidth - 40 - left) / step)));
+    const weeksFor = () => { const w = root.clientWidth; return w < 200 ? 26 : Math.max(8, Math.min(26, Math.floor((w - 40 - left) / step))); };   // unknown width (hidden tab) → full 26 weeks
     const level = e => {
       if (!e) return 0;
       if (metric === "all") { if (!HKEYS.length) return 4; const r = [...e.done].filter(k => HMAP[k]).length / HKEYS.length; return r === 0 ? 0 : Math.max(1, Math.ceil(r * 4)); }
@@ -164,7 +164,7 @@
       for (let c = 0; c < weeks; c++) {
         const mon = addDays(start, c * 7);
         if (mon.getMonth() !== lastMonth) {
-          if (c > 0 || addDays(mon, 6).getMonth() === mon.getMonth()) { const t = svgEl("text", { x: c * step, y: 10 }); t.textContent = MON[mon.getMonth()]; svg.appendChild(t); }
+          if (c > 0 || addDays(mon, 6).getMonth() === mon.getMonth()) { const fits = c * step + 24 <= weeks * step; const t = svgEl("text", fits ? { x: c * step, y: 10 } : { x: weeks * step, y: 10, "text-anchor": "end" }); t.textContent = MON[mon.getMonth()]; svg.appendChild(t); }
           lastMonth = mon.getMonth();
         }
         for (let r = 0; r < 7; r++) {
@@ -189,7 +189,9 @@
       selectRoot.querySelectorAll("button").forEach(b => b.addEventListener("click", () => { metric = b.dataset.v; selectRoot.querySelectorAll("button").forEach(x => x.classList.toggle("on", x === b)); draw(); }));
     }
     draw();
-    let rt, lastWeeks = weeksFor(); window.addEventListener("resize", () => { clearTimeout(rt); rt = setTimeout(() => { const w = weeksFor(); if (w !== lastWeeks) { lastWeeks = w; draw(); } }, 200); });
+    let rt, lastWeeks = weeksFor();
+    const onResize = () => { clearTimeout(rt); rt = setTimeout(() => { const w = weeksFor(); if (w !== lastWeeks) { lastWeeks = w; draw(); } }, 150); };
+    if (window.ResizeObserver) new ResizeObserver(onResize).observe(root); else window.addEventListener("resize", onResize);
   }
 
   // ───────── arrival chart (last 30 days) ─────────
@@ -405,7 +407,7 @@
     if ($("onboarding")) $("onboarding").hidden = !empty;
     if ($("data-sections")) $("data-sections").hidden = empty;
     if ($("today-bar")) renderToday($("today-bar"));
-    if ($("stats")) { if (empty) $("stats").hidden = true; else renderStats($("stats")); }
+    if ($("stats")) { $("stats").hidden = empty; if (!empty) renderStats($("stats")); }
     if ($("log-form")) initForm($("log-form"));
     if ($("heatmap")) renderHeatmap($("heatmap"), $("heatmap-select"));
     if ($("arrive-chart")) renderArriveChart($("arrive-chart"));
