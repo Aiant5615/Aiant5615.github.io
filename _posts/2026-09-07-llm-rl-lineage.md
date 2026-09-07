@@ -1,6 +1,7 @@
 ---
 title: "LLM RL: from PPO to DeepSeek-R1, an 8-paper reading path"
 date: 2026-09-07 10:09:00 +0900
+overview: true
 categories: [paper, llm-rl]
 tags: [RL]
 description: "Eight papers that explain how reinforcement learning is used to train language models: the optimizer (PPO), learning rewards from human preferences, RLHF on text, AI feedback, DPO's closed form, and RL with verifiable rewards (GRPO, R1). Each has a full review."

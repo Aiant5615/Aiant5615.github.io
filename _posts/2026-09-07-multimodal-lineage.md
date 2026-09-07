@@ -1,6 +1,7 @@
 ---
 title: "Multimodal LLMs: from ViT to Qwen2-VL, a 7-paper reading path"
 date: 2026-09-07 11:08:00 +0900
+overview: true
 categories: [paper, multimodal]
 tags: [CV, NLP]
 description: "Seven papers that explain how images (and video) get into a language model: patches as tokens, contrastive image–text alignment, and four generations of connectors, from gated cross-attention to a linear layer to native-resolution tokens with 3-D positions."

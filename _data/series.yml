@@ -11,3 +11,7 @@ multimodal-llm:
   title: "Multimodal LLMs: from ViT to Qwen2-VL"
   index: /blog/multimodal-lineage/
   category: multimodal
+llm-advanced:
+  title: "LLM advanced: from RoPE to QLoRA"
+  index: /blog/llm-advanced-lineage/
+  category: llm-advanced
