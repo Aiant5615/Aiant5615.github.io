@@ -50,7 +50,7 @@ shows stats, a daily heatmap, and the code for each language.
 |---|---|
 | `_posts/` | Blog posts. `categories: [paper, <tab>]` marks a review and its tab on /papers/ (llm-basics, llm-rl, vision-llm, vla, llm-engineering, diffusion-rl); `series`/`series_order` place it in a reading path defined in `_data/series.yml` |
 | `_drafts/` | Not built. Contains two post templates |
-| `assets/vendor/` | Self-hosted KaTeX 0.16.11 and highlight.js 11.9.0 (no CDN scripts; a CSP in `_includes/head.html` allows scripts from this site only) |
+| `assets/lib/` | Self-hosted KaTeX 0.16.11 and highlight.js 11.9.0 (no CDN scripts; a CSP in `_includes/head.html` allows scripts from this site only) |
 | `_config.yml` | Site info, `tracker_repo` (private data), `tracker.habits`, `arrive_goal`, `skip_weekends` |
 | `.github/workflows/sync-leetcode.yml` | Hourly: leetcode repo → `_data/leetcode.json` + `coding` habit |
 | `scripts/sync_leetcode.py` | The converter used by that workflow |
