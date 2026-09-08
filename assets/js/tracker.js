@@ -152,23 +152,22 @@
     const onTime = moArr.filter(e => e.arrive <= GOAL).length;
     const tile = (label, value, sub) => `<div class="stat"><div class="stat-label">${label}</div><div class="stat-value">${value}</div><div class="stat-sub">${sub}</div></div>`;
     const tiles = [
-      tile("📝 Logging streak", `${streak(logged, SKIP_WEEKENDS)}<span class="unit">${SKIP_WEEKENDS ? "weekdays" : "days"}</span>`, `best ${bestStreak(logged, SKIP_WEEKENDS)} · ${wk.length} logged this week`),
+      tile("🌅 Wake-up time", fmt12(avg(mo.map(e => e.wake))) || "–", mo.some(e => e.wake != null) ? `this week ${fmt12(avg(wk.map(e => e.wake))) || "–"} · earliest ${fmt12(Math.min(...mo.filter(e => e.wake != null).map(e => e.wake)))} · this month` : "no wake-up times yet"),
       tile("🏢 Avg arrival this month", fmt12(avg(moArr.map(e => e.arrive))) || "–", moArr.length ? `by ${fmt12(GOAL)} on ${onTime}/${moArr.length} days (${pct(onTime, moArr.length)}%)` : "no data"),
       tile("⏱ Avg hours in lab", `${fmtNum(avg(mo.map(e => e.hours)))}<span class="unit">h</span>`, `avg leave ${fmt12(avg(mo.map(e => e.leave))) || "–"} · this month`),
       tile("🌙 Sleep · Mood", `${fmtNum(avg(mo.map(e => e.sleep)))}<span class="unit">h</span> · ${moodStr(avg(mo.map(e => e.mood)))}<span class="unit">${moodLabel(avg(mo.map(e => e.mood)))}</span>`, "monthly averages")
     ];
     root.innerHTML = `<div class="grid grid-4">${tiles.join("")}</div>`;
-    const lw = lastWeek();
+    // habit tiles: the value is the streak (or n / goal) and a gauge shows this week's progress toward the weekly target
+    const gauge = (n, goal) => { const met = n >= goal; if (goal <= 7) return `<div class="pips ${met ? "met" : ""}" role="progressbar" aria-valuenow="${n}" aria-valuemin="0" aria-valuemax="${goal}">${Array.from({ length: goal }, (_, i) => `<i class="${i < n ? "on" : ""}"></i>`).join("")}</div>`; return `<div class="gauge ${met ? "met" : ""}" role="progressbar" aria-valuenow="${n}" aria-valuemin="0" aria-valuemax="${goal}"><div class="gauge-fill" style="width:${Math.min(100, 100 * n / goal)}%"></div></div>`; };
+    const habitTile = (h, value, n, goal) => `<div class="stat"><div class="stat-label">${h.emoji} ${esc(h.label)}</div><div class="stat-value">${value}</div>${gauge(n, goal)}<div class="stat-sub">${n} / ${goal} this week${n >= goal ? " ✓" : ""}</div></div>`;
     const hb = HABITS.map(h => {
       const p = hasHabit(h.key), sk = habitSkipsWeekend(h.key);
-      const n7 = l7.filter(p).length, m = mo.filter(p).length;
-      const goal = +h.weekly_goal || 0;
-      const moDen = sk && !goal ? mo.filter(e => !isWeekend(e.date)).length : mo.length;   // a weekly goal counts every day of the week
-      if (goal) {   // weekly target instead of a streak: "n / goal" for Mon–Sun of this week
-        const n = wk.filter(p).length, done = n >= goal;
-        return tile(`${h.emoji} ${esc(h.label)}`, `<span class="${done ? "goal-met" : ""}">${n}</span><span class="unit">/ ${goal} this week</span>`, `${done ? "goal met ✓" : `${goal - n} more to go`} · last week ${lw.filter(p).length} / ${goal} · this month ${moDen ? pct(m, moDen) + "%" : "–"}`);
-      }
-      const st = streak(p, sk); return tile(`${h.emoji} ${esc(h.label)}`, `${st}<span class="unit">${sk ? "weekday" : "day"} streak</span>`, `${sk ? "Mon–Fri, weekends skipped" : "every day"} · best ${bestStreak(p, sk)} · this month ${moDen ? pct(m, moDen) + "%" : "–"}`);
+      const goal = +h.weekly_goal || (sk ? 5 : 7);            // explicit weekly goal, else every weekday (or every day)
+      const n = (sk && !h.weekly_goal ? wk.filter(e => !isWeekend(e.date)) : wk).filter(p).length;
+      if (h.weekly_goal) return habitTile(h, `<span class="${n >= goal ? "goal-met" : ""}">${n}</span><span class="unit">/ ${goal}</span>`, n, goal);
+      const st = streak(p, sk);
+      return habitTile(h, `${st}<span class="unit">${sk ? "weekday" : "day"} streak</span>`, n, goal);
     });
     if (hb.length) root.insertAdjacentHTML("beforeend", `<div class="grid grid-4" style="margin-top:.9rem">${hb.join("")}</div>`);
   }
