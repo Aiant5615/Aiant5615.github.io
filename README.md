@@ -1,4 +1,4 @@
-# Seungwon's Research Log
+# Seungwon Kook — research site
 
 A GitHub Pages site for tracking grad school life. https://aiant5615.github.io
 
