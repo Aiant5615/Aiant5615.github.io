@@ -367,3 +367,6 @@ ol.post-list.numbered li::before { content: counter(item); color: var(--muted); 
 .quick-date { display: flex; align-items: center; gap: .4rem; flex-wrap: wrap; margin-bottom: .7rem; }
 .quick-date input[type=date] { font: inherit; font-size: .9rem; padding: .3rem .5rem; border: 1px solid var(--border); border-radius: 8px; background: var(--surface-2); color: var(--text); }
 .quick-date-label { font-weight: 600; margin-left: .2rem; }
+
+.check.auto { opacity: .7; cursor: default; }
+.form-grid .field label { white-space: nowrap; }
