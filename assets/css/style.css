@@ -376,9 +376,9 @@ ol.post-list.numbered li::before { content: counter(item); color: var(--muted); 
 @media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) { --mood: #c48ce0; } }
 :root[data-theme="dark"] { --mood: #c48ce0; }
 .chart .line-sleep { stroke: var(--accent); } .chart .dot-sleep { fill: var(--accent); }
-:root { --leave: #2f7de1; --wake: #2e9e6b; }
-@media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) { --leave: #6ea8fe; --wake: #62c98a; } }
-:root[data-theme="dark"] { --leave: #6ea8fe; --wake: #62c98a; }
+:root { --leave: #2f7de1; --wake: #d97706; }
+@media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) { --leave: #6ea8fe; --wake: #f5b544; } }
+:root[data-theme="dark"] { --leave: #6ea8fe; --wake: #f5b544; }
 .chart .line-arrive { stroke: var(--accent); } .chart .dot-arrive { fill: var(--accent); } .chart .dot-arrive.late { fill: var(--danger); }
 .chart .line-leave { stroke: var(--leave); } .chart .dot-leave { fill: var(--leave); }
 .chart .line-wake { stroke: var(--wake); } .chart .dot-wake { fill: var(--wake); }
