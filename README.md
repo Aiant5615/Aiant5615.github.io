@@ -55,7 +55,7 @@ shows stats, a daily heatmap, and the code for each language.
 
 ## Tracker settings
 
-- **Habits**: edit `tracker.habits` in `_config.yml`. Add `weekends: true` to a habit to count weekends in its streak.
+- **Habits**: edit `tracker.habits` in `_config.yml`. Add `weekends: true` to a habit to count weekends in its streak. Add `weekly_goal: N` to show "n / N this week" (Mon–Sun) instead of a streak; paper reading is 5/week and exercise 3/week.
 - **Weekends**: with `skip_weekends: true`, Saturday and Sunday neither break nor count toward streaks.
 - **Arrival goal**: `arrive_goal`.
 

@@ -36,9 +36,11 @@ tracker:
     - key: paper
       label: Paper reading
       emoji: "📄"
+      weekly_goal: 5          # shown as "n / 5 this week" instead of a streak
     - key: exercise
       label: Exercise
       emoji: "🏃"
+      weekly_goal: 3
       weekends: true        # count weekends for this habit
 
 # ── Jekyll ───────────────────────────────────────────────────

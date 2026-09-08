@@ -159,10 +159,16 @@
       tile("🌙 Sleep · Mood", `${fmtNum(avg(mo.map(e => e.sleep)))}<span class="unit">h</span> · ${moodStr(avg(mo.map(e => e.mood)))}<span class="unit">${moodLabel(avg(mo.map(e => e.mood)))}</span>`, "monthly averages")
     ];
     root.innerHTML = `<div class="grid grid-4">${tiles.join("")}</div>`;
+    const lw = lastWeek();
     const hb = HABITS.map(h => {
       const p = hasHabit(h.key), sk = habitSkipsWeekend(h.key);
       const n7 = l7.filter(p).length, m = mo.filter(p).length;
       const moDen = sk ? mo.filter(e => !isWeekend(e.date)).length : mo.length;
+      const goal = +h.weekly_goal || 0;
+      if (goal) {   // weekly target instead of a streak: "n / goal" for Mon–Sun of this week
+        const n = wk.filter(p).length, done = n >= goal;
+        return tile(`${h.emoji} ${esc(h.label)}`, `<span class="${done ? "goal-met" : ""}">${n}</span><span class="unit">/ ${goal} this week</span>`, `${done ? "goal met ✓" : `${goal - n} more to go`} · last week ${lw.filter(p).length} / ${goal} · this month ${moDen ? pct(m, moDen) + "%" : "–"}`);
+      }
       const st = streak(p, sk); return tile(`${h.emoji} ${esc(h.label)}`, `${st}<span class="unit">${st === 1 ? "day" : "days"} streak</span>`, `last 7 days: ${n7} · this month: ${moDen ? pct(m, moDen) + "%" : "–"} · best ${bestStreak(p, sk)}`);
     });
     if (hb.length) root.insertAdjacentHTML("beforeend", `<div class="grid grid-4" style="margin-top:.9rem">${hb.join("")}</div>`);
@@ -315,7 +321,7 @@
       ["Avg arrival", fmt12(avg(arr.map(e => e.arrive))) || "–"],
       ["Avg hours in lab", arr.length ? `${fmtNum(avg(wd.map(e => e.hours)))}h` : "–"],
     ];
-    HABITS.forEach(h => { const base = habitSkipsWeekend(h.key) ? wd : entries; rows.push([`${h.emoji} ${h.label}`, plural(base.filter(hasHabit(h.key)).length, "day")]); });
+    HABITS.forEach(h => { const base = habitSkipsWeekend(h.key) ? wd : entries, n = base.filter(hasHabit(h.key)).length, goal = +h.weekly_goal || 0; rows.push([`${h.emoji} ${h.label}${goal ? ` (goal ${goal}/wk)` : ""}`, goal ? `${n} / ${goal}${n >= goal ? " ✓" : ""}` : plural(n, "day")]); });
     rows.push(["Avg mood", moodStr(avg(entries.map(e => e.mood)))]);
     rows.push(["Avg sleep", entries.some(e => e.sleep != null) ? `${fmtNum(avg(entries.map(e => e.sleep)))}h` : "–"]);
     return rows;

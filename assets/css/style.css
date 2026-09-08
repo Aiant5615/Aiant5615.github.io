@@ -261,6 +261,7 @@ details.more > summary { cursor: pointer; color: var(--muted); font-size: .88rem
 .log-hint { background: var(--accent-soft); border-radius: var(--radius); padding: .8rem 1rem; font-size: .9rem; margin-bottom: 1rem; }
 .log-hint code { background: rgba(0,0,0,.06); }
 .stat-late { color: var(--danger); }
+.goal-met { color: var(--accent); }
 
 /* ───────── LeetCode ───────── */
 .diff { font-size: .72rem; padding: .1rem .5rem; border-radius: 999px; font-weight: 600; }
