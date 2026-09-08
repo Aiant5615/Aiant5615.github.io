@@ -5,14 +5,9 @@ permalink: /blog/
 ---
 <h1>Blog</h1>
 <p class="muted">Study notes and the reading-path overviews. Individual paper reviews live on the <a href="{{ '/papers/' | relative_url }}">Papers</a> page.</p>
-{% assign notes = "" | split: "" %}{% assign cats = "" | split: "" %}
-{% for post in site.posts %}{% assign is_review = false %}{% if post.categories contains 'paper' %}{% assign is_review = true %}{% endif %}{% if post.overview == true %}{% assign is_review = false %}{% endif %}{% unless is_review %}{% assign notes = notes | push: post %}{% assign cats = cats | concat: post.categories %}{% endunless %}{% endfor %}
-{% assign cats = cats | uniq | sort | where_exp: "c", "c != 'paper'" %}
+{% assign notes = "" | split: "" %}
+{% for post in site.posts %}{% assign is_review = false %}{% if post.categories contains 'paper' %}{% assign is_review = true %}{% endif %}{% if post.overview == true %}{% assign is_review = false %}{% endif %}{% unless is_review %}{% assign notes = notes | push: post %}{% endunless %}{% endfor %}
 <input type="search" class="search" id="post-search" placeholder="Search titles and content" autocomplete="off">
-<div class="filter-bar">
-  <a class="btn btn-sm" href="#" data-cat="">All</a>
-  {% for cat in cats %}<a class="btn btn-sm" href="#{{ cat }}" data-cat="{{ cat }}">{{ cat }}</a>{% endfor %}
-</div>
 {% if notes.size > 0 %}
 <ul class="post-list" id="post-list">
   {% for post in notes %}
@@ -29,12 +24,10 @@ permalink: /blog/
 {% else %}<div class="empty">No posts yet.</div>{% endif %}
 <script>
 (function(){
-  const bar=document.querySelector('.filter-bar'), items=[...document.querySelectorAll('#post-list li')], q=document.getElementById('post-search'), empty=document.getElementById('post-empty'); if(!bar||!q) return;
-  function apply(){ const c=location.hash.replace('#',''), s=(q.value||'').trim().toLowerCase(); let n=0;
-    items.forEach(li=>{ const ok=(!c||li.dataset.cats.split(' ').includes(c))&&(!s||li.dataset.text.includes(s)); li.style.display=ok?'':'none'; if(ok)n++; });
-    if(empty) empty.hidden=n>0;
-    bar.querySelectorAll('a').forEach(a=>a.classList.toggle('btn-primary',a.dataset.cat===c)); }
-  bar.addEventListener('click',e=>{ const a=e.target.closest('a'); if(!a) return; if(a.dataset.cat===''){ e.preventDefault(); history.replaceState(null,'',location.pathname); apply(); } });
-  q.addEventListener('input',apply); window.addEventListener('hashchange',apply); apply();
+  const items=[...document.querySelectorAll('#post-list li')], q=document.getElementById('post-search'), empty=document.getElementById('post-empty'); if(!q) return;
+  function apply(){ const s=(q.value||'').trim().toLowerCase(); let n=0;
+    items.forEach(li=>{ const ok=!s||li.dataset.text.includes(s); li.style.display=ok?'':'none'; if(ok)n++; });
+    if(empty) empty.hidden=n>0; }
+  q.addEventListener('input',apply); apply();
 })();
 </script>
