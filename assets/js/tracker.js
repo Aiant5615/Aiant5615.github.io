@@ -151,9 +151,8 @@
     const moArr = mo.filter(e => e.arrive != null);
     const onTime = moArr.filter(e => e.arrive <= GOAL).length;
     const tile = (label, value, sub) => `<div class="stat"><div class="stat-label">${label}</div><div class="stat-value">${value}</div><div class="stat-sub">${sub}</div></div>`;
-    const wkLabel = SKIP_WEEKENDS ? "(weekdays)" : "";
     const tiles = [
-      tile("📝 Logging streak", `${streak(logged, SKIP_WEEKENDS)}<span class="unit">${streak(logged, SKIP_WEEKENDS) === 1 ? "day" : "days"}</span>`, `best ${bestStreak(logged, SKIP_WEEKENDS)} · ${wk.length} logged this week ${wkLabel}`),
+      tile("📝 Logging streak", `${streak(logged, SKIP_WEEKENDS)}<span class="unit">${SKIP_WEEKENDS ? "weekdays" : "days"}</span>`, `best ${bestStreak(logged, SKIP_WEEKENDS)} · ${wk.length} logged this week`),
       tile("🏢 Avg arrival this month", fmt12(avg(moArr.map(e => e.arrive))) || "–", moArr.length ? `by ${fmt12(GOAL)} on ${onTime}/${moArr.length} days (${pct(onTime, moArr.length)}%)` : "no data"),
       tile("⏱ Avg hours in lab", `${fmtNum(avg(mo.map(e => e.hours)))}<span class="unit">h</span>`, `avg leave ${fmt12(avg(mo.map(e => e.leave))) || "–"} · this month`),
       tile("🌙 Sleep · Mood", `${fmtNum(avg(mo.map(e => e.sleep)))}<span class="unit">h</span> · ${moodStr(avg(mo.map(e => e.mood)))}<span class="unit">${moodLabel(avg(mo.map(e => e.mood)))}</span>`, "monthly averages")
@@ -169,7 +168,7 @@
         const n = wk.filter(p).length, done = n >= goal;
         return tile(`${h.emoji} ${esc(h.label)}`, `<span class="${done ? "goal-met" : ""}">${n}</span><span class="unit">/ ${goal} this week</span>`, `${done ? "goal met ✓" : `${goal - n} more to go`} · last week ${lw.filter(p).length} / ${goal} · this month ${moDen ? pct(m, moDen) + "%" : "–"}`);
       }
-      const st = streak(p, sk); return tile(`${h.emoji} ${esc(h.label)}`, `${st}<span class="unit">${st === 1 ? "day" : "days"} streak</span>`, `last 7 days: ${n7} · this month: ${moDen ? pct(m, moDen) + "%" : "–"} · best ${bestStreak(p, sk)}`);
+      const st = streak(p, sk); return tile(`${h.emoji} ${esc(h.label)}`, `${st}<span class="unit">${sk ? "weekday" : "day"} streak</span>`, `${sk ? "Mon–Fri, weekends skipped" : "every day"} · best ${bestStreak(p, sk)} · this month ${moDen ? pct(m, moDen) + "%" : "–"}`);
     });
     if (hb.length) root.insertAdjacentHTML("beforeend", `<div class="grid grid-4" style="margin-top:.9rem">${hb.join("")}</div>`);
   }
@@ -192,7 +191,6 @@
       if (e.arrive != null) parts.push(`in at ${fmt12(e.arrive)}`);
       const hs = HABITS.filter(h => e.done.has(h.key)).map(h => h.label);
       parts.push(hs.length ? hs.join(", ") : "nothing checked");
-      if (e.note) parts.push(e.note);
       return parts.join(" · ");
     };
     function draw() {
@@ -378,15 +376,15 @@
     for (let i = 0; i < days; i++) {
       const d = addDays(TODAY, -i), k = keyOf(d), e = get(k);
       const dl = `${d.getMonth() + 1}/${d.getDate()} <span class="muted">${WD[d.getDay()]}</span>`;
-      if (!e) { rows.push(`<tr class="dim"><td>${dl}</td><td colspan="7" class="small">no entry</td></tr>`); continue; }
+      if (!e) { rows.push(`<tr class="dim"><td>${dl}</td><td colspan="6" class="small">no entry</td></tr>`); continue; }
       const hab = HABITS.map(h => `<span title="${esc(h.label)}" style="opacity:${e.done.has(h.key) ? 1 : .18}">${h.emoji}</span>`).join(" ");
       rows.push(`<tr style="cursor:pointer" data-k="${k}" tabindex="0" role="button" aria-label="Load ${k} into the form"><td>${dl}</td>
         <td class="num ${e.arrive != null && e.arrive > GOAL ? "late" : ""}">${fmt12(e.arrive) || "–"}</td>
         <td class="num hide-sm">${fmt12(e.leave) || "–"}</td><td class="num hide-sm">${e.hours != null ? fmtNum(e.hours) + "h" : "–"}</td>
         <td class="emojis">${hab}</td><td class="mood hide-sm">${moodStr(e.mood)}</td>
-        <td class="num hide-sm">${e.sleep != null ? fmtNum(e.sleep) + "h" : "–"}</td><td class="note">${esc(e.note)}</td></tr>`);
+        <td class="num hide-sm">${e.sleep != null ? fmtNum(e.sleep) + "h" : "–"}</td></tr>`);
     }
-    root.innerHTML = `<div style="overflow-x:auto"><table class="log-table"><thead><tr><th>Date</th><th>In</th><th class="hide-sm">Out</th><th class="hide-sm">Hours</th><th>Habits</th><th class="hide-sm">Mood</th><th class="hide-sm">Sleep</th><th>Note</th></tr></thead><tbody>${rows.join("")}</tbody></table></div>`;
+    root.innerHTML = `<div style="overflow-x:auto"><table class="log-table"><thead><tr><th>Date</th><th>In</th><th class="hide-sm">Out</th><th class="hide-sm">Hours</th><th>Habits</th><th class="hide-sm">Mood</th><th class="hide-sm">Sleep</th></tr></thead><tbody>${rows.join("")}</tbody></table></div>`;
     root.querySelectorAll("tr[data-k]").forEach(tr => { tr.addEventListener("click", () => fillForm(tr.dataset.k)); tr.addEventListener("keydown", ev => { if (ev.key === "Enter" || ev.key === " ") { ev.preventDefault(); fillForm(tr.dataset.k); } }); });
   }
 
@@ -542,7 +540,6 @@
         <div class="field"><label for="tr-sleep">Sleep (hours)</label><input id="tr-sleep" type="number" name="sleep" step="0.5" min="0" max="16" placeholder="7"></div>
         <div class="field"><label for="tr-mood">Mood (1–5)</label><select id="tr-mood" name="mood"><option value="">–</option><option value="5">😄 5 great</option><option value="4">🙂 4 good</option><option value="3">😐 3 okay</option><option value="2">😕 2 meh</option><option value="1">😩 1 rough</option></select></div>
         <fieldset class="field field-wide" style="border:0;padding:0;margin:0"><legend class="small muted" style="padding:0;margin-bottom:.25rem">Done</legend><div class="checks">${habitChecks}</div></fieldset>
-        <div class="field field-wide"><label for="tr-note">Note · one-line retro</label><textarea id="tr-note" name="note" placeholder="What I did, what's next"></textarea></div>
       </div>
       <div class="form-actions">
         <button type="button" class="btn btn-primary" id="tr-save">Save</button>
@@ -551,7 +548,7 @@
       </div>`;
     // prefill from the stored entry
     const set = (n, v) => { const i = root.querySelector(`[name=${n}]`); if (i) i.value = v ?? ""; };
-    if (e) { set("arrive", fmt12(e.arrive)); set("leave", fmt12(e.leave)); set("wake", fmt12(e.wake)); set("sleep", e.sleep ?? ""); set("mood", e.mood ?? ""); set("note", e.note); }
+    if (e) { set("arrive", fmt12(e.arrive)); set("leave", fmt12(e.leave)); set("wake", fmt12(e.wake)); set("sleep", e.sleep ?? ""); set("mood", e.mood ?? ""); }
     formDirty = false;
     const val = n => { const i = root.querySelector(`[name=${n}]`); return i ? i.value.trim() : ""; };
     const tval = n => { const m = parseTime(val(n)); return m == null ? "" : fmtMin(m); };
@@ -575,10 +572,10 @@
       if (bad.length) return flash(`<span style="color:var(--danger)">Check the time in "${esc(bad[0].previousElementSibling ? bad[0].closest(".field").querySelector("label").textContent : "")}" — use 9:10 AM or 09:10.</span>`);
       const checked = [...root.querySelectorAll("[name=done]:checked")].map(i => i.value);
       const wasOn = e ? [...e.done].filter(k => !e.auto.has(k)) : [];
-      const f = { arrive: tval("arrive"), leave: tval("leave"), wake: tval("wake"), sleep: val("sleep"), mood: val("mood"), note: val("note"),
+      const f = { arrive: tval("arrive"), leave: tval("leave"), wake: tval("wake"), sleep: val("sleep"), mood: val("mood"),
                   done: checked, remove: wasOn.filter(k => !checked.includes(k)) };
       // the form shows the whole stored day, so what is on screen is what gets saved (cleared fields are cleared)
-      const empty = !f.arrive && !f.leave && !f.wake && !f.sleep && !f.mood && !f.note && !checked.length;
+      const empty = !f.arrive && !f.leave && !f.wake && !f.sleep && !f.mood && !checked.length;
       if (empty) { if (!e) return flash("Nothing to save yet."); if (!confirm("Everything is empty — delete this day's entry instead?")) return; root.querySelector("#tr-delete")?.click(); return; }
       const b = root.querySelector("#tr-save"); b.disabled = true; flash("Saving…");
       try { await saveEntry(logDate, f, true); formDirty = false; renderAll(); document.getElementById("tr-hint").textContent = `✓ Saved ${logDate === TODAY_KEY ? "today" : logDate}.`; }
@@ -600,9 +597,9 @@
   // ───────── CSV export ─────────
   function initExport(btn) {
     btn.addEventListener("click", () => {
-      const head = ["date", "weekday", "arrive", "leave", "hours", ...HKEYS, "wake", "sleep", "mood", "note"];
+      const head = ["date", "weekday", "arrive", "leave", "hours", ...HKEYS, "wake", "sleep", "mood"];
       const cell = v => `"${String(v ?? "").replace(/"/g, '""').replace(/–/g, "")}"`;
-      const rows = KEYS.map(k => { const e = E[k]; return [k, WD[e.date.getDay()], fmtMin(e.arrive), fmtMin(e.leave), e.hours != null ? fmtNum(e.hours, 2) : "", ...HKEYS.map(h => e.done.has(h) ? 1 : 0), fmtMin(e.wake), e.sleep, e.mood, e.note].map(cell).join(","); });
+      const rows = KEYS.map(k => { const e = E[k]; return [k, WD[e.date.getDay()], fmtMin(e.arrive), fmtMin(e.leave), e.hours != null ? fmtNum(e.hours, 2) : "", ...HKEYS.map(h => e.done.has(h) ? 1 : 0), fmtMin(e.wake), e.sleep, e.mood].map(cell).join(","); });
       const blob = new Blob(["﻿" + [head.join(","), ...rows].join("\n")], { type: "text/csv;charset=utf-8" });
       const a = el("a", { href: URL.createObjectURL(blob), download: `routine-${TODAY_KEY}.csv` }); document.body.appendChild(a); a.click(); a.remove();
     });

@@ -22,13 +22,13 @@ but never times, notes or moods. Set the secret under Settings → Secrets and v
    1–5; each saves that one item into the day at once. The **log form** below shows the whole stored day (any date up to
    today) and saves it exactly as shown: edit a field, clear it, or un-tick a habit, then press Save; *Delete this day*
    removes the entry. A save that fails (offline, expired token) is kept in the browser and retried on the next load.
-3. **Terminal**: `python scripts/log.py --arrive 9:10 english coding -n "note"` (uses `gh` auth; `--remove`, `--replace`, `--show`).
+3. **Terminal**: `python scripts/log.py --arrive 9:10 english coding` (uses `gh` auth; `--remove`, `--replace`, `--show`).
 
 Day format (`days.json`, keyed by date):
 
 ```json
 { "2026-09-07": { "arrive": "09:10", "leave": "18:30", "wake": "07:30", "sleep": 7, "mood": 4,
-                  "done": ["english", "coding", "paper"], "note": "one-line retro" } }
+                  "done": ["english", "coding", "paper"] } }
 ```
 
 Times are 24-hour `HH:MM` in the data and shown as 12-hour AM/PM on the page. The `coding` habit is also checked automatically
