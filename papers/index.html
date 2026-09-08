@@ -61,9 +61,6 @@ permalink: /papers/
   function show(id, push){ if(!panels.some(p=>p.dataset.panel===id)) id=tabs[0].dataset.tab; current=id;
     panels.forEach(p=>p.hidden=p.dataset.panel!==id); tabs.forEach(t=>{ const on=t.dataset.tab===id; t.classList.toggle('on',on); t.setAttribute('aria-selected',on); t.tabIndex=on?0:-1; });
     if(push) history.replaceState(null,'','#'+id); try{ localStorage.setItem('papers_tab', id); }catch(e){} }
-    if(!s){ panels.forEach(p=>{ p.querySelectorAll('li').forEach(li=>li.style.display=''); p.classList.remove('searching'); }); show(current,false); return; }
-    panels.forEach(p=>{ let n=0; p.querySelectorAll('li').forEach(li=>{ const ok=(li.dataset.text||'').includes(s); li.style.display=ok?'':'none'; if(ok)n++; }); p.hidden=n===0; p.classList.add('searching'); });
-    tabs.forEach(t=>{ t.classList.remove('on'); t.setAttribute('aria-selected',false); }); }
   tabs.forEach(t=>t.addEventListener('click',()=>show(t.dataset.tab,true)));
   bar.addEventListener('keydown',e=>{ const i=tabs.findIndex(t=>t.dataset.tab===current); if(e.key==='ArrowRight'||e.key==='ArrowLeft'){ const j=(i+(e.key==='ArrowRight'?1:-1)+tabs.length)%tabs.length; show(tabs[j].dataset.tab,true); tabs[j].focus(); e.preventDefault(); } });
   window.addEventListener('hashchange',()=>show(location.hash.slice(1),false));
