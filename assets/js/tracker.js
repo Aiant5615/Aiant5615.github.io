@@ -42,6 +42,9 @@
   const TODAY = new Date(); TODAY.setHours(0, 0, 0, 0);
   const TODAY_KEY = keyOf(TODAY);
   const moodStr = m => m == null ? "–" : ["", "😩", "😕", "😐", "🙂", "😄"][Math.max(1, Math.min(5, Math.round(m)))];
+  const MOOD_LABEL = ["", "rough", "meh", "okay", "good", "great"];
+  const moodLabel = m => m == null ? "" : MOOD_LABEL[Math.max(1, Math.min(5, Math.round(m)))];
+  const plural = (n, w) => `${n} ${n === 1 ? w : w + "s"}`;
   const habitSkipsWeekend = h => SKIP_WEEKENDS && !(HMAP[h] && HMAP[h].weekends);
 
   // ───────── data (RAW = what's stored in the private repo; E = derived view incl. LeetCode auto-check) ─────────
@@ -60,7 +63,6 @@
       key: k, date: parseKey(k), done, arrive, leave, wake, hours,
       sleep: raw.sleep != null && raw.sleep !== "" ? +raw.sleep : null,
       mood: raw.mood != null && raw.mood !== "" ? +raw.mood : null,
-      focus: raw.focus != null && raw.focus !== "" ? +raw.focus : null,
       note: raw.note ? String(raw.note) : "", auto: new Set()
     };
   }
@@ -111,22 +113,36 @@
   const logged = e => !!e;
   const isoWeek = d => { const x = new Date(Date.UTC(d.getFullYear(), d.getMonth(), d.getDate())); const day = x.getUTCDay() || 7; x.setUTCDate(x.getUTCDate() + 4 - day); const y0 = new Date(Date.UTC(x.getUTCFullYear(), 0, 1)); return `${x.getUTCFullYear()}-W${pad(Math.ceil(((x - y0) / 86400000 + 1) / 7))}`; };
 
-  // ───────── today bar (home/tracker) ─────────
+  // ───────── today bar: one-tap logging (arrival / leave open the clock, habits toggle, mood picks) ─────────
   function renderToday(root) {
     const t = get(TODAY_KEY);
+    const chip = (cls, html, attrs = "") => `<button type="button" class="chip quick ${cls}" ${attrs}>${html}</button>`;
     let html = `<span class="muted">${WD[TODAY.getDay()]}, ${MON[TODAY.getMonth()]} ${TODAY.getDate()}</span>`;
-    if (!t) {
-      html += `<span class="chip">Not logged yet</span>`;
-      HABITS.forEach(h => html += `<span class="chip">${h.emoji} ${esc(h.label)}</span>`);
-      html += `<a class="btn btn-sm btn-primary" href="/tracker/#log">Log today</a>`;
-    } else {
-      if (t.arrive != null) html += `<span class="chip ${t.arrive <= GOAL ? "on" : ""}">🏢 In at <span class="n">${fmt12(t.arrive)}</span></span>`;
-      HABITS.forEach(h => html += `<span class="chip ${t.done.has(h.key) ? "on" : ""}">${h.emoji} ${esc(h.label)}</span>`);
-      if (t.mood != null) html += `<span class="chip">${moodStr(t.mood)}</span>`;
-    }
+    const hasIn = t && t.arrive != null, hasOut = t && t.leave != null;
+    html += chip(hasIn ? (t.arrive <= GOAL ? "on" : "on late") : "", hasIn ? `🏢 In <span class="n">${fmt12(t.arrive)}</span>` : "🏢 Arrived…", `data-time="arrive" title="${hasIn ? "Change" : "Set"} today's arrival time"`);
+    html += chip(hasOut ? "on" : "", hasOut ? `🏠 Out <span class="n">${fmt12(t.leave)}</span>` : "🏠 Left…", `data-time="leave" title="${hasOut ? "Change" : "Set"} today's leave time"`);
+    HABITS.forEach(h => { const on = !!(t && t.done.has(h.key)), auto = !!(t && t.auto.has(h.key)); html += chip(on ? "on" : "", `${h.emoji} ${esc(h.label)}`, auto ? `disabled title="Checked automatically from today's LeetCode solution"` : `data-habit="${h.key}" title="${on ? "Un-check" : "Check"} ${esc(h.label)} for today"`); });
+    html += chip(t && t.mood != null ? "on" : "", t && t.mood != null ? `Mood ${moodStr(t.mood)} ${moodLabel(t.mood)}` : "Mood…", `data-mood title="Set today's mood"`);
     const s = streak(logged, SKIP_WEEKENDS);
-    if (s > 0) html += `<span class="chip on">🔥 <span class="n">${s}</span>-day logging streak</span>`;
+    if (s > 0) html += `<span class="chip on"><span class="n">🔥 ${s}-day logging streak</span></span>`;
+    html += `<span class="small muted" id="quick-status" aria-live="polite"></span>`;
     root.innerHTML = html;
+    const status = msg => { const el0 = document.getElementById("quick-status"); if (el0) el0.innerHTML = msg; };
+    const quickSave = async f => {
+      root.querySelectorAll("button.chip").forEach(b => b.disabled = true); status("Saving…");
+      try { await saveEntry(TODAY_KEY, f, false); renderAll(); status("✓ Saved"); }
+      catch (err) { setPending(TODAY_KEY, f, false); renderToday(root); status(`<span style="color:var(--danger)">Save failed: ${esc(err.message)}.</span> Kept on this device — <button type="button" class="btn btn-sm" data-retry>Retry</button>`); root.querySelector("[data-retry]")?.addEventListener("click", () => flushPending(true)); }
+    };
+    root.querySelectorAll("[data-time]").forEach(b => b.addEventListener("click", () => {
+      const k = b.dataset.time;
+      openClock({ initial: t && t[k] != null ? t[k] : null, title: k === "arrive" ? "Arrived at" : "Left at", doneLabel: "Save", onDone: m => { if (m != null) quickSave({ [k]: fmtMin(m) }); } });
+    }));
+    root.querySelectorAll("[data-habit]").forEach(b => b.addEventListener("click", () => { const h = b.dataset.habit; quickSave(t && t.done.has(h) ? { remove: [h] } : { done: [h] }); }));
+    root.querySelector("[data-mood]")?.addEventListener("click", ev => {
+      const seg = el("span", { class: "seg", role: "group", "aria-label": "Mood" }, [5, 4, 3, 2, 1].map(v => `<button type="button" data-v="${v}" class="${t && t.mood === v ? "on" : ""}" title="${MOOD_LABEL[v]}">${moodStr(v)} ${v}</button>`).join(""));
+      ev.currentTarget.replaceWith(seg);
+      seg.querySelectorAll("button").forEach(x => x.addEventListener("click", () => quickSave({ mood: x.dataset.v })));
+    });
   }
 
   // ───────── stat tiles ─────────
@@ -137,17 +153,17 @@
     const tile = (label, value, sub) => `<div class="stat"><div class="stat-label">${label}</div><div class="stat-value">${value}</div><div class="stat-sub">${sub}</div></div>`;
     const wkLabel = SKIP_WEEKENDS ? "(weekdays)" : "";
     const tiles = [
-      tile("📝 Logging streak", `${streak(logged, SKIP_WEEKENDS)}<span class="unit">days</span>`, `best ${bestStreak(logged, SKIP_WEEKENDS)} · ${wk.length} logged this week ${wkLabel}`),
+      tile("📝 Logging streak", `${streak(logged, SKIP_WEEKENDS)}<span class="unit">${streak(logged, SKIP_WEEKENDS) === 1 ? "day" : "days"}</span>`, `best ${bestStreak(logged, SKIP_WEEKENDS)} · ${wk.length} logged this week ${wkLabel}`),
       tile("🏢 Avg arrival this month", fmt12(avg(moArr.map(e => e.arrive))) || "–", moArr.length ? `by ${fmt12(GOAL)} on ${onTime}/${moArr.length} days (${pct(onTime, moArr.length)}%)` : "no data"),
       tile("⏱ Avg hours in lab", `${fmtNum(avg(mo.map(e => e.hours)))}<span class="unit">h</span>`, `avg leave ${fmt12(avg(mo.map(e => e.leave))) || "–"} · this month`),
-      tile("🌙 Sleep · Mood · Focus", `${fmtNum(avg(mo.map(e => e.sleep)))}<span class="unit">h</span> · ${moodStr(avg(mo.map(e => e.mood)))} · ${fmtNum(avg(mo.map(e => e.focus)))}<span class="unit">h</span>`, "monthly averages")
+      tile("🌙 Sleep · Mood", `${fmtNum(avg(mo.map(e => e.sleep)))}<span class="unit">h</span> · ${moodStr(avg(mo.map(e => e.mood)))}<span class="unit">${moodLabel(avg(mo.map(e => e.mood)))}</span>`, "monthly averages")
     ];
     root.innerHTML = `<div class="grid grid-4">${tiles.join("")}</div>`;
     const hb = HABITS.map(h => {
       const p = hasHabit(h.key), sk = habitSkipsWeekend(h.key);
       const n7 = l7.filter(p).length, m = mo.filter(p).length;
       const moDen = sk ? mo.filter(e => !isWeekend(e.date)).length : mo.length;
-      return tile(`${h.emoji} ${esc(h.label)}`, `${streak(p, sk)}<span class="unit">-day streak</span>`, `last 7 days: ${n7} · this month: ${moDen ? pct(m, moDen) + "%" : "–"} · best ${bestStreak(p, sk)}`);
+      const st = streak(p, sk); return tile(`${h.emoji} ${esc(h.label)}`, `${st}<span class="unit">${st === 1 ? "day" : "days"} streak</span>`, `last 7 days: ${n7} · this month: ${moDen ? pct(m, moDen) + "%" : "–"} · best ${bestStreak(p, sk)}`);
     });
     if (hb.length) root.insertAdjacentHTML("beforeend", `<div class="grid grid-4" style="margin-top:.9rem">${hb.join("")}</div>`);
   }
@@ -175,6 +191,7 @@
     };
     function draw() {
       const weeks = weeksFor();
+      const hw = document.getElementById("heatmap-weeks"); if (hw) hw.textContent = `last ${weeks} weeks`;
       const start = addDays(TODAY, -((TODAY.getDay() + 6) % 7) - (weeks - 1) * 7);   // Monday of the first week
       const H = top + 7 * step + 4;
       const labels = svgEl("svg", { class: "heat-labels", width: left, height: H, viewBox: `0 0 ${left} ${H}` });
@@ -193,7 +210,7 @@
           const k = keyOf(d), e = get(k);
           const rect = svgEl("rect", { x: c * step, y: top + r * step, width: cell, height: cell, class: `heat-${level(e)}${k === TODAY_KEY ? " heat-today" : ""}` });
           const title = svgEl("title"); title.textContent = `${k} (${WD[d.getDay()]}) · ${tip(e)}`; rect.appendChild(title);
-          if (e) { rect.style.cursor = "pointer"; rect.addEventListener("click", () => fillForm(k)); }
+          if (e) { rect.style.cursor = "pointer"; rect.setAttribute("tabindex", "0"); rect.setAttribute("role", "button"); rect.setAttribute("aria-label", `${k}: ${tip(e)}. Load into the form`); rect.addEventListener("click", () => fillForm(k)); rect.addEventListener("keydown", ev => { if (ev.key === "Enter" || ev.key === " ") { ev.preventDefault(); fillForm(k); } }); }
           svg.appendChild(rect);
         }
       }
@@ -232,7 +249,7 @@
     const x0 = addDays(TODAY, -29);
     const x = d => L + ((d - x0) / 86400000) * (W - L - R) / 29;
     const y = v => T + (hi - v) * (H - T - B) / (hi - lo);
-    const svg = svgEl("svg", { class: "chart", viewBox: `0 0 ${W} ${H}` });
+    const svg = svgEl("svg", { class: "chart", viewBox: `0 0 ${W} ${H}`, role: "img", "aria-label": `Wake-up, arrival and leave times over the last 30 days` });
     const axis = svgEl("g", { class: "axis" });
     for (let v = lo; v <= hi; v += tickStep) {
       axis.appendChild(svgEl("line", { x1: L, x2: W - R, y1: y(v), y2: y(v), class: "grid-line" }));
@@ -267,7 +284,7 @@
     const sHi = Math.max(10, Math.ceil((Math.max(...sleepVals, 8) + 1) / 2) * 2), sLo = 0;
     const yS = v => T + (sHi - v) * (H - T - B) / (sHi - sLo);          // left axis: sleep hours
     const yM = v => T + (5 - v) * (H - T - B) / 4;                       // right axis: mood 1..5 (1 at bottom)
-    const svg = svgEl("svg", { class: "chart chart-sm", viewBox: `0 0 ${W} ${H}` });
+    const svg = svgEl("svg", { class: "chart chart-sm", viewBox: `0 0 ${W} ${H}`, role: "img", "aria-label": "Sleep hours and mood over the last 30 days" });
     const axis = svgEl("g", { class: "axis" });
     for (let v = 0; v <= sHi; v += 2) { axis.appendChild(svgEl("line", { x1: L, x2: W - R, y1: yS(v), y2: yS(v), class: "grid-line" })); const t = svgEl("text", { x: L - 6, y: yS(v) + 3, "text-anchor": "end" }); t.textContent = `${v}h`; axis.appendChild(t); }
     for (let v = 1; v <= 5; v++) { const t = svgEl("text", { x: W - R + 6, y: yM(v) + 3, "text-anchor": "start" }); t.textContent = moodStr(v); axis.appendChild(t); }
@@ -298,7 +315,7 @@
       ["Avg arrival", fmt12(avg(arr.map(e => e.arrive))) || "–"],
       ["Avg hours in lab", arr.length ? `${fmtNum(avg(wd.map(e => e.hours)))}h` : "–"],
     ];
-    HABITS.forEach(h => { const base = habitSkipsWeekend(h.key) ? wd : entries; rows.push([`${h.emoji} ${h.label}`, `${base.filter(hasHabit(h.key)).length} days`]); });
+    HABITS.forEach(h => { const base = habitSkipsWeekend(h.key) ? wd : entries; rows.push([`${h.emoji} ${h.label}`, plural(base.filter(hasHabit(h.key)).length, "day")]); });
     rows.push(["Avg mood", moodStr(avg(entries.map(e => e.mood)))]);
     rows.push(["Avg sleep", entries.some(e => e.sleep != null) ? `${fmtNum(avg(entries.map(e => e.sleep)))}h` : "–"]);
     return rows;
@@ -322,7 +339,7 @@
     KEYS.forEach(k => { const m = k.slice(0, 7); (months[m] = months[m] || []).push(E[k]); });
     const ms = Object.keys(months).sort().slice(-6).reverse();
     if (!ms.length) { root.innerHTML = `<div class="empty">Monthly comparison appears as entries accumulate.</div>`; return; }
-    const th = ["Month", "Logged", "Avg arrival", "On time", "Avg hours", ...HABITS.map(h => h.emoji)];
+    const th = ["Month", "Logged", "Avg arrival", "On time", "Avg hours", ...HABITS.map(h => `${h.emoji} <span class="hide-sm">${esc(h.label)}</span>`)];
     const rows = ms.map(m => {
       const es = months[m], wd = SKIP_WEEKENDS ? es.filter(e => !isWeekend(e.date)) : es, arr = wd.filter(e => e.arrive != null);
       const onTime = arr.filter(e => e.arrive <= GOAL).length;
@@ -330,8 +347,9 @@
         ...HABITS.map(h => { const base = habitSkipsWeekend(h.key) ? wd : es; const p = pct(base.filter(hasHabit(h.key)).length, base.length); return p == null ? "–" : bar(p); })];
       return `<tr>${cells.map(c => `<td>${c}</td>`).join("")}</tr>`;
     });
-    root.innerHTML = `<div style="overflow-x:auto"><table><thead><tr>${th.map(h => `<th title="${esc(HMAP[h]?.label || "")}">${esc(h)}</th>`).join("")}</tr></thead><tbody>${rows.join("")}</tbody></table></div>`;
+    root.innerHTML = `<div style="overflow-x:auto"><table><thead><tr>${th.map(h => `<th>${h}</th>`).join("")}</tr></thead><tbody>${rows.join("")}</tbody></table></div>${habitLegend()}`;
   }
+  const habitLegend = () => `<div class="small muted show-sm" style="margin-top:.4rem">${HABITS.map(h => `${h.emoji} ${esc(h.label)}`).join(" · ")}</div>`;
   const bar = p => `<div class="bar-cell"><div class="bar" style="width:${p}%"></div><span>${p}%</span></div>`;
 
   // ───────── weekday pattern ─────────
@@ -344,8 +362,8 @@
         ...HABITS.map(h => { const p = pct(es.filter(hasHabit(h.key)).length, es.length); return p == null ? "–" : bar(p); })];
       return `<tr class="${isWeekend(new Date(2024, 0, 7 + dow)) ? "dim" : ""}">${cells.map(c => `<td>${c}</td>`).join("")}</tr>`;
     });
-    const th = ["Day", "Logged", "Avg arrival", "On time", ...HABITS.map(h => h.emoji)];
-    root.innerHTML = `<div style="overflow-x:auto"><table class="log-table"><thead><tr>${th.map(h => `<th title="${esc(HMAP[h]?.label || "")}">${esc(h)}</th>`).join("")}</tr></thead><tbody>${rows.join("")}</tbody></table></div>`;
+    const th = ["Day", "Logged", "Avg arrival", "On time", ...HABITS.map(h => `${h.emoji} <span class="hide-sm">${esc(h.label)}</span>`)];
+    root.innerHTML = `<div style="overflow-x:auto"><table class="log-table"><thead><tr>${th.map(h => `<th>${h}</th>`).join("")}</tr></thead><tbody>${rows.join("")}</tbody></table></div>${habitLegend()}`;
   }
 
   // ───────── recent log table ─────────
@@ -356,14 +374,14 @@
       const dl = `${d.getMonth() + 1}/${d.getDate()} <span class="muted">${WD[d.getDay()]}</span>`;
       if (!e) { rows.push(`<tr class="dim"><td>${dl}</td><td colspan="7" class="small">no entry</td></tr>`); continue; }
       const hab = HABITS.map(h => `<span title="${esc(h.label)}" style="opacity:${e.done.has(h.key) ? 1 : .18}">${h.emoji}</span>`).join(" ");
-      rows.push(`<tr style="cursor:pointer" data-k="${k}"><td>${dl}</td>
+      rows.push(`<tr style="cursor:pointer" data-k="${k}" tabindex="0" role="button" aria-label="Load ${k} into the form"><td>${dl}</td>
         <td class="num ${e.arrive != null && e.arrive > GOAL ? "late" : ""}">${fmt12(e.arrive) || "–"}</td>
         <td class="num hide-sm">${fmt12(e.leave) || "–"}</td><td class="num hide-sm">${e.hours != null ? fmtNum(e.hours) + "h" : "–"}</td>
         <td class="emojis">${hab}</td><td class="mood hide-sm">${moodStr(e.mood)}</td>
         <td class="num hide-sm">${e.sleep != null ? fmtNum(e.sleep) + "h" : "–"}</td><td class="note">${esc(e.note)}</td></tr>`);
     }
     root.innerHTML = `<div style="overflow-x:auto"><table class="log-table"><thead><tr><th>Date</th><th>In</th><th class="hide-sm">Out</th><th class="hide-sm">Hours</th><th>Habits</th><th class="hide-sm">Mood</th><th class="hide-sm">Sleep</th><th>Note</th></tr></thead><tbody>${rows.join("")}</tbody></table></div>`;
-    root.querySelectorAll("tr[data-k]").forEach(tr => tr.addEventListener("click", () => fillForm(tr.dataset.k)));
+    root.querySelectorAll("tr[data-k]").forEach(tr => { tr.addEventListener("click", () => fillForm(tr.dataset.k)); tr.addEventListener("keydown", ev => { if (ev.key === "Enter" || ev.key === " ") { ev.preventDefault(); fillForm(tr.dataset.k); } }); });
   }
 
   // ───────── time field + clock-face picker (12-hour, AM/PM) ─────────
@@ -444,7 +462,7 @@
   function mergeInto(raw, f, replace) {
     const cur = replace ? {} : { ...(raw || {}) };
     ["arrive", "leave", "wake"].forEach(k => { if (f[k]) cur[k] = f[k]; });
-    ["sleep", "mood", "focus"].forEach(k => { if (f[k] !== undefined && f[k] !== null && f[k] !== "") cur[k] = +f[k]; });
+    ["sleep", "mood"].forEach(k => { if (f[k] !== undefined && f[k] !== null && f[k] !== "") cur[k] = +f[k]; });
     let done = Array.isArray(cur.done) ? [...cur.done] : [];
     (f.done || []).forEach(d => { if (!done.includes(d)) done.push(d); });
     (f.remove || []).forEach(d => { done = done.filter(x => x !== d); });
@@ -454,15 +472,25 @@
     if (!cur.note) delete cur.note;
     return cur;
   }
-  async function saveEntry(date, f, replace, attempt = 0) {
+  async function writeDays(next, message, attempt = 0) {
     if (!token()) throw new Error("not connected");
-    const next = { ...RAW, [date]: mergeInto(RAW[date], f, replace) };
     const sorted = Object.fromEntries(Object.keys(next).sort().map(k => [k, next[k]]));
-    const body = { message: `log: ${date}`, content: b64enc(JSON.stringify(sorted, null, 1) + "\n"), branch: DBRANCH };
+    const body = { message, content: b64enc(JSON.stringify(sorted, null, 1) + "\n"), branch: DBRANCH };
     if (fileSha) body.sha = fileSha;
     try { const r = await gh(`/repos/${DREPO}/contents/${DFILE}`, { method: "PUT", body: JSON.stringify(body) }); fileSha = r.content.sha; }
-    catch (e) { if ((e.status === 409 || e.status === 422) && attempt === 0) { await loadRemote(); return saveEntry(date, f, replace, 1); } throw e; }
+    catch (e) { if ((e.status === 409 || e.status === 422) && attempt === 0) { await loadRemote(); return writeDays(next, message, 1); } throw e; }
     RAW = sorted; lsSet(CACHE_KEY, JSON.stringify({ at: Date.now(), raw: RAW })); rebuild();
+  }
+  async function saveEntry(date, f, replace) { return writeDays({ ...RAW, [date]: mergeInto(RAW[date], f, replace) }, `log: ${date}`); }
+  async function deleteEntry(date) { const next = { ...RAW }; delete next[date]; return writeDays(next, `delete: ${date}`); }
+  // A save that failed (offline, expired token) is kept on this device and retried on the next load or on demand.
+  const PENDING_KEY = "tracker_pending";
+  const setPending = (date, f, replace) => lsSet(PENDING_KEY, JSON.stringify({ date, f, replace, at: Date.now() }));
+  async function flushPending(manual) {
+    let p; try { p = JSON.parse(lsGet(PENDING_KEY) || "null"); } catch { p = null; }
+    if (!p || !p.date) return false;
+    try { await saveEntry(p.date, p.f, p.replace); try { localStorage.removeItem(PENDING_KEY); } catch {} renderAll(); const s = document.getElementById("quick-status"); if (s) s.textContent = `✓ Saved the pending change for ${p.date}`; return true; }
+    catch (e) { if (manual) { const s = document.getElementById("quick-status"); if (s) s.innerHTML = `<span style="color:var(--danger)">Still failing: ${esc(e.message)}</span>`; } return false; }
   }
   function renderConnect(root) {
     const user = lsGet(USER_KEY);
@@ -503,24 +531,24 @@
     const d = parseKey(logDate), isToday = logDate === TODAY_KEY, e = get(logDate);
     const habitChecks = HABITS.map(h => { const on = !!(e && e.done.has(h.key)), auto = !!(e && e.auto.has(h.key)); return `<label class="check ${on ? "on" : ""}${auto ? " auto" : ""}" title="${auto ? "Checked automatically from that day's LeetCode solution" : ""}"><input type="checkbox" name="done" value="${h.key}" ${on ? "checked" : ""} ${auto ? "disabled" : ""}> ${h.emoji} ${esc(h.label)}</label>`; }).join("");
     root.innerHTML = `
-      <div class="quick-date"><button type="button" class="btn btn-sm" data-shift="-1" aria-label="Previous day">◀</button><input type="date" name="date" lang="en" value="${logDate}" max="${TODAY_KEY}"><button type="button" class="btn btn-sm" data-shift="1" aria-label="Next day" ${isToday ? "disabled" : ""}>▶</button><span class="quick-date-label">${isToday ? "Today" : `${WD[d.getDay()]}, ${MON[d.getMonth()]} ${d.getDate()}`}</span><span class="small muted">${e ? "· has an entry, fields below are what is saved" : "· no entry yet"}</span>${isToday ? "" : `<button type="button" class="btn btn-sm" data-today>Today</button>`}</div>
+      <div class="quick-date"><button type="button" class="btn btn-sm" data-shift="-1" aria-label="Previous day">◀</button><span class="date-pick"><span class="quick-date-label">${isToday ? "Today" : `${WD[d.getDay()]}, ${MON[d.getMonth()]} ${d.getDate()}`} <span class="muted" aria-hidden="true">📅</span></span><input type="date" name="date" value="${logDate}" max="${TODAY_KEY}" aria-label="Date to log" title="Pick a date"></span><button type="button" class="btn btn-sm" data-shift="1" aria-label="Next day" ${isToday ? "disabled" : ""}>▶</button><span class="small muted">${e ? "· saved entry shown below" : "· no entry yet"}</span>${isToday ? "" : `<button type="button" class="btn btn-sm" data-today>Today</button>`}</div>
       <div class="form-grid">
         <div class="field"><label for="tr-arrive">Arrived at</label>${timeField("arrive")}</div>
         <div class="field"><label for="tr-leave">Left at</label>${timeField("leave")}</div>
         <div class="field"><label for="tr-wake">Woke up at</label>${timeField("wake")}</div>
         <div class="field"><label for="tr-sleep">Sleep (hours)</label><input id="tr-sleep" type="number" name="sleep" step="0.5" min="0" max="16" placeholder="7"></div>
         <div class="field"><label for="tr-mood">Mood (1–5)</label><select id="tr-mood" name="mood"><option value="">–</option><option value="5">😄 5 great</option><option value="4">🙂 4 good</option><option value="3">😐 3 okay</option><option value="2">😕 2 meh</option><option value="1">😩 1 rough</option></select></div>
-        <div class="field"><label for="tr-focus">Focus (hours)</label><input id="tr-focus" type="number" name="focus" step="0.5" min="0" max="16" placeholder="3"></div>
         <fieldset class="field field-wide" style="border:0;padding:0;margin:0"><legend class="small muted" style="padding:0;margin-bottom:.25rem">Done</legend><div class="checks">${habitChecks}</div></fieldset>
         <div class="field field-wide"><label for="tr-note">Note · one-line retro</label><textarea id="tr-note" name="note" placeholder="What I did, what's next"></textarea></div>
       </div>
       <div class="form-actions">
         <button type="button" class="btn btn-primary" id="tr-save">Save</button>
         <span class="small muted" id="tr-hint"></span>
+        ${e ? `<button type="button" class="btn btn-sm btn-danger" id="tr-delete" style="margin-left:auto">Delete this day</button>` : ""}
       </div>`;
     // prefill from the stored entry
     const set = (n, v) => { const i = root.querySelector(`[name=${n}]`); if (i) i.value = v ?? ""; };
-    if (e) { set("arrive", fmt12(e.arrive)); set("leave", fmt12(e.leave)); set("wake", fmt12(e.wake)); set("sleep", e.sleep ?? ""); set("mood", e.mood ?? ""); set("focus", e.focus ?? ""); set("note", e.note); }
+    if (e) { set("arrive", fmt12(e.arrive)); set("leave", fmt12(e.leave)); set("wake", fmt12(e.wake)); set("sleep", e.sleep ?? ""); set("mood", e.mood ?? ""); set("note", e.note); }
     formDirty = false;
     const val = n => { const i = root.querySelector(`[name=${n}]`); return i ? i.value.trim() : ""; };
     const tval = n => { const m = parseTime(val(n)); return m == null ? "" : fmtMin(m); };
@@ -533,17 +561,31 @@
     root.querySelectorAll(".timefield input").forEach(i => { i.addEventListener("blur", () => { const m = parseTime(i.value); if (m != null) i.value = fmt12(m); else if (i.value.trim()) i.classList.add("bad"); }); i.addEventListener("input", () => i.classList.remove("bad")); });
     root.querySelectorAll(".timefield .clock").forEach(b => b.addEventListener("click", () => fieldClock(root.querySelector(`[name=${b.dataset.for}]`))));
     root.querySelectorAll(".check input").forEach(i => i.addEventListener("change", () => { i.closest(".check").classList.toggle("on", i.checked); formDirty = true; }));
+    root.querySelector("#tr-delete")?.addEventListener("click", async () => {
+      if (!confirm(`Delete the entry for ${logDate === TODAY_KEY ? "today" : logDate}? This cannot be undone.`)) return;
+      const b = root.querySelector("#tr-delete"); b.disabled = true; flash("Deleting…");
+      try { await deleteEntry(logDate); formDirty = false; renderAll(); const h = document.getElementById("tr-hint"); if (h) h.textContent = `✓ Deleted ${logDate}.`; }
+      catch (err) { flash(`<span style="color:var(--danger)">Delete failed: ${esc(err.message)}.</span>`); b.disabled = false; }
+    });
     root.querySelector("#tr-save").addEventListener("click", async () => {
       const bad = [...root.querySelectorAll(".timefield input")].filter(i => i.value.trim() && parseTime(i.value) == null);
       if (bad.length) return flash(`<span style="color:var(--danger)">Check the time in "${esc(bad[0].previousElementSibling ? bad[0].closest(".field").querySelector("label").textContent : "")}" — use 9:10 AM or 09:10.</span>`);
       const checked = [...root.querySelectorAll("[name=done]:checked")].map(i => i.value);
       const wasOn = e ? [...e.done].filter(k => !e.auto.has(k)) : [];
-      const f = { arrive: tval("arrive"), leave: tval("leave"), wake: tval("wake"), sleep: val("sleep"), mood: val("mood"), focus: val("focus"), note: val("note"),
+      const f = { arrive: tval("arrive"), leave: tval("leave"), wake: tval("wake"), sleep: val("sleep"), mood: val("mood"), note: val("note"),
                   done: checked, remove: wasOn.filter(k => !checked.includes(k)) };
       // the form shows the whole stored day, so what is on screen is what gets saved (cleared fields are cleared)
+      const empty = !f.arrive && !f.leave && !f.wake && !f.sleep && !f.mood && !f.note && !checked.length;
+      if (empty) { if (!e) return flash("Nothing to save yet."); if (!confirm("Everything is empty — delete this day's entry instead?")) return; root.querySelector("#tr-delete")?.click(); return; }
       const b = root.querySelector("#tr-save"); b.disabled = true; flash("Saving…");
       try { await saveEntry(logDate, f, true); formDirty = false; renderAll(); document.getElementById("tr-hint").textContent = `✓ Saved ${logDate === TODAY_KEY ? "today" : logDate}.`; }
-      catch (err) { flash(`<span style="color:var(--danger)">Save failed: ${esc(err.message)}.</span> ${err.status === 404 || err.status === 403 ? "GitHub returns 404/403 when the token lacks <b>Contents: Read and write</b> on " + esc(DREPO) + "." : err.status === 401 ? "The token is invalid or expired — reconnect above." : "Try again."}`); b.disabled = false; }
+      catch (err) {
+        const why = err.status === 404 || err.status === 403 ? "GitHub returns 404/403 when the token lacks <b>Contents: Read and write</b> on " + esc(DREPO) + "." : err.status === 401 ? "The token is invalid or expired — reconnect above." : "Kept on this device; it is retried when the page loads again.";
+        if (!(err.status === 401 || err.status === 403 || err.status === 404)) setPending(logDate, f, true);
+        flash(`<span style="color:var(--danger)">Save failed: ${esc(err.message)}.</span> ${why} <button type="button" class="btn btn-sm" data-retry>Retry</button>`);
+        root.querySelector("[data-retry]")?.addEventListener("click", () => b.click());
+        b.disabled = false;
+      }
     });
   }
   function fillForm(k, silent) {
@@ -555,9 +597,9 @@
   // ───────── CSV export ─────────
   function initExport(btn) {
     btn.addEventListener("click", () => {
-      const head = ["date", "weekday", "arrive", "leave", "hours", ...HKEYS, "wake", "sleep", "mood", "focus", "note"];
+      const head = ["date", "weekday", "arrive", "leave", "hours", ...HKEYS, "wake", "sleep", "mood", "note"];
       const cell = v => `"${String(v ?? "").replace(/"/g, '""').replace(/–/g, "")}"`;
-      const rows = KEYS.map(k => { const e = E[k]; return [k, WD[e.date.getDay()], fmtMin(e.arrive), fmtMin(e.leave), e.hours != null ? fmtNum(e.hours, 2) : "", ...HKEYS.map(h => e.done.has(h) ? 1 : 0), fmtMin(e.wake), e.sleep, e.mood, e.focus, e.note].map(cell).join(","); });
+      const rows = KEYS.map(k => { const e = E[k]; return [k, WD[e.date.getDay()], fmtMin(e.arrive), fmtMin(e.leave), e.hours != null ? fmtNum(e.hours, 2) : "", ...HKEYS.map(h => e.done.has(h) ? 1 : 0), fmtMin(e.wake), e.sleep, e.mood, e.note].map(cell).join(","); });
       const blob = new Blob(["﻿" + [head.join(","), ...rows].join("\n")], { type: "text/csv;charset=utf-8" });
       const a = el("a", { href: URL.createObjectURL(blob), download: `routine-${TODAY_KEY}.csv` }); document.body.appendChild(a); a.click(); a.remove();
     });
@@ -630,12 +672,13 @@
     }
     if ($("export-csv") && !exportBound) { initExport($("export-csv")); exportBound = true; }
     try { const c = JSON.parse(lsGet(CACHE_KEY) || "null"); if (c && c.raw) { RAW = c.raw; rebuild(); renderAll(); } } catch {}   // show cached data instantly
-    try { await loadRemote(); renderAll(); }
+    try { await loadRemote(); renderAll(); await flushPending(false); }
     catch (e) {
       const msg = e.status === 401 || e.status === 403 ? `GitHub rejected the stored token (${e.message}). Reconnect on the tracker page.` : `Could not load ${DFILE} from ${DREPO}: ${e.message}`;
       if ($("quick-status")) $("quick-status").innerHTML = `<span style="color:var(--danger)">${esc(msg)}</span>`;
       else if ($("today-bar")) $("today-bar").innerHTML = `<span style="color:var(--danger)">${esc(msg)}</span>`;
     }
   }
+  window.addEventListener("beforeunload", ev => { if (formDirty) { ev.preventDefault(); ev.returnValue = ""; } });
   document.addEventListener("DOMContentLoaded", () => { if ($("public-heatmap")) renderPublicHeatmap($("public-heatmap")); if ($("gh-connect")) renderConnect($("gh-connect")); boot(); });
 })();

@@ -75,7 +75,7 @@ def merge(cur, f, replace):
     cur = {} if replace else dict(cur or {})
     for k in ("arrive", "leave", "wake"):
         if f.get(k): cur[k] = f[k]
-    for k in ("sleep", "mood", "focus"):
+    for k in ("sleep", "mood"):
         if f.get(k) is not None: cur[k] = f[k]
     done = list(cur.get("done", []))
     for d in f.get("done", []):
@@ -94,7 +94,7 @@ def main():
     p.add_argument("done", nargs="*", help=f"habits done (valid: {', '.join(h['key'] for h in habits())})")
     p.add_argument("--date", default=date.today().isoformat())
     p.add_argument("--arrive"); p.add_argument("--leave"); p.add_argument("--wake")
-    p.add_argument("--sleep", type=float); p.add_argument("--mood", type=int, choices=range(1, 6)); p.add_argument("--focus", type=float)
+    p.add_argument("--sleep", type=float); p.add_argument("--mood", type=int, choices=range(1, 6))
     p.add_argument("-n", "--note", default="")
     p.add_argument("--remove", action="append", default=[], help="un-check a habit")
     p.add_argument("--replace", action="store_true", help="overwrite the whole day instead of merging")
@@ -106,7 +106,7 @@ def main():
     if a.show:
         print(json.dumps(days.get(a.date, {}), ensure_ascii=False, indent=1)); return
     try:
-        f = dict(arrive=hhmm(a.arrive), leave=hhmm(a.leave), wake=hhmm(a.wake), sleep=a.sleep, mood=a.mood, focus=a.focus,
+        f = dict(arrive=hhmm(a.arrive), leave=hhmm(a.leave), wake=hhmm(a.wake), sleep=a.sleep, mood=a.mood,
                  done=parse_done(a.done), remove=parse_done(a.remove), note=a.note)
     except ValueError as e:
         sys.exit(f"Error: {e}")

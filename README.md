@@ -18,15 +18,16 @@ but never times, notes or moods. Set the secret under Settings → Secrets and v
 1. **Connect once per device**: Tracker page → "Private · not connected" → paste a fine-grained personal access token with
    *Repository access: only `Aiant5615/tracker`* and *Permissions: Contents → Read and write*. It is kept in that browser's
    localStorage only.
-2. **Quick buttons** on the tracker (arrival/departure open a clock; habit buttons toggle) save one item at a time and merge it
-   into the day. The **log form** shows the whole stored day (any date up to today) and saves it exactly as shown: edit a field,
-   clear it, or un-tick a habit, then press Save.
+2. **One tap** on the tracker's today bar: the arrival and leave chips open a clock, habit chips toggle, the mood chip picks
+   1–5; each saves that one item into the day at once. The **log form** below shows the whole stored day (any date up to
+   today) and saves it exactly as shown: edit a field, clear it, or un-tick a habit, then press Save; *Delete this day*
+   removes the entry. A save that fails (offline, expired token) is kept in the browser and retried on the next load.
 3. **Terminal**: `python scripts/log.py --arrive 9:10 english coding -n "note"` (uses `gh` auth; `--remove`, `--replace`, `--show`).
 
 Day format (`days.json`, keyed by date):
 
 ```json
-{ "2026-09-07": { "arrive": "09:10", "leave": "18:30", "wake": "07:30", "sleep": 7, "mood": 4, "focus": 3,
+{ "2026-09-07": { "arrive": "09:10", "leave": "18:30", "wake": "07:30", "sleep": 7, "mood": 4,
                   "done": ["english", "coding", "paper"], "note": "one-line retro" } }
 ```
 

@@ -293,7 +293,17 @@ details.more > summary { cursor: pointer; color: var(--muted); font-size: .88rem
 .tp-grid button { font: inherit; font-size: .85rem; padding: .35rem 0; border: 1px solid var(--border); border-radius: 7px; background: var(--surface-2); color: var(--text); cursor: pointer; font-variant-numeric: tabular-nums; }
 .tp-grid button:hover { border-color: var(--accent); }
 .tp-grid button.on { background: var(--accent); border-color: var(--accent); color: #fff; font-weight: 600; }
-.chip.quick { cursor: pointer; color: var(--text); text-decoration: none; }
+.chip.quick { cursor: pointer; color: var(--text); text-decoration: none; font: inherit; font-size: .85rem; }
+.chip.quick:disabled { cursor: default; opacity: .6; }
+.chip.on.late { color: var(--danger); background: color-mix(in srgb, var(--danger) 12%, transparent); }
+.chip.on.late .n { color: var(--danger); }
+.date-pick { position: relative; display: inline-flex; align-items: center; }
+.date-pick input[type=date] { position: absolute; inset: 0; width: 100%; height: 100%; opacity: 0; cursor: pointer; margin: 0; padding: 0; border: 0; }
+.date-pick:focus-within .quick-date-label { outline: 2px solid var(--accent); outline-offset: 2px; border-radius: 6px; }
+.btn-danger { color: var(--danger); border-color: color-mix(in srgb, var(--danger) 40%, transparent); }
+.btn-danger:hover { background: color-mix(in srgb, var(--danger) 10%, transparent); }
+.show-sm { display: none; }
+@media (max-width: 600px) { .show-sm { display: block; } }
 .chip.quick:hover { border-color: var(--accent); }
 .chip.quick.on { color: var(--accent); }
 #full-form-wrap > summary { color: var(--muted); font-size: .92rem; cursor: pointer; }

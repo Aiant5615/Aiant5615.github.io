@@ -17,15 +17,16 @@ noindex: true
 </div>
 
 <div id="tracker-body" hidden>
-  <div class="today-bar" id="today-bar" style="margin:.6rem 0 1.4rem"><span class="muted">Loading…</span></div>
+  <div class="today-bar" id="today-bar" style="margin:.6rem 0 1rem"><span class="muted">Loading…</span></div>
+  <p class="small muted" style="margin:0 0 1.2rem">Tap a chip to log it right away. The form below edits any day in full.</p>
 
-  <div id="stats"></div>
-  <div class="card log-hint" id="onboarding" hidden>No entries yet. Log your first day below. Charts and streaks appear as entries accumulate.</div>
-
-  <h2 id="log">Log a day</h2>
+  <h2 id="log" style="margin-top:0">Log a day</h2>
   <div class="card" id="log-form"></div>
 
-  <div class="section-head"><h2>Heatmap <span class="small muted" style="font-weight:400">last 26 weeks</span></h2><div id="heatmap-select"></div></div>
+  <div class="card log-hint" id="onboarding" hidden>No entries yet. Log your first day above. Charts and streaks appear as entries accumulate.</div>
+  <div id="stats"></div>
+
+  <div class="section-head"><h2>Heatmap <span class="small muted" style="font-weight:400" id="heatmap-weeks">last 26 weeks</span></h2><div id="heatmap-select"></div></div>
   <div class="card" id="heatmap"></div>
 
   <div id="data-sections">
