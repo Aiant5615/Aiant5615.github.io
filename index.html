@@ -1,31 +1,32 @@
 ---
 layout: default
-title: Home
 ---
 <section class="hero">
   <h1>Hi, I'm Seungwon Kook.</h1>
-  <p>Graduate student at the Graduate School of Data Science (GSDS). I keep this site to record what I read and build: paper reviews on how language models are trained and used, and notes from coursework in reinforcement learning.</p>
+  <p>Graduate student at the Graduate School of Data Science (GSDS). I keep this site to record what I read: paper reviews on how language models are trained, aligned, and extended to vision and robotics, with the equations and figures explained.</p>
+  <p class="hero-links"><a href="https://github.com/Aiant5615" target="_blank" rel="noopener">GitHub</a> · <a href="{{ '/papers/' | relative_url }}">Paper reviews</a></p>
 </section>
 
-
-<div class="section-head"><h2>Activity <span class="small muted" style="font-weight:400">last 26 weeks</span></h2><span class="small muted" id="pub-heat-note"></span></div>
-<div class="card" id="public-heatmap"><div class="empty">Loading…</div></div>
-
+{% assign reviews = site.categories.paper | where_exp: "p", "p.overview != true" %}
+{% assign series_n = site.data.series | size %}
+{% assign lc_n = site.data.leetcode.problems | size %}
 <h2>Research interests</h2>
 <ul class="interests">
-  <li><b>Reinforcement learning for language models</b> — preference-based post-training (RLHF, DPO) and RL with verifiable rewards for reasoning (GRPO, R1-style training).</li>
-  <li><b>Vision-language and vision-language-action models</b> — connecting visual encoders to LLMs, and turning them into robot policies.</li>
-  <li><b>Efficient LLM training and adaptation</b> — scaling laws, mixture of experts, and low-rank / quantized fine-tuning.</li>
+  <li><b>Reinforcement learning for language models</b> — preference-based post-training (RLHF, DPO) and RL with verifiable rewards for reasoning (GRPO, R1-style training). <a href="{{ '/blog/llm-rl-lineage/' | relative_url }}">Reading path →</a></li>
+  <li><b>Vision-language and vision-language-action models</b> — connecting visual encoders to LLMs, making them reason with images, and turning them into robot policies. <a href="{{ '/blog/multimodal-lineage/' | relative_url }}">Vision LLM path →</a> <a href="{{ '/blog/vla-lineage/' | relative_url }}">VLA path →</a></li>
+  <li><b>Efficient LLM training and adaptation</b> — scaling laws, mixture of experts, and low-rank / quantized fine-tuning. <a href="{{ '/blog/llm-engineering-lineage/' | relative_url }}">Reading path →</a></li>
+  <li><b>RL for generative models</b> — policy gradients and guidance for diffusion and flow models, from images to robot actions. <a href="{{ '/blog/diffusion-rl-lineage/' | relative_url }}">Reading path →</a></li>
 </ul>
 
 <h2>On this site</h2>
 <ul class="interests">
-  <li><a href="{{ '/papers/' | relative_url }}">Paper reviews</a> — {{ site.categories.paper | size }} reviews in six reading paths, each with the equations and figures explained.</li>
-  <li><a href="{{ '/leetcode/' | relative_url }}">LeetCode</a> — one problem a day in C, C++ and Python.</li>
-  <li><a href="{{ '/blog/' | relative_url }}">Blog</a> — study notes that are not paper reviews.</li>
+  <li><a href="{{ '/papers/' | relative_url }}">Paper reviews</a> — {{ reviews | size }} reviews in {{ series_n }} reading paths, each with an overview post.</li>
+  <li><a href="{{ '/leetcode/' | relative_url }}">LeetCode</a> — one problem a day in C, C++ and Python{% if lc_n > 0 %}; {{ lc_n }} so far{% endif %}.</li>
+  <li><a href="{{ '/blog/' | relative_url }}">Blog</a> — study notes and the reading-path overviews.</li>
 </ul>
 
-<p class="muted small">GitHub: <a href="https://github.com/Aiant5615" target="_blank" rel="noopener">@Aiant5615</a></p>
+<div class="section-head" style="margin-top:2.2rem"><h2>Activity <span class="small muted" style="font-weight:400" id="pub-heat-weeks">last 26 weeks</span></h2><span class="small muted" id="pub-heat-note"></span></div>
+<div class="card" id="public-heatmap"><div class="empty">Loading…</div></div>
 
 <script>window.PUBLIC_HEATMAP = {{ site.data.heatmap | jsonify }};</script>
 {% include tracker-data.html %}

@@ -121,16 +121,14 @@
     const hasIn = t && t.arrive != null, hasOut = t && t.leave != null;
     html += chip(hasIn ? (t.arrive <= GOAL ? "on" : "on late") : "", hasIn ? `🏢 In <span class="n">${fmt12(t.arrive)}</span>` : "🏢 Arrived…", `data-time="arrive" title="${hasIn ? "Change" : "Set"} today's arrival time"`);
     html += chip(hasOut ? "on" : "", hasOut ? `🏠 Out <span class="n">${fmt12(t.leave)}</span>` : "🏠 Left…", `data-time="leave" title="${hasOut ? "Change" : "Set"} today's leave time"`);
-    HABITS.forEach(h => { const on = !!(t && t.done.has(h.key)), auto = !!(t && t.auto.has(h.key)); html += chip(on ? "on" : "", `${h.emoji} ${esc(h.label)}`, auto ? `disabled title="Checked automatically from today's LeetCode solution"` : `data-habit="${h.key}" title="${on ? "Un-check" : "Check"} ${esc(h.label)} for today"`); });
+    HABITS.forEach(h => { const on = !!(t && t.done.has(h.key)), auto = !!(t && t.auto.has(h.key)); html += chip(on ? "on" : "", `${h.emoji} <span class="hide-sm">${esc(h.label)}</span>`, auto ? `disabled title="Checked automatically from today's LeetCode solution"` : `data-habit="${h.key}" title="${on ? "Un-check" : "Check"} ${esc(h.label)} for today"`); });
     html += chip(t && t.mood != null ? "on" : "", t && t.mood != null ? `Mood ${moodStr(t.mood)} ${moodLabel(t.mood)}` : "Mood…", `data-mood title="Set today's mood"`);
-    const s = streak(logged, SKIP_WEEKENDS);
-    if (s > 0) html += `<span class="chip on"><span class="n">🔥 ${s}-day logging streak</span></span>`;
     html += `<span class="small muted" id="quick-status" aria-live="polite"></span>`;
     root.innerHTML = html;
     const status = msg => { const el0 = document.getElementById("quick-status"); if (el0) el0.innerHTML = msg; };
     const quickSave = async f => {
       root.querySelectorAll("button.chip").forEach(b => b.disabled = true); status("Saving…");
-      try { await saveEntry(TODAY_KEY, f, false); renderAll(); status("✓ Saved"); }
+      try { await saveEntry(TODAY_KEY, f, false); const dirty = form && formDirty && logDate === TODAY_KEY; renderAll(); if (dirty) syncForm(f); status("✓ Saved"); }
       catch (err) { setPending(TODAY_KEY, f, false); renderToday(root); status(`<span style="color:var(--danger)">Save failed: ${esc(err.message)}.</span> Kept on this device — <button type="button" class="btn btn-sm" data-retry>Retry</button>`); root.querySelector("[data-retry]")?.addEventListener("click", () => flushPending(true)); }
     };
     root.querySelectorAll("[data-time]").forEach(b => b.addEventListener("click", () => {
@@ -184,6 +182,7 @@
       if (metric === "arrive") { if (e.arrive == null) return 0; const d = e.arrive - GOAL; return d <= 0 ? 4 : d <= 30 ? 3 : d <= 60 ? 2 : 1; }
       return e.done.has(metric) ? 4 : 0;
     };
+    const weekCount = (mon, h) => { let n = 0; for (let r = 0; r < 7; r++) { const e = get(keyOf(addDays(mon, r))); if (e && e.done.has(h)) n++; } return n; };
     const tip = e => {
       if (!e) return "no entry";
       const parts = [];
@@ -201,8 +200,10 @@
       [["Mon", 0], ["Wed", 2], ["Fri", 4], ["Sun", 6]].forEach(([t, r]) => { const x = svgEl("text", { x: 0, y: top + r * step + cell - 2 }); x.textContent = t; labels.appendChild(x); });
       const svg = svgEl("svg", { class: "heatmap", width: weeks * step, height: H, viewBox: `0 0 ${weeks * step} ${H}` });
       let lastMonth = -1;
+      const goalH = HMAP[metric] && +HMAP[metric].weekly_goal ? HMAP[metric] : null;
       for (let c = 0; c < weeks; c++) {
         const mon = addDays(start, c * 7);
+        const wkN = goalH ? weekCount(mon, metric) : 0, wkMet = goalH && wkN >= +goalH.weekly_goal;
         if (mon.getMonth() !== lastMonth) {
           if (c > 0 || addDays(mon, 6).getMonth() === mon.getMonth()) { const fits = c * step + 24 <= weeks * step; const t = svgEl("text", fits ? { x: c * step, y: 10 } : { x: weeks * step, y: 10, "text-anchor": "end" }); t.textContent = MON[mon.getMonth()]; svg.appendChild(t); }
           lastMonth = mon.getMonth();
@@ -211,8 +212,8 @@
           const d = addDays(mon, r);
           if (d > TODAY) continue;
           const k = keyOf(d), e = get(k);
-          const rect = svgEl("rect", { x: c * step, y: top + r * step, width: cell, height: cell, class: `heat-${level(e)}${k === TODAY_KEY ? " heat-today" : ""}` });
-          const title = svgEl("title"); title.textContent = `${k} (${WD[d.getDay()]}) · ${tip(e)}`; rect.appendChild(title);
+          const rect = svgEl("rect", { x: c * step, y: top + r * step, width: cell, height: cell, class: `heat-${level(e)}${k === TODAY_KEY ? " heat-today" : ""}${wkMet ? " heat-week-met" : ""}` });
+          const title = svgEl("title"); title.textContent = `${k} (${WD[d.getDay()]}) · ${tip(e)}${goalH ? ` · week ${wkN} / ${goalH.weekly_goal}${wkMet ? " ✓" : ""}` : ""}`; rect.appendChild(title);
           if (e) { rect.style.cursor = "pointer"; rect.setAttribute("tabindex", "0"); rect.setAttribute("role", "button"); rect.setAttribute("aria-label", `${k}: ${tip(e)}. Load into the form`); rect.addEventListener("click", () => fillForm(k)); rect.addEventListener("keydown", ev => { if (ev.key === "Enter" || ev.key === " ") { ev.preventDefault(); fillForm(k); } }); }
           svg.appendChild(rect);
         }
@@ -221,7 +222,7 @@
       const outer = el("div", { class: "heat-outer" }); outer.appendChild(labels);
       const wrap = el("div", { class: "heatmap-wrap", style: "flex:1;min-width:0" }); wrap.appendChild(svg); outer.appendChild(wrap);
       root.appendChild(outer); wrap.scrollLeft = wrap.scrollWidth;
-      root.insertAdjacentHTML("beforeend", `<div class="legend">Less <i style="background:var(--heat-0)"></i><i style="background:var(--heat-1)"></i><i style="background:var(--heat-2)"></i><i style="background:var(--heat-3)"></i><i style="background:var(--heat-4)"></i> More</div>`);
+      root.insertAdjacentHTML("beforeend", `<div class="legend">${goalH ? `<i class="sw-week"></i> week met the ${goalH.weekly_goal}/wk goal &nbsp; ` : ""}Less <i style="background:var(--heat-0)"></i><i style="background:var(--heat-1)"></i><i style="background:var(--heat-2)"></i><i style="background:var(--heat-3)"></i><i style="background:var(--heat-4)"></i> More</div>`);
     }
     if (selectRoot) {
       const opts = [["all", "All"], ...HABITS.map(h => [h.key, `${h.emoji} ${h.label}`]), ["arrive", "🏢 Arrival"]];
@@ -244,11 +245,9 @@
       { key: "arrive", cls: "arrive", label: "Arrived" },
       { key: "leave", cls: "leave", label: "Left" },
     ];
-    const W = 640, H = 260, L = 50, R = 14, T = 14, B = 30;
-    const vals = pts.flatMap(e => series.map(s => e[s.key]).filter(v => v != null));
-    let lo = Math.min(...vals, GOAL), hi = Math.max(...vals, GOAL);
-    lo = Math.floor((lo - 30) / 60) * 60; hi = Math.ceil((hi + 30) / 60) * 60;
-    const tickStep = hi - lo > 600 ? 120 : 60;
+    const W = 640, H = 520, L = 50, R = 14, T = 14, B = 30;
+    const lo = 4 * 60, hi = 24 * 60, tickStep = 60;   // fixed axis: 4 AM at the top row … midnight at the bottom
+    const clampT = v => Math.max(lo, Math.min(hi, v));
     const x0 = addDays(TODAY, -29);
     const x = d => L + ((d - x0) / 86400000) * (W - L - R) / 29;
     const y = v => T + (hi - v) * (H - T - B) / (hi - lo);
@@ -256,7 +255,7 @@
     const axis = svgEl("g", { class: "axis" });
     for (let v = lo; v <= hi; v += tickStep) {
       axis.appendChild(svgEl("line", { x1: L, x2: W - R, y1: y(v), y2: y(v), class: "grid-line" }));
-      const t = svgEl("text", { x: L - 6, y: y(v) + 3, "text-anchor": "end" }); t.textContent = fmt12(v); axis.appendChild(t);
+      const t = svgEl("text", { x: L - 6, y: y(v) + 3, "text-anchor": "end" }); t.textContent = v === 1440 ? "12:00 AM" : fmt12(v); axis.appendChild(t);
     }
     for (let i = 0; i <= 29; i += 5) { const d = addDays(x0, i); const t = svgEl("text", { x: x(d), y: H - 8, "text-anchor": "middle" }); t.textContent = `${d.getMonth() + 1}/${d.getDate()}`; axis.appendChild(t); }
     svg.appendChild(axis);
@@ -264,10 +263,10 @@
     const gl = svgEl("text", { x: W - R, y: y(GOAL) - 4, "text-anchor": "end" }); gl.textContent = `arrival goal ${fmt12(GOAL)}`; gl.style.fill = "var(--warn)"; gl.style.fontSize = "10px"; svg.appendChild(gl);
     series.forEach(sr => {
       const ps = pts.filter(e => e[sr.key] != null);
-      if (ps.length >= 2) svg.appendChild(svgEl("path", { d: ps.map((e, i) => `${i ? "L" : "M"}${x(e.date).toFixed(1)},${y(e[sr.key]).toFixed(1)}`).join(" "), class: `line line-${sr.cls}` }));
+      if (ps.length >= 2) svg.appendChild(svgEl("path", { d: ps.map((e, i) => `${i ? "L" : "M"}${x(e.date).toFixed(1)},${y(clampT(e[sr.key])).toFixed(1)}`).join(" "), class: `line line-${sr.cls}` }));
       ps.forEach(e => {
         const late = sr.key === "arrive" && e.arrive > GOAL;
-        const c = svgEl("circle", { cx: x(e.date), cy: y(e[sr.key]), r: 3.5, class: `dot dot-${sr.cls}${late ? " late" : ""}` });
+        const c = svgEl("circle", { cx: x(e.date), cy: y(clampT(e[sr.key])), r: 3.5, class: `dot dot-${sr.cls}${late ? " late" : ""}` });
         const t = svgEl("title"); t.textContent = `${e.key} (${WD[e.date.getDay()]}) · ${sr.label} ${fmt12(e[sr.key])}${late ? " (after goal)" : ""}`; c.appendChild(t); svg.appendChild(c);
       });
     });
@@ -313,12 +312,11 @@
     const arr = wd.filter(e => e.arrive != null);
     const onTime = arr.filter(e => e.arrive <= GOAL).length;
     const rows = [
-      ["Days logged", `${entries.length}`],
       [`In by ${fmt12(GOAL)}`, arr.length ? `${onTime} / ${arr.length}` : "–"],
       ["Avg arrival", fmt12(avg(arr.map(e => e.arrive))) || "–"],
       ["Avg hours in lab", arr.length ? `${fmtNum(avg(wd.map(e => e.hours)))}h` : "–"],
     ];
-    HABITS.forEach(h => { const goal = +h.weekly_goal || 0, base = habitSkipsWeekend(h.key) && !goal ? wd : entries, n = base.filter(hasHabit(h.key)).length; rows.push([`${h.emoji} ${h.label}${goal ? ` (goal ${goal}/wk)` : ""}`, goal ? `${n} / ${goal}${n >= goal ? " ✓" : ""}` : plural(n, "day")]); });
+    HABITS.forEach(h => { const sk = habitSkipsWeekend(h.key), goal = +h.weekly_goal || (sk ? 5 : 7), base = sk && !h.weekly_goal ? wd : entries, n = base.filter(hasHabit(h.key)).length; rows.push([`${h.emoji} ${h.label}`, `${n} / ${goal}${n >= goal ? " ✓" : ""}`]); });
     rows.push(["Avg mood", moodStr(avg(entries.map(e => e.mood)))]);
     rows.push(["Avg sleep", entries.some(e => e.sleep != null) ? `${fmtNum(avg(entries.map(e => e.sleep)))}h` : "–"]);
     return rows;
@@ -326,14 +324,7 @@
   function renderWeekly(root) {
     const a = weekRows(thisWeek()), b = weekRows(lastWeek());
     const [mon] = weekRange();
-    const head = ["Metric", `This week (${isoWeek(mon)})`, `Last week (${isoWeek(addDays(mon, -7))})`];
-    const shortHead = ["Metric", "This wk", "Last wk"];
-    root.innerHTML = `<div class="table-caption">${isoWeek(mon)} vs ${isoWeek(addDays(mon, -7))}</div><div style="overflow-x:auto"><table class="summary-table"><thead><tr>${shortHead.map(h => `<th>${esc(h)}</th>`).join("")}</tr></thead><tbody>${a.map((r, i) => `<tr><td>${esc(r[0])}</td><td>${esc(r[1])}</td><td class="muted">${esc(b[i][1])}</td></tr>`).join("")}</tbody></table></div>
-      <div class="md-copy"><button type="button" class="btn btn-sm" id="weekly-md">Copy as Markdown for the weekly review</button> <span class="small muted" id="weekly-hint"></span></div>`;
-    root.querySelector("#weekly-md").addEventListener("click", () => {
-      const md = `| ${head.join(" | ")} |\n|---|---|---|\n` + a.map((r, i) => `| ${r[0]} | ${r[1]} | ${b[i][1]} |`).join("\n") + "\n";
-      navigator.clipboard.writeText(md).then(() => { root.querySelector("#weekly-hint").textContent = "Copied ✓"; }).catch(() => { root.querySelector("#weekly-hint").textContent = "Copy failed"; });
-    });
+    root.innerHTML = `<div class="table-caption">${isoWeek(mon)} vs ${isoWeek(addDays(mon, -7))}</div><div style="overflow-x:auto"><table class="summary-table"><thead><tr><th>Metric</th><th>This wk</th><th>Last wk</th></tr></thead><tbody>${a.map((r, i) => `<tr><td>${esc(r[0])}</td><td>${esc(r[1])}</td><td class="muted">${esc(b[i][1])}</td></tr>`).join("")}</tbody></table></div>`;
   }
 
   // ───────── monthly summary ─────────
@@ -342,7 +333,7 @@
     KEYS.forEach(k => { const m = k.slice(0, 7); (months[m] = months[m] || []).push(E[k]); });
     const ms = Object.keys(months).sort().slice(-6).reverse();
     if (!ms.length) { root.innerHTML = `<div class="empty">Monthly comparison appears as entries accumulate.</div>`; return; }
-    const th = ["Month", "Logged", "Avg arrival", "On time", "Avg hours", ...HABITS.map(h => `${h.emoji} <span class="hide-sm">${esc(h.label)}</span>`)];
+    const th = ["Month", "Logged", "Avg arrival", "On time", "Avg hours", ...HABITS.map(h => `${h.emoji} ${esc(h.label)}`)];
     const rows = ms.map(m => {
       const es = months[m], wd = SKIP_WEEKENDS ? es.filter(e => !isWeekend(e.date)) : es, arr = wd.filter(e => e.arrive != null);
       const onTime = arr.filter(e => e.arrive <= GOAL).length;
@@ -350,9 +341,8 @@
         ...HABITS.map(h => { const base = habitSkipsWeekend(h.key) ? wd : es; const p = pct(base.filter(hasHabit(h.key)).length, base.length); return p == null ? "–" : bar(p); })];
       return `<tr>${cells.map(c => `<td>${c}</td>`).join("")}</tr>`;
     });
-    root.innerHTML = `<div style="overflow-x:auto"><table><thead><tr>${th.map(h => `<th>${h}</th>`).join("")}</tr></thead><tbody>${rows.join("")}</tbody></table></div>${habitLegend()}`;
+    root.innerHTML = `<div style="overflow-x:auto"><table><thead><tr>${th.map(h => `<th>${h}</th>`).join("")}</tr></thead><tbody>${rows.join("")}</tbody></table></div>`;
   }
-  const habitLegend = () => `<div class="small muted show-sm" style="margin-top:.4rem">${HABITS.map(h => `${h.emoji} ${esc(h.label)}`).join(" · ")}</div>`;
   const bar = p => `<div class="bar-cell"><div class="bar" style="width:${p}%"></div><span>${p}%</span></div>`;
 
   // ───────── weekday pattern ─────────
@@ -365,8 +355,8 @@
         ...HABITS.map(h => { const p = pct(es.filter(hasHabit(h.key)).length, es.length); return p == null ? "–" : bar(p); })];
       return `<tr class="${isWeekend(new Date(2024, 0, 7 + dow)) ? "dim" : ""}">${cells.map(c => `<td>${c}</td>`).join("")}</tr>`;
     });
-    const th = ["Day", "Logged", "Avg arrival", "On time", ...HABITS.map(h => `${h.emoji} <span class="hide-sm">${esc(h.label)}</span>`)];
-    root.innerHTML = `<div style="overflow-x:auto"><table class="log-table"><thead><tr>${th.map(h => `<th>${h}</th>`).join("")}</tr></thead><tbody>${rows.join("")}</tbody></table></div>${habitLegend()}`;
+    const th = ["Day", "Logged", "Avg arrival", "On time", ...HABITS.map(h => `${h.emoji} ${esc(h.label)}`)];
+    root.innerHTML = `<div style="overflow-x:auto"><table class="log-table"><thead><tr>${th.map(h => `<th>${h}</th>`).join("")}</tr></thead><tbody>${rows.join("")}</tbody></table></div>`;
   }
 
   // ───────── recent log table ─────────
@@ -531,7 +521,7 @@
     const d = parseKey(logDate), isToday = logDate === TODAY_KEY, e = get(logDate);
     const habitChecks = HABITS.map(h => { const on = !!(e && e.done.has(h.key)), auto = !!(e && e.auto.has(h.key)); return `<label class="check ${on ? "on" : ""}${auto ? " auto" : ""}" title="${auto ? "Checked automatically from that day's LeetCode solution" : ""}"><input type="checkbox" name="done" value="${h.key}" ${on ? "checked" : ""} ${auto ? "disabled" : ""}> ${h.emoji} ${esc(h.label)}</label>`; }).join("");
     root.innerHTML = `
-      <div class="quick-date"><button type="button" class="btn btn-sm" data-shift="-1" aria-label="Previous day">◀</button><span class="date-pick"><span class="quick-date-label">${isToday ? "Today" : `${WD[d.getDay()]}, ${MON[d.getMonth()]} ${d.getDate()}`} <span class="muted" aria-hidden="true">📅</span></span><input type="date" name="date" value="${logDate}" max="${TODAY_KEY}" aria-label="Date to log" title="Pick a date"></span><button type="button" class="btn btn-sm" data-shift="1" aria-label="Next day" ${isToday ? "disabled" : ""}>▶</button><span class="small muted">${e ? "· saved entry shown below" : "· no entry yet"}</span>${isToday ? "" : `<button type="button" class="btn btn-sm" data-today>Today</button>`}</div>
+      <div class="quick-date"><button type="button" class="btn btn-sm" data-shift="-1" aria-label="Previous day">◀</button><span class="date-pick"><span class="quick-date-label">${isToday ? "Today" : `${WD[d.getDay()]}, ${MON[d.getMonth()]} ${d.getDate()}`} <span class="muted" aria-hidden="true">📅</span></span><input type="date" name="date" value="${logDate}" max="${TODAY_KEY}" aria-label="Date to log" title="Pick a date"></span><button type="button" class="btn btn-sm" data-shift="1" aria-label="Next day" ${isToday ? "disabled" : ""}>▶</button>${isToday ? "" : `<button type="button" class="btn btn-sm" data-today>Today</button>`}</div>
       <div class="form-grid">
         <div class="field"><label for="tr-arrive">Arrived at</label>${timeField("arrive")}</div>
         <div class="field"><label for="tr-leave">Left at</label>${timeField("leave")}</div>
@@ -587,21 +577,19 @@
       }
     });
   }
+  // after a one-tap save, mirror just that change into a form that has unsaved edits for today
+  function syncForm(f) {
+    if (!form) return;
+    const set = (n, v) => { const i = form.querySelector(`[name=${n}]`); if (i) i.value = v; };
+    ["arrive", "leave", "wake"].forEach(k => { if (f[k]) set(k, fmt12(toMin(f[k]))); });
+    if (f.mood) set("mood", String(f.mood));
+    (f.done || []).forEach(h => { const i = form.querySelector(`[name=done][value="${h}"]`); if (i) { i.checked = true; i.closest(".check").classList.add("on"); } });
+    (f.remove || []).forEach(h => { const i = form.querySelector(`[name=done][value="${h}"]`); if (i) { i.checked = false; i.closest(".check").classList.remove("on"); } });
+  }
   function fillForm(k, silent) {
     if (!form || !k || !/^\d{4}-\d{2}-\d{2}$/.test(k) || k > TODAY_KEY) return;
     if (k !== logDate) { if (formDirty && !confirm("Discard unsaved changes on this day?")) return; logDate = k; renderLogForm(form); }
     if (!silent) form.scrollIntoView({ behavior: "smooth", block: "start" });
-  }
-
-  // ───────── CSV export ─────────
-  function initExport(btn) {
-    btn.addEventListener("click", () => {
-      const head = ["date", "weekday", "arrive", "leave", "hours", ...HKEYS, "wake", "sleep", "mood"];
-      const cell = v => `"${String(v ?? "").replace(/"/g, '""').replace(/–/g, "")}"`;
-      const rows = KEYS.map(k => { const e = E[k]; return [k, WD[e.date.getDay()], fmtMin(e.arrive), fmtMin(e.leave), e.hours != null ? fmtNum(e.hours, 2) : "", ...HKEYS.map(h => e.done.has(h) ? 1 : 0), fmtMin(e.wake), e.sleep, e.mood].map(cell).join(","); });
-      const blob = new Blob(["﻿" + [head.join(","), ...rows].join("\n")], { type: "text/csv;charset=utf-8" });
-      const a = el("a", { href: URL.createObjectURL(blob), download: `routine-${TODAY_KEY}.csv` }); document.body.appendChild(a); a.click(); a.remove();
-    });
   }
 
   // ───────── public heatmap (home): per-day habit counts from _data/heatmap.json + LeetCode days, no token needed ─────────
@@ -635,7 +623,8 @@
     root.innerHTML = ""; const outer = el("div", { class: "heat-outer" }); outer.appendChild(labels);
     const wrap = el("div", { class: "heatmap-wrap", style: "flex:1;min-width:0" }); wrap.appendChild(svg); outer.appendChild(wrap); root.appendChild(outer);
     root.insertAdjacentHTML("beforeend", `<div class="legend">Less <i style="background:var(--heat-0)"></i><i style="background:var(--heat-1)"></i><i style="background:var(--heat-2)"></i><i style="background:var(--heat-3)"></i><i style="background:var(--heat-4)"></i> More</div>`);
-    if (note) note.textContent = `${logged} days logged in this window · ${streakN}-day streak${pub.updated ? " · synced " + pub.updated.slice(0, 10) : ""}`;
+    if (note) note.textContent = `${plural(logged, "day")} logged · ${streakN}-day streak${pub.updated ? " · synced " + pub.updated.slice(0, 10) : ""}`;
+    const pw = document.getElementById("pub-heat-weeks"); if (pw) pw.textContent = `last ${weeks} weeks`;
     if (!root._observed) { root._observed = true; let rt; const w0 = weeks; if (window.ResizeObserver) new ResizeObserver(() => { clearTimeout(rt); rt = setTimeout(() => { const ww = root.clientWidth; const nw = ww < 200 ? 26 : Math.max(8, Math.min(26, Math.floor((ww - 40 - left) / step))); if (nw !== w0) renderPublicHeatmap(root); }, 150); }).observe(root); }
   }
 
@@ -658,7 +647,6 @@
     if ($("recent-log")) renderRecent($("recent-log"));
     if ($("total-days")) $("total-days").textContent = KEYS.length;
   }
-  let exportBound = false;
   async function boot() {
     const connected = !!token();
     if ($("private-notice")) $("private-notice").hidden = connected;
@@ -669,7 +657,6 @@
       if ($("tracker-count")) $("tracker-count").hidden = true;
       return;
     }
-    if ($("export-csv") && !exportBound) { initExport($("export-csv")); exportBound = true; }
     try { const c = JSON.parse(lsGet(CACHE_KEY) || "null"); if (c && c.raw) { RAW = c.raw; rebuild(); renderAll(); } } catch {}   // show cached data instantly
     try { await loadRemote(); renderAll(); await flushPending(false); }
     catch (e) {

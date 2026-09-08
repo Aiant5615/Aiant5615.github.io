@@ -160,6 +160,8 @@ details.more > summary { cursor: pointer; color: var(--muted); font-size: .88rem
 .heatmap { display: block; font-family: var(--font); }
 .heatmap text { fill: var(--muted); font-size: 10px; }
 .heatmap rect { rx: 2; ry: 2; }
+.heatmap rect.heat-week-met { stroke: var(--accent); stroke-width: 1.5; }
+.legend .sw-week { width: 12px; height: 12px; border: 1.5px solid var(--accent); border-radius: 2px; display: inline-block; }
 .heat-0 { fill: var(--heat-0); } .heat-1 { fill: var(--heat-1); } .heat-2 { fill: var(--heat-2); } .heat-3 { fill: var(--heat-3); } .heat-4 { fill: var(--heat-4); }
 .heat-today { stroke: var(--text); stroke-width: 1.2; }
 .legend { display: flex; align-items: center; gap: .3rem; color: var(--muted); font-size: .78rem; justify-content: flex-end; margin-top: .3rem; }
@@ -383,6 +385,7 @@ ol.post-list.numbered li::before { content: counter(item); color: var(--muted); 
 .interests { padding-left: 1.2rem; }
 .interests li { margin: .35rem 0; }
 .hero p { max-width: 60ch; }
+.hero-links { margin-top: .6rem !important; font-size: .95rem !important; }
 .quick-date { display: flex; align-items: center; gap: .4rem; flex-wrap: wrap; margin-bottom: .7rem; }
 .quick-date input[type=date] { font: inherit; font-size: .9rem; padding: .3rem .5rem; border: 1px solid var(--border); border-radius: 8px; background: var(--surface-2); color: var(--text); }
 .quick-date-label { font-weight: 600; margin-left: .2rem; }

@@ -1,6 +1,6 @@
 # ── Site ─────────────────────────────────────────────────────
 title: Seungwon's Research Log
-description: Grad school life, tracked — paper reviews, study habits, and lab arrival times
+description: "Paper reviews on how language models are trained, aligned, and extended to vision and robotics, with the equations and figures explained."
 author: Seungwon Kook
 url: "https://aiant5615.github.io"
 baseurl: ""

@@ -21,7 +21,7 @@ but never times, notes or moods. Set the secret under Settings → Secrets and v
 2. **One tap** on the tracker's today bar: the arrival and leave chips open a clock, habit chips toggle, the mood chip picks
    1–5; each saves that one item into the day at once. The **log form** below shows the whole stored day (any date up to
    today) and saves it exactly as shown: edit a field, clear it, or un-tick a habit, then press Save; *Delete this day*
-   removes the entry. A save that fails (offline, expired token) is kept in the browser and retried on the next load.
+   removes the entry. A save that fails (offline, expired token) is kept in the browser and retried on the next load. English and Coding show a weekday streak; every habit tile has a gauge of this week's target (5 weekdays, or `weekly_goal`).
 3. **Terminal**: `python scripts/log.py --arrive 9:10 english coding` (uses `gh` auth; `--remove`, `--replace`, `--show`).
 
 Day format (`days.json`, keyed by date):
