@@ -11,12 +11,12 @@ llm-rl:
   category: llm-rl
 multimodal-llm:
   tab: Vision LLM
-  title: "Vision LLMs: from ViT to Qwen2-VL"
+  title: "Vision LLMs: from ViT to Cosmos-Reason1"
   index: /blog/multimodal-lineage/
   category: vision-llm
 vla:
   tab: VLA (Robotics)
-  title: "VLA (Robotics): from RT-1 to π0"
+  title: "VLA (Robotics): from RT-1 to Cosmos 3"
   index: /blog/vla-lineage/
   category: vla
 llm-advanced:
@@ -24,3 +24,8 @@ llm-advanced:
   title: "LLM engineering: from RoPE to QLoRA"
   index: /blog/llm-engineering-lineage/
   category: llm-engineering
+diffusion-rl:
+  tab: Diffusion RL
+  title: "Diffusion RL: from DDPO to DiffusionNFT"
+  index: /blog/diffusion-rl-lineage/
+  category: diffusion-rl

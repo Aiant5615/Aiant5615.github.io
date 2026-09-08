@@ -44,7 +44,7 @@ shows stats, a daily heatmap, and the code for each language.
 
 | Path | Purpose |
 |---|---|
-| `_posts/` | Blog posts. `categories: [paper, <tab>]` marks a review and its tab on /papers/ (llm-basics, llm-rl, vision-llm, vla, llm-engineering); `series`/`series_order` place it in a reading path defined in `_data/series.yml` |
+| `_posts/` | Blog posts. `categories: [paper, <tab>]` marks a review and its tab on /papers/ (llm-basics, llm-rl, vision-llm, vla, llm-engineering, diffusion-rl); `series`/`series_order` place it in a reading path defined in `_data/series.yml` |
 | `_drafts/` | Not built. Contains two post templates |
 | `_config.yml` | Site info, `tracker_repo` (private data), `tracker.habits`, `arrive_goal`, `skip_weekends` |
 | `.github/workflows/sync-leetcode.yml` | Hourly: leetcode repo → `_data/leetcode.json` + `coding` habit |
