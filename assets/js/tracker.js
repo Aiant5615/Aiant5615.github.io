@@ -583,6 +583,41 @@
     });
   }
 
+  // ───────── public heatmap (home): per-day habit counts from _data/heatmap.json + LeetCode days, no token needed ─────────
+  function renderPublicHeatmap(root) {
+    const pub = window.PUBLIC_HEATMAP || {}; const days = pub.days || {};
+    const nH = Math.max(1, HKEYS.length);
+    const countOf = k => { const d = days[k]; let n = d ? d.n : 0; if (LC_HABIT && LC_DAYS[k] && !(d && d.c)) n += 1; return d || LC_DAYS[k] ? n : null; };
+    const anyData = Object.keys(days).length || Object.keys(LC_DAYS).length;
+    const note = document.getElementById("pub-heat-note");
+    if (!anyData) { root.innerHTML = `<div class="empty">No activity data yet.</div>`; if (note) note.textContent = ""; return; }
+    const cell = 12, gap = 3, step = cell + gap, left = 22, top = 18;
+    const w = root.clientWidth, weeks = w < 200 ? 26 : Math.max(8, Math.min(26, Math.floor((w - 40 - left) / step)));
+    const start = addDays(TODAY, -((TODAY.getDay() + 6) % 7) - (weeks - 1) * 7), H = top + 7 * step + 4;
+    const labels = svgEl("svg", { class: "heat-labels", width: left, height: H, viewBox: `0 0 ${left} ${H}` });
+    [["Mon", 0], ["Wed", 2], ["Fri", 4], ["Sun", 6]].forEach(([t, r]) => { const x = svgEl("text", { x: 0, y: top + r * step + cell - 2 }); x.textContent = t; labels.appendChild(x); });
+    const svg = svgEl("svg", { class: "heatmap", width: weeks * step, height: H, viewBox: `0 0 ${weeks * step} ${H}` });
+    let lastMonth = -1, logged = 0, streakN = 0;
+    for (let c = 0; c < weeks; c++) {
+      const mon = addDays(start, c * 7);
+      if (mon.getMonth() !== lastMonth) { if (c > 0 || addDays(mon, 6).getMonth() === mon.getMonth()) { const fits = c * step + 24 <= weeks * step; const t = svgEl("text", fits ? { x: c * step, y: 10 } : { x: weeks * step, y: 10, "text-anchor": "end" }); t.textContent = MON[mon.getMonth()]; svg.appendChild(t); } lastMonth = mon.getMonth(); }
+      for (let r = 0; r < 7; r++) {
+        const d = addDays(mon, r); if (d > TODAY) continue;
+        const k = keyOf(d), n = countOf(k);
+        if (n != null) logged++;
+        const lv = n == null ? 0 : n === 0 ? 1 : Math.min(4, Math.max(1, Math.ceil(n / nH * 4)));
+        const rect = svgEl("rect", { x: c * step, y: top + r * step, width: cell, height: cell, class: `heat-${lv}${k === TODAY_KEY ? " heat-today" : ""}` });
+        const t = svgEl("title"); t.textContent = `${k} (${WD[d.getDay()]}) · ${n == null ? "no entry" : n + " of " + HKEYS.length + " habits"}`; rect.appendChild(t); svg.appendChild(rect);
+      }
+    }
+    { let d = TODAY; if (countOf(keyOf(d)) == null) d = addDays(d, -1); while (countOf(keyOf(d)) != null) { streakN++; d = addDays(d, -1); if (streakN > 5000) break; } }
+    root.innerHTML = ""; const outer = el("div", { class: "heat-outer" }); outer.appendChild(labels);
+    const wrap = el("div", { class: "heatmap-wrap", style: "flex:1;min-width:0" }); wrap.appendChild(svg); outer.appendChild(wrap); root.appendChild(outer);
+    root.insertAdjacentHTML("beforeend", `<div class="legend">Less <i style="background:var(--heat-0)"></i><i style="background:var(--heat-1)"></i><i style="background:var(--heat-2)"></i><i style="background:var(--heat-3)"></i><i style="background:var(--heat-4)"></i> More</div>`);
+    if (note) note.textContent = `${logged} days logged in this window · ${streakN}-day streak${pub.updated ? " · synced " + pub.updated.slice(0, 10) : ""}`;
+    if (!root._observed) { root._observed = true; let rt; const w0 = weeks; if (window.ResizeObserver) new ResizeObserver(() => { clearTimeout(rt); rt = setTimeout(() => { const ww = root.clientWidth; const nw = ww < 200 ? 26 : Math.max(8, Math.min(26, Math.floor((ww - 40 - left) / step))); if (nw !== w0) renderPublicHeatmap(root); }, 150); }).observe(root); }
+  }
+
   // ───────── mount ─────────
   const $ = id => document.getElementById(id);
   function renderAll() {
@@ -622,5 +657,5 @@
       else if ($("today-bar")) $("today-bar").innerHTML = `<span style="color:var(--danger)">${esc(msg)}</span>`;
     }
   }
-  document.addEventListener("DOMContentLoaded", () => { if ($("gh-connect")) renderConnect($("gh-connect")); boot(); });
+  document.addEventListener("DOMContentLoaded", () => { if ($("public-heatmap")) renderPublicHeatmap($("public-heatmap")); if ($("gh-connect")) renderConnect($("gh-connect")); boot(); });
 })();

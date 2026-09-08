@@ -12,6 +12,9 @@ title: Home
   <div class="today-bar" id="today-bar" style="margin-top:.6rem"><span class="muted">Loading…</span></div>
 </div>
 
+<div class="section-head"><h2>Activity <span class="small muted" style="font-weight:400">last 26 weeks</span></h2><span class="small muted" id="pub-heat-note"></span></div>
+<div class="card" id="public-heatmap"><div class="empty">Loading…</div></div>
+
 <h2>Research interests</h2>
 <ul class="interests">
   <li><b>Reinforcement learning for language models</b> — preference-based post-training (RLHF, DPO) and RL with verifiable rewards for reasoning (GRPO, R1-style training).</li>
@@ -28,5 +31,6 @@ title: Home
 
 <p class="muted small">GitHub: <a href="https://github.com/Aiant5615" target="_blank" rel="noopener">@Aiant5615</a></p>
 
+<script>window.PUBLIC_HEATMAP = {{ site.data.heatmap | jsonify }};</script>
 {% include tracker-data.html %}
 {% include leetcode-data.html %}

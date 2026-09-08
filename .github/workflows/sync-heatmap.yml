@@ -1,0 +1,40 @@
+name: Sync public heatmap
+
+# Copies a low-detail summary of the private tracker (per day: how many habits were done) into _data/heatmap.json,
+# so the home page can show the heatmap without a token. Needs the repository secret TRACKER_TOKEN
+# (a token that can read Contents of the private tracker repo). Without it the job exits quietly.
+on:
+  schedule:
+    - cron: "23 * * * *"
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+concurrency: sync-heatmap
+
+env:
+  TRACKER_REPO: Aiant5615/tracker
+  TRACKER_FILE: days.json
+
+jobs:
+  sync:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Fetch the private tracker and summarize
+        env:
+          TRACKER_TOKEN: ${{ secrets.TRACKER_TOKEN }}
+        run: |
+          if [ -z "$TRACKER_TOKEN" ]; then echo "TRACKER_TOKEN secret not set; skipping (add it under Settings → Secrets and variables → Actions)."; exit 0; fi
+          code=$(curl -s -o /tmp/days.json -w '%{http_code}' -H "Authorization: Bearer $TRACKER_TOKEN" -H "Accept: application/vnd.github.raw+json" "https://api.github.com/repos/$TRACKER_REPO/contents/$TRACKER_FILE")
+          if [ "$code" != "200" ]; then echo "Could not read $TRACKER_REPO/$TRACKER_FILE (HTTP $code). Check that TRACKER_TOKEN has Contents read access."; exit 1; fi
+          python3 scripts/summarize_heatmap.py /tmp/days.json _data/heatmap.json
+
+      - name: Commit if changed
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add _data/heatmap.json
+          if git diff --cached --quiet; then echo "no changes"; else git commit -m "heatmap: sync" && git push; fi

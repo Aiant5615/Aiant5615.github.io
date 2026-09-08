@@ -6,6 +6,13 @@ The blog, papers, LeetCode, and about pages are public. **The tracker is private
 [Aiant5615/tracker](https://github.com/Aiant5615/tracker) (`days.json`) and the tracker page only shows anything in a browser where
 the owner has connected a GitHub token.
 
+## Public heatmap on the home page
+
+`.github/workflows/sync-heatmap.yml` runs hourly, reads the private `days.json` with the repository secret **TRACKER_TOKEN**
+(any token with Contents read on `Aiant5615/tracker`), and writes `_data/heatmap.json` holding only, per day, how many habits
+were checked. The home page draws its heatmap from that file plus the public LeetCode data, so visitors see activity levels
+but never times, notes or moods. Set the secret under Settings → Secrets and variables → Actions.
+
 ## Logging a day
 
 1. **Connect once per device**: Tracker page → "Private · not connected" → paste a fine-grained personal access token with
