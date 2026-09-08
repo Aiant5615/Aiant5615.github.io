@@ -163,8 +163,8 @@
     const hb = HABITS.map(h => {
       const p = hasHabit(h.key), sk = habitSkipsWeekend(h.key);
       const n7 = l7.filter(p).length, m = mo.filter(p).length;
-      const moDen = sk ? mo.filter(e => !isWeekend(e.date)).length : mo.length;
       const goal = +h.weekly_goal || 0;
+      const moDen = sk && !goal ? mo.filter(e => !isWeekend(e.date)).length : mo.length;   // a weekly goal counts every day of the week
       if (goal) {   // weekly target instead of a streak: "n / goal" for Mon–Sun of this week
         const n = wk.filter(p).length, done = n >= goal;
         return tile(`${h.emoji} ${esc(h.label)}`, `<span class="${done ? "goal-met" : ""}">${n}</span><span class="unit">/ ${goal} this week</span>`, `${done ? "goal met ✓" : `${goal - n} more to go`} · last week ${lw.filter(p).length} / ${goal} · this month ${moDen ? pct(m, moDen) + "%" : "–"}`);
@@ -321,7 +321,7 @@
       ["Avg arrival", fmt12(avg(arr.map(e => e.arrive))) || "–"],
       ["Avg hours in lab", arr.length ? `${fmtNum(avg(wd.map(e => e.hours)))}h` : "–"],
     ];
-    HABITS.forEach(h => { const base = habitSkipsWeekend(h.key) ? wd : entries, n = base.filter(hasHabit(h.key)).length, goal = +h.weekly_goal || 0; rows.push([`${h.emoji} ${h.label}${goal ? ` (goal ${goal}/wk)` : ""}`, goal ? `${n} / ${goal}${n >= goal ? " ✓" : ""}` : plural(n, "day")]); });
+    HABITS.forEach(h => { const goal = +h.weekly_goal || 0, base = habitSkipsWeekend(h.key) && !goal ? wd : entries, n = base.filter(hasHabit(h.key)).length; rows.push([`${h.emoji} ${h.label}${goal ? ` (goal ${goal}/wk)` : ""}`, goal ? `${n} / ${goal}${n >= goal ? " ✓" : ""}` : plural(n, "day")]); });
     rows.push(["Avg mood", moodStr(avg(entries.map(e => e.mood)))]);
     rows.push(["Avg sleep", entries.some(e => e.sleep != null) ? `${fmtNum(avg(entries.map(e => e.sleep)))}h` : "–"]);
     return rows;
