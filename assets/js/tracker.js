@@ -215,15 +215,20 @@
     root._redraw = draw;
   }
 
-  // ───────── arrival chart (last 30 days) ─────────
-  function renderArriveChart(root) {
-    const pts = last30().filter(e => e.arrive != null);
-    if (pts.length < 2) { root.innerHTML = `<div class="empty">The trend chart appears once there are arrival times on at least 2 days in the last 30.</div>`; return; }
-    const W = 640, H = 220, L = 46, R = 14, T = 14, B = 30;
-    const vals = pts.map(p => p.arrive);
+  // ───────── times chart (last 30 days): arrival, leave and wake-up on one time axis ─────────
+  function renderTimesChart(root) {
+    const pts = last30().filter(e => e.arrive != null || e.leave != null || e.wake != null);
+    if (pts.length < 2) { root.innerHTML = `<div class="empty">The chart appears once at least 2 days in the last 30 have an arrival, leave or wake-up time.</div>`; return; }
+    const series = [
+      { key: "wake", cls: "wake", label: "Woke up" },
+      { key: "arrive", cls: "arrive", label: "Arrived" },
+      { key: "leave", cls: "leave", label: "Left" },
+    ];
+    const W = 640, H = 260, L = 50, R = 14, T = 14, B = 30;
+    const vals = pts.flatMap(e => series.map(s => e[s.key]).filter(v => v != null));
     let lo = Math.min(...vals, GOAL), hi = Math.max(...vals, GOAL);
-    lo = Math.floor((lo - 20) / 30) * 30; hi = Math.ceil((hi + 20) / 30) * 30;
-    const tickStep = hi - lo > 240 ? 60 : 30;
+    lo = Math.floor((lo - 30) / 60) * 60; hi = Math.ceil((hi + 30) / 60) * 60;
+    const tickStep = hi - lo > 600 ? 120 : 60;
     const x0 = addDays(TODAY, -29);
     const x = d => L + ((d - x0) / 86400000) * (W - L - R) / 29;
     const y = v => T + (hi - v) * (H - T - B) / (hi - lo);
@@ -236,18 +241,20 @@
     for (let i = 0; i <= 29; i += 5) { const d = addDays(x0, i); const t = svgEl("text", { x: x(d), y: H - 8, "text-anchor": "middle" }); t.textContent = `${d.getMonth() + 1}/${d.getDate()}`; axis.appendChild(t); }
     svg.appendChild(axis);
     svg.appendChild(svgEl("line", { x1: L, x2: W - R, y1: y(GOAL), y2: y(GOAL), class: "goal" }));
-    const gl = svgEl("text", { x: W - R, y: y(GOAL) - 4, "text-anchor": "end" }); gl.textContent = `goal ${fmt12(GOAL)}`; gl.style.fill = "var(--warn)"; gl.style.fontSize = "10px"; svg.appendChild(gl);
-    const path = pts.map((p, i) => `${i ? "L" : "M"}${x(p.date).toFixed(1)},${y(p.arrive).toFixed(1)}`).join(" ");
-    svg.appendChild(svgEl("path", { d: `${path} L${x(pts[pts.length - 1].date).toFixed(1)},${H - B} L${x(pts[0].date).toFixed(1)},${H - B} Z`, class: "area" }));
-    svg.appendChild(svgEl("path", { d: path, class: "line" }));
-    pts.forEach(p => {
-      const c = svgEl("circle", { cx: x(p.date), cy: y(p.arrive), r: 3.5, class: `dot${p.arrive > GOAL ? " late" : ""}` });
-      const t = svgEl("title"); t.textContent = `${p.key} (${WD[p.date.getDay()]}) in at ${fmt12(p.arrive)}${p.leave != null ? ` · out at ${fmt12(p.leave)}` : ""}`; c.appendChild(t);
-      svg.appendChild(c);
+    const gl = svgEl("text", { x: W - R, y: y(GOAL) - 4, "text-anchor": "end" }); gl.textContent = `arrival goal ${fmt12(GOAL)}`; gl.style.fill = "var(--warn)"; gl.style.fontSize = "10px"; svg.appendChild(gl);
+    series.forEach(sr => {
+      const ps = pts.filter(e => e[sr.key] != null);
+      if (ps.length >= 2) svg.appendChild(svgEl("path", { d: ps.map((e, i) => `${i ? "L" : "M"}${x(e.date).toFixed(1)},${y(e[sr.key]).toFixed(1)}`).join(" "), class: `line line-${sr.cls}` }));
+      ps.forEach(e => {
+        const late = sr.key === "arrive" && e.arrive > GOAL;
+        const c = svgEl("circle", { cx: x(e.date), cy: y(e[sr.key]), r: 3.5, class: `dot dot-${sr.cls}${late ? " late" : ""}` });
+        const t = svgEl("title"); t.textContent = `${e.key} (${WD[e.date.getDay()]}) · ${sr.label} ${fmt12(e[sr.key])}${late ? " (after goal)" : ""}`; c.appendChild(t); svg.appendChild(c);
+      });
     });
     root.innerHTML = ""; root.appendChild(svg);
-    const late = vals.filter(v => v > GOAL).length;
-    root.insertAdjacentHTML("beforeend", `<div class="small muted">${pts.length} of the last 30 days logged · avg arrival <b>${fmt12(avg(vals))}</b> · later than goal on ${late} days</div>`);
+    const arr = pts.map(e => e.arrive).filter(v => v != null), late = arr.filter(v => v > GOAL).length;
+    const item = sr => { const a = avg(pts.map(e => e[sr.key])); return `<span><i class="sw sw-${sr.cls}"></i> ${sr.label} · avg <b>${fmt12(a) || "–"}</b></span>`; };
+    root.insertAdjacentHTML("beforeend", `<div class="legend legend-left">${series.map(item).join(" &nbsp; ")}</div><div class="small muted">${pts.length} of the last 30 days logged${arr.length ? ` · arrived after the goal on ${late} of ${arr.length} days` : ""}</div>`);
   }
 
   // ───────── sleep & mood chart (last 30 days, two axes) ─────────
@@ -602,7 +609,7 @@
     if ($("stats")) { $("stats").hidden = empty; if (!empty) renderStats($("stats")); }
     if ($("log-form") && (!form || !formDirty)) renderLogForm($("log-form"));
     if ($("heatmap")) renderHeatmap($("heatmap"), $("heatmap-select"));
-    if ($("arrive-chart")) renderArriveChart($("arrive-chart"));
+    if ($("times-chart")) renderTimesChart($("times-chart"));
     if ($("sleep-mood-chart")) renderSleepMoodChart($("sleep-mood-chart"));
     if ($("weekly")) renderWeekly($("weekly"));
     if ($("monthly")) renderMonthly($("monthly"));
