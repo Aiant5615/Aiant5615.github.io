@@ -15,9 +15,9 @@ but never times, notes or moods. Set the secret under Settings → Secrets and v
 
 ## Logging a day
 
-1. **Connect once per device**: Tracker page → "Private · not connected" → paste a fine-grained personal access token with
+1. **Unlock once per device**: Tracker page → "Private" → the password field takes a fine-grained personal access token with
    *Repository access: only `Aiant5615/tracker`* and *Permissions: Contents → Read and write*. It is kept in that browser's
-   localStorage only.
+   localStorage only; "Lock" removes it.
 2. **One tap** on the tracker's today bar: the arrival and leave chips open a clock, habit chips toggle, the mood chip picks
    1–5; each saves that one item into the day at once. The **log form** below shows the whole stored day (any date up to
    today) and saves it exactly as shown: edit a field, clear it, or un-tick a habit, then press Save; *Delete this day*

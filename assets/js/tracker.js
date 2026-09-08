@@ -496,28 +496,25 @@
     const user = lsGet(USER_KEY);
     const draw = (msg = "") => {
       root.innerHTML = token()
-        ? `<details class="more"><summary>🔒 Private · connected${user ? ` as @${esc(user)}` : ""} ${msg ? `· <span class="muted">${esc(msg)}</span>` : ""}</summary>
-             <div class="card"><p class="small muted" style="margin-top:0">Data is read from and written to <code>${esc(DREPO)}</code> (private) with the token stored in this browser. Disconnect on shared devices.</p><button type="button" class="btn btn-sm" id="gh-remove">Disconnect</button></div></details>`
-        : `<details class="more" open><summary>🔒 Private · not connected — connect a GitHub token to view and log ${msg ? `· <span class="muted">${esc(msg)}</span>` : ""}</summary>
-             <div class="card">
-               <p class="small" style="margin-top:0">Create a <a href="https://github.com/settings/personal-access-tokens/new" target="_blank" rel="noopener">fine-grained personal access token</a> with <b>Repository access → Only select repositories → ${esc(DREPO)}</b> and <b>Permissions → Contents → Read and write</b>. Nothing else. Paste it here; it is stored only in this browser (localStorage), never in any repo.</p>
-               <div class="form-actions"><input type="password" id="gh-token" class="search" style="margin:0;flex:1;min-width:200px" placeholder="paste the token here" autocomplete="off"><button type="button" class="btn btn-primary" id="gh-save">Connect</button></div>
-             </div></details>`;
-      root.querySelector("#gh-remove")?.addEventListener("click", () => { lsSet(TOKEN_KEY, null); lsSet(USER_KEY, null); lsSet(CACHE_KEY, null); RAW = {}; rebuild(); draw("disconnected"); boot(); });
+        ? `<details class="more"><summary>🔓 Private · unlocked${user ? ` as @${esc(user)}` : ""} ${msg ? `· <span class="muted">${esc(msg)}</span>` : ""}</summary>
+             <div class="card"><button type="button" class="btn btn-sm" id="gh-remove">Lock</button></div></details>`
+        : `<details class="more" open><summary>🔒 Private ${msg ? `· <span class="muted">${esc(msg)}</span>` : ""}</summary>
+             <div class="card"><div class="form-actions"><input type="password" id="gh-token" class="search" style="margin:0;flex:1;min-width:200px" placeholder="Password" autocomplete="current-password" aria-label="Password"><button type="button" class="btn btn-primary" id="gh-save">Unlock</button></div></div></details>`;
+      root.querySelector("#gh-remove")?.addEventListener("click", () => { lsSet(TOKEN_KEY, null); lsSet(USER_KEY, null); lsSet(CACHE_KEY, null); RAW = {}; rebuild(); draw("locked"); boot(); });
+      root.querySelector("#gh-token")?.addEventListener("keydown", ev => { if (ev.key === "Enter") root.querySelector("#gh-save").click(); });
       root.querySelector("#gh-save")?.addEventListener("click", async () => {
         const rawIn = root.querySelector("#gh-token").value;
         const t = rawIn.replace(/[^\x21-\x7E]/g, "");   // keep printable ASCII only: strips spaces, Korean text, "…", curly quotes, zero-width characters
         if (!t) return;
-        if (!/^(github_pat_|ghp_|gho_)[A-Za-z0-9_]{20,}$/.test(t)) { draw(`that doesn't look like a GitHub token (got ${t.length} usable characters starting with "${esc(t.slice(0, 8))}"). Paste only the github_pat_… value shown once when the token was created.`); return; }
-        if (t !== rawIn.trim()) console.info("tracker: removed non-ASCII characters from the pasted token");
+        if (!/^(github_pat_|ghp_|gho_)[A-Za-z0-9_]{20,}$/.test(t)) { draw("wrong password"); return; }
         lsSet(TOKEN_KEY, t);
         try {
           const u = await gh("/user");
-          try { await gh(`/repos/${DREPO}`); } catch (e) { throw new Error(`the token cannot see ${DREPO} (${e.status}). Under "Repository access" select that repository.`); }
-          try { await gh(`/repos/${DREPO}/commits?per_page=1`); } catch (e) { throw new Error(`the token has no Contents permission on ${DREPO} (GitHub says: ${e.message}). On the token's page, set Repository permissions → Contents → Read and write, then press Update at the bottom.`); }
-          lsSet(USER_KEY, u.login); draw("connected ✓");
+          try { await gh(`/repos/${DREPO}`); } catch (e) { throw new Error(`cannot see ${DREPO} (${e.status})`); }
+          try { await gh(`/repos/${DREPO}/commits?per_page=1`); } catch (e) { throw new Error(`no write access to ${DREPO} (${e.message})`); }
+          lsSet(USER_KEY, u.login); draw("unlocked ✓");
         }
-        catch (e) { lsSet(TOKEN_KEY, null); draw(`token rejected: ${e.message}`); return; }
+        catch (e) { lsSet(TOKEN_KEY, null); draw(`rejected: ${e.message}`); return; }
         boot();
       });
     };
@@ -580,7 +577,7 @@
       const b = root.querySelector("#tr-save"); b.disabled = true; flash("Saving…");
       try { await saveEntry(logDate, f, true); formDirty = false; renderAll(); document.getElementById("tr-hint").textContent = `✓ Saved ${logDate === TODAY_KEY ? "today" : logDate}.`; }
       catch (err) {
-        const why = err.status === 404 || err.status === 403 ? "GitHub returns 404/403 when the token lacks <b>Contents: Read and write</b> on " + esc(DREPO) + "." : err.status === 401 ? "The token is invalid or expired — reconnect above." : "Kept on this device; it is retried when the page loads again.";
+        const why = err.status === 404 || err.status === 403 ? "No write access to " + esc(DREPO) + "." : err.status === 401 ? "Password no longer works — lock and unlock again." : "Kept on this device; it is retried when the page loads again.";
         if (!(err.status === 401 || err.status === 403 || err.status === 404)) setPending(logDate, f, true);
         flash(`<span style="color:var(--danger)">Save failed: ${esc(err.message)}.</span> ${why} <button type="button" class="btn btn-sm" data-retry>Retry</button>`);
         root.querySelector("[data-retry]")?.addEventListener("click", () => b.click());
@@ -666,7 +663,7 @@
     if ($("tracker-body")) $("tracker-body").hidden = !connected;
     if ($("today-card")) $("today-card").hidden = !connected;   // home: the whole card is owner-only
     if (!connected) {
-      if ($("today-bar")) $("today-bar").innerHTML = `<span class="muted">🔒 Private — <a href="/tracker/">connect on the tracker page</a> to see today.</span>`;
+      if ($("today-bar")) $("today-bar").innerHTML = `<span class="muted">🔒 <a href="/tracker/">Private</a></span>`;
       if ($("tracker-count")) $("tracker-count").hidden = true;
       return;
     }
@@ -674,7 +671,7 @@
     try { const c = JSON.parse(lsGet(CACHE_KEY) || "null"); if (c && c.raw) { RAW = c.raw; rebuild(); renderAll(); } } catch {}   // show cached data instantly
     try { await loadRemote(); renderAll(); await flushPending(false); }
     catch (e) {
-      const msg = e.status === 401 || e.status === 403 ? `GitHub rejected the stored token (${e.message}). Reconnect on the tracker page.` : `Could not load ${DFILE} from ${DREPO}: ${e.message}`;
+      const msg = e.status === 401 || e.status === 403 ? `Password no longer works (${e.message}). Lock and unlock again.` : `Could not load ${DFILE} from ${DREPO}: ${e.message}`;
       if ($("quick-status")) $("quick-status").innerHTML = `<span style="color:var(--danger)">${esc(msg)}</span>`;
       else if ($("today-bar")) $("today-bar").innerHTML = `<span style="color:var(--danger)">${esc(msg)}</span>`;
     }
