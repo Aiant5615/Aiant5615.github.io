@@ -4,14 +4,18 @@ title: Blog
 permalink: /blog/
 ---
 <h1>Blog</h1>
+<p class="muted">Study notes and everything that is not a paper review. Paper reviews live on the <a href="{{ '/papers/' | relative_url }}">Papers</a> page.</p>
+{% assign notes = "" | split: "" %}{% assign cats = "" | split: "" %}
+{% for post in site.posts %}{% unless post.categories contains 'paper' %}{% assign notes = notes | push: post %}{% assign cats = cats | concat: post.categories %}{% endunless %}{% endfor %}
+{% assign cats = cats | uniq | sort %}
 <input type="search" class="search" id="post-search" placeholder="Search titles and content" autocomplete="off">
 <div class="filter-bar">
   <a class="btn btn-sm" href="#" data-cat="">All</a>
-  {% for cat in site.categories %}{% if cat[0] != 'paper' %}<a class="btn btn-sm" href="#{{ cat[0] }}" data-cat="{{ cat[0] }}">{{ cat[0] }} <span class="muted">{{ cat[1].size }}</span></a>{% endif %}{% endfor %}
+  {% for cat in cats %}<a class="btn btn-sm" href="#{{ cat }}" data-cat="{{ cat }}">{{ cat }}</a>{% endfor %}
 </div>
-{% if site.posts.size > 0 %}
+{% if notes.size > 0 %}
 <ul class="post-list" id="post-list">
-  {% for post in site.posts %}
+  {% for post in notes %}
   <li data-cats="{{ post.categories | join: ' ' }}" data-text="{{ post.title | downcase | escape }} {{ post.paper.authors | downcase | escape }} {{ post.tags | join: ' ' | downcase }} {{ post.description | default: post.excerpt | strip_html | strip_newlines | downcase | truncate: 400 | escape }}">
     <span class="when">{% if post.paper.published %}{{ post.paper.published | append: "-01" | date: "%b %Y" }}{% endif %}</span>
     <div>
@@ -22,10 +26,10 @@ permalink: /blog/
   {% endfor %}
 </ul>
 <div class="empty" id="post-empty" hidden>No matching posts.</div>
-{% else %}<div class="empty">No posts yet. Add a markdown file to <code>_posts/</code>.</div>{% endif %}
+{% else %}<div class="empty">No notes yet. Add a markdown file to <code>_posts/</code> without the <code>paper</code> category and it will appear here.</div>{% endif %}
 <script>
 (function(){
-  const bar=document.querySelector('.filter-bar'), items=[...document.querySelectorAll('#post-list li')], q=document.getElementById('post-search'), empty=document.getElementById('post-empty');
+  const bar=document.querySelector('.filter-bar'), items=[...document.querySelectorAll('#post-list li')], q=document.getElementById('post-search'), empty=document.getElementById('post-empty'); if(!bar||!q) return;
   function apply(){ const c=location.hash.replace('#',''), s=(q.value||'').trim().toLowerCase(); let n=0;
     items.forEach(li=>{ const ok=(!c||li.dataset.cats.split(' ').includes(c))&&(!s||li.dataset.text.includes(s)); li.style.display=ok?'':'none'; if(ok)n++; });
     if(empty) empty.hidden=n>0;
