@@ -4,10 +4,10 @@ title: Blog
 permalink: /blog/
 ---
 <h1>Blog</h1>
-<p class="muted">Study notes and everything that is not a paper review. Paper reviews live on the <a href="{{ '/papers/' | relative_url }}">Papers</a> page.</p>
+<p class="muted">Study notes and the reading-path overviews. Individual paper reviews live on the <a href="{{ '/papers/' | relative_url }}">Papers</a> page.</p>
 {% assign notes = "" | split: "" %}{% assign cats = "" | split: "" %}
-{% for post in site.posts %}{% unless post.categories contains 'paper' %}{% assign notes = notes | push: post %}{% assign cats = cats | concat: post.categories %}{% endunless %}{% endfor %}
-{% assign cats = cats | uniq | sort %}
+{% for post in site.posts %}{% assign is_review = false %}{% if post.categories contains 'paper' %}{% assign is_review = true %}{% endif %}{% if post.overview == true %}{% assign is_review = false %}{% endif %}{% unless is_review %}{% assign notes = notes | push: post %}{% assign cats = cats | concat: post.categories %}{% endunless %}{% endfor %}
+{% assign cats = cats | uniq | sort | where_exp: "c", "c != 'paper'" %}
 <input type="search" class="search" id="post-search" placeholder="Search titles and content" autocomplete="off">
 <div class="filter-bar">
   <a class="btn btn-sm" href="#" data-cat="">All</a>
@@ -26,7 +26,7 @@ permalink: /blog/
   {% endfor %}
 </ul>
 <div class="empty" id="post-empty" hidden>No matching posts.</div>
-{% else %}<div class="empty">No notes yet. Add a markdown file to <code>_posts/</code> without the <code>paper</code> category and it will appear here.</div>{% endif %}
+{% else %}<div class="empty">No posts yet.</div>{% endif %}
 <script>
 (function(){
   const bar=document.querySelector('.filter-bar'), items=[...document.querySelectorAll('#post-list li')], q=document.getElementById('post-search'), empty=document.getElementById('post-empty'); if(!bar||!q) return;
