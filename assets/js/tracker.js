@@ -250,6 +250,36 @@
     root.insertAdjacentHTML("beforeend", `<div class="small muted">${pts.length} of the last 30 days logged · avg arrival <b>${fmt12(avg(vals))}</b> · later than goal on ${late} days</div>`);
   }
 
+  // ───────── sleep & mood chart (last 30 days, two axes) ─────────
+  function renderSleepMoodChart(root) {
+    const pts = last30().filter(e => e.sleep != null || e.mood != null);
+    if (pts.length < 2) { root.innerHTML = `<div class="empty">The sleep and mood chart appears once at least 2 days in the last 30 have sleep hours or a mood.</div>`; return; }
+    const W = 640, H = 220, L = 40, R = 36, T = 16, B = 30;
+    const x0 = addDays(TODAY, -29), x = d => L + ((d - x0) / 86400000) * (W - L - R) / 29;
+    const sleepVals = pts.filter(e => e.sleep != null).map(e => e.sleep);
+    const sHi = Math.max(10, Math.ceil((Math.max(...sleepVals, 8) + 1) / 2) * 2), sLo = 0;
+    const yS = v => T + (sHi - v) * (H - T - B) / (sHi - sLo);          // left axis: sleep hours
+    const yM = v => T + (5 - v) * (H - T - B) / 4;                       // right axis: mood 1..5 (1 at bottom)
+    const svg = svgEl("svg", { class: "chart chart-sm", viewBox: `0 0 ${W} ${H}` });
+    const axis = svgEl("g", { class: "axis" });
+    for (let v = 0; v <= sHi; v += 2) { axis.appendChild(svgEl("line", { x1: L, x2: W - R, y1: yS(v), y2: yS(v), class: "grid-line" })); const t = svgEl("text", { x: L - 6, y: yS(v) + 3, "text-anchor": "end" }); t.textContent = `${v}h`; axis.appendChild(t); }
+    for (let v = 1; v <= 5; v++) { const t = svgEl("text", { x: W - R + 6, y: yM(v) + 3, "text-anchor": "start" }); t.textContent = moodStr(v); axis.appendChild(t); }
+    for (let i = 0; i <= 29; i += 5) { const d = addDays(x0, i); const t = svgEl("text", { x: x(d), y: H - 8, "text-anchor": "middle" }); t.textContent = `${d.getMonth() + 1}/${d.getDate()}`; axis.appendChild(t); }
+    svg.appendChild(axis);
+    const series = [
+      { key: "sleep", cls: "sleep", y: e => yS(e.sleep), label: "Sleep (h)", fmt: e => `${fmtNum(e.sleep)}h` },
+      { key: "mood", cls: "mood", y: e => yM(e.mood), label: "Mood", fmt: e => `${moodStr(e.mood)} ${e.mood}` },
+    ];
+    series.forEach(sr => {
+      const ps = pts.filter(e => e[sr.key] != null);
+      if (ps.length >= 2) svg.appendChild(svgEl("path", { d: ps.map((e, i) => `${i ? "L" : "M"}${x(e.date).toFixed(1)},${sr.y(e).toFixed(1)}`).join(" "), class: `line line-${sr.cls}` }));
+      ps.forEach(e => { const c = svgEl("circle", { cx: x(e.date), cy: sr.y(e), r: 3.5, class: `dot dot-${sr.cls}` }); const t = svgEl("title"); t.textContent = `${e.key} (${WD[e.date.getDay()]}) ${sr.label}: ${sr.fmt(e)}`; c.appendChild(t); svg.appendChild(c); });
+    });
+    root.innerHTML = ""; root.appendChild(svg);
+    const sAvg = avg(pts.map(e => e.sleep)), mAvg = avg(pts.map(e => e.mood));
+    root.insertAdjacentHTML("beforeend", `<div class="legend legend-left"><i class="sw sw-sleep"></i> Sleep, left axis · avg <b>${fmtNum(sAvg) || "–"}h</b> &nbsp; <i class="sw sw-mood"></i> Mood, right axis · avg <b>${mAvg != null ? fmtNum(mAvg) : "–"}</b> ${moodStr(mAvg)}</div>`);
+  }
+
   // ───────── weekly summary (this week / last week) + markdown copy ─────────
   function weekRows(entries) {
     const wd = SKIP_WEEKENDS ? entries.filter(e => !isWeekend(e.date)) : entries;
@@ -575,6 +605,7 @@
     if ($("log-form") && (!form || !formDirty)) renderLogForm($("log-form"));
     if ($("heatmap")) renderHeatmap($("heatmap"), $("heatmap-select"));
     if ($("arrive-chart")) renderArriveChart($("arrive-chart"));
+    if ($("sleep-mood-chart")) renderSleepMoodChart($("sleep-mood-chart"));
     if ($("weekly")) renderWeekly($("weekly"));
     if ($("monthly")) renderMonthly($("monthly"));
     if ($("weekday")) renderWeekday($("weekday"));

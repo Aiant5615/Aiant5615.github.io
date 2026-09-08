@@ -370,3 +370,13 @@ ol.post-list.numbered li::before { content: counter(item); color: var(--muted); 
 
 .check.auto { opacity: .7; cursor: default; }
 .form-grid .field label { white-space: nowrap; }
+
+/* sleep & mood chart */
+:root { --mood: #7a3e9d; }
+@media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) { --mood: #c48ce0; } }
+:root[data-theme="dark"] { --mood: #c48ce0; }
+.chart .line-sleep { stroke: var(--accent); } .chart .dot-sleep { fill: var(--accent); }
+.chart .line-mood { stroke: var(--mood); } .chart .dot-mood { fill: var(--mood); }
+.legend-left { justify-content: flex-start; gap: .4rem; }
+.legend .sw { width: 14px; height: 4px; border-radius: 2px; display: inline-block; }
+.sw-sleep { background: var(--accent); } .sw-mood { background: var(--mood); }
