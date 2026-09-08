@@ -436,11 +436,15 @@
         : `<details class="more" open><summary>🔒 Private · not connected — connect a GitHub token to view and log ${msg ? `· <span class="muted">${esc(msg)}</span>` : ""}</summary>
              <div class="card">
                <p class="small" style="margin-top:0">Create a <a href="https://github.com/settings/personal-access-tokens/new" target="_blank" rel="noopener">fine-grained personal access token</a> with <b>Repository access → Only select repositories → ${esc(DREPO)}</b> and <b>Permissions → Contents → Read and write</b>. Nothing else. Paste it here; it is stored only in this browser (localStorage), never in any repo.</p>
-               <div class="form-actions"><input type="password" id="gh-token" class="search" style="margin:0;flex:1;min-width:200px" placeholder="github_pat_…" autocomplete="off"><button type="button" class="btn btn-primary" id="gh-save">Connect</button></div>
+               <div class="form-actions"><input type="password" id="gh-token" class="search" style="margin:0;flex:1;min-width:200px" placeholder="paste the token here" autocomplete="off"><button type="button" class="btn btn-primary" id="gh-save">Connect</button></div>
              </div></details>`;
       root.querySelector("#gh-remove")?.addEventListener("click", () => { lsSet(TOKEN_KEY, null); lsSet(USER_KEY, null); lsSet(CACHE_KEY, null); RAW = {}; rebuild(); draw("disconnected"); boot(); });
       root.querySelector("#gh-save")?.addEventListener("click", async () => {
-        const t = root.querySelector("#gh-token").value.trim(); if (!t) return;
+        const rawIn = root.querySelector("#gh-token").value;
+        const t = rawIn.replace(/[^\x21-\x7E]/g, "");   // keep printable ASCII only: strips spaces, Korean text, "…", curly quotes, zero-width characters
+        if (!t) return;
+        if (!/^(github_pat_|ghp_|gho_)[A-Za-z0-9_]{20,}$/.test(t)) { draw(`that doesn't look like a GitHub token (got ${t.length} usable characters starting with "${esc(t.slice(0, 8))}"). Paste only the github_pat_… value shown once when the token was created.`); return; }
+        if (t !== rawIn.trim()) console.info("tracker: removed non-ASCII characters from the pasted token");
         lsSet(TOKEN_KEY, t);
         try {
           const u = await gh("/user");
