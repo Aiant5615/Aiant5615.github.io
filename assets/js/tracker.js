@@ -442,8 +442,13 @@
       root.querySelector("#gh-save")?.addEventListener("click", async () => {
         const t = root.querySelector("#gh-token").value.trim(); if (!t) return;
         lsSet(TOKEN_KEY, t);
-        try { const u = await gh("/user"); await gh(`/repos/${DREPO}`); lsSet(USER_KEY, u.login); draw("connected ✓"); }
-        catch (e) { lsSet(TOKEN_KEY, null); draw(`token rejected (${e.message}) — check it can access ${DREPO}`); return; }
+        try {
+          const u = await gh("/user");
+          try { await gh(`/repos/${DREPO}`); } catch (e) { throw new Error(`the token cannot see ${DREPO} (${e.status}). Under "Repository access" select that repository.`); }
+          try { await gh(`/repos/${DREPO}/commits?per_page=1`); } catch (e) { throw new Error(`the token has no Contents permission on ${DREPO} (${e.status}). Under "Repository permissions" set Contents to Read and write.`); }
+          lsSet(USER_KEY, u.login); draw("connected ✓");
+        }
+        catch (e) { lsSet(TOKEN_KEY, null); draw(`token rejected: ${e.message}`); return; }
         boot();
       });
     };
@@ -465,7 +470,7 @@
     async function submit(fields, b) {
       b.disabled = true; b.textContent = "Saving…";
       try { await saveEntry(TODAY_KEY, fields, false); renderAll(); document.getElementById("quick-status").innerHTML = `✓ Saved.`; }
-      catch (e) { renderAll(); document.getElementById("quick-status").innerHTML = `<span style="color:var(--danger)">Save failed: ${esc(e.message)}.</span> ${e.status === 401 || e.status === 403 || e.status === 404 ? "The token needs Contents read/write on " + esc(DREPO) + " — reconnect above." : "Try again."}`; }
+      catch (e) { renderAll(); document.getElementById("quick-status").innerHTML = `<span style="color:var(--danger)">Save failed: ${esc(e.message)}.</span> ${e.status === 404 || e.status === 403 ? "GitHub returns 404/403 when the token lacks <b>Contents: Read and write</b> on " + esc(DREPO) + ". Edit the token's Repository permissions on GitHub, then save again (no reconnect needed)." : e.status === 401 ? "The token is invalid or expired — reconnect above." : "Try again."}`; }
     }
     root.querySelectorAll("button.quick:not([disabled])").forEach(b => b.addEventListener("click", () => {
       const fields = JSON.parse(b.dataset.fields), kind = b.dataset.kind;
