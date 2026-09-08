@@ -445,7 +445,7 @@
         try {
           const u = await gh("/user");
           try { await gh(`/repos/${DREPO}`); } catch (e) { throw new Error(`the token cannot see ${DREPO} (${e.status}). Under "Repository access" select that repository.`); }
-          try { await gh(`/repos/${DREPO}/commits?per_page=1`); } catch (e) { throw new Error(`the token has no Contents permission on ${DREPO} (${e.status}). Under "Repository permissions" set Contents to Read and write.`); }
+          try { await gh(`/repos/${DREPO}/commits?per_page=1`); } catch (e) { throw new Error(`the token has no Contents permission on ${DREPO} (GitHub says: ${e.message}). On the token's page, set Repository permissions → Contents → Read and write, then press Update at the bottom.`); }
           lsSet(USER_KEY, u.login); draw("connected ✓");
         }
         catch (e) { lsSet(TOKEN_KEY, null); draw(`token rejected: ${e.message}`); return; }
