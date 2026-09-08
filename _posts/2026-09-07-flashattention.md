@@ -2,6 +2,7 @@
 title: "FlashAttention: Fast and Memory-Efficient Exact Attention with IO-Awareness (Dao et al., 2022)"
 date: 2026-09-07 12:06:00 +0900
 categories: [paper, llm-engineering]
+image: /assets/og-llm-engineering.png
 tags: [DL, Systems]
 math: true
 rating: 5
@@ -77,15 +78,15 @@ HBM accesses, where $$M$$ is the SRAM size; for typical $$d = 64$$–$$128$$ and
 
 ## Figures, explained
 
-<figure class="paper-fig"><img src="/assets/papers/flashattn/figure1.png" alt="Figure 1 from Dao et al. (2022)" loading="lazy"><figcaption>Figure 1 of Dao et al. (2022), reproduced from the paper for commentary.</figcaption></figure>
+<figure class="paper-fig"><img src="/assets/papers/flashattn/figure1.png" width="1018" height="417" alt="Figure 1 from Dao et al. (2022)" loading="lazy"><figcaption>Figure 1 of Dao et al. (2022), reproduced from the paper for commentary.</figcaption></figure>
 
 - **Figure 1 (left: the memory hierarchy and tiling; right: GPT-2 attention profile).** Left shows SRAM/HBM/DRAM bandwidths and the outer/inner loop over $$K, V$$ and $$Q$$ blocks with the output being accumulated. Right: a bar chart of attention time on GPT-2 where the fused FlashAttention kernel is a fraction of the PyTorch stack of matmul, mask, softmax, dropout.
 
-<figure class="paper-fig"><img src="/assets/papers/flashattn/figure2.png" alt="Figure 2 from Dao et al. (2022)" loading="lazy"><figcaption>Figure 2 of Dao et al. (2022), reproduced from the paper for commentary.</figcaption></figure>
+<figure class="paper-fig"><img src="/assets/papers/flashattn/figure2.png" width="544" height="194" alt="Figure 2 from Dao et al. (2022)" loading="lazy"><figcaption>Figure 2 of Dao et al. (2022), reproduced from the paper for commentary.</figcaption></figure>
 
 - **Figure 2 (left: GPT-2 medium runtime vs sequence length; right: block-sparse).** FlashAttention's forward+backward time grows slower than PyTorch's; block-sparse variants are faster still as sparsity increases.
 
-<figure class="paper-fig"><img src="/assets/papers/flashattn/figure3.png" alt="Figure 3 from Dao et al. (2022)" loading="lazy"><figcaption>Figure 3 of Dao et al. (2022), reproduced from the paper for commentary.</figcaption></figure>
+<figure class="paper-fig"><img src="/assets/papers/flashattn/figure3.png" width="975" height="254" alt="Figure 3 from Dao et al. (2022)" loading="lazy"><figcaption>Figure 3 of Dao et al. (2022), reproduced from the paper for commentary.</figcaption></figure>
 
 - **Figure 3 (runtime and memory vs length).** Log–log runtime plots for several attention implementations and a memory plot where FlashAttention is linear while others are quadratic.
 

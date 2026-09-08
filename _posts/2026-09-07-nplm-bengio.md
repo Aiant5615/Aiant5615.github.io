@@ -2,6 +2,7 @@
 title: "A Neural Probabilistic Language Model (Bengio et al., 2003)"
 date: 2026-09-07 09:01:00 +0900
 categories: [paper, llm-basics]
+image: /assets/og-llm-basics.png
 tags: [NLP]
 math: true
 rating: 4
@@ -63,7 +64,7 @@ with plain stochastic gradient ascent, $$\theta \leftarrow \theta + \varepsilon 
 
 ## Figures, explained
 
-<figure class="paper-fig"><img src="/assets/papers/nplm/figure1.png" alt="Figure 1 from Bengio et al. (2003)" loading="lazy"><figcaption>Figure 1 of Bengio et al. (2003), reproduced from the paper for commentary.</figcaption></figure>
+<figure class="paper-fig"><img src="/assets/papers/nplm/figure1.png" width="723" height="645" alt="Figure 1 from Bengio et al. (2003)" loading="lazy"><figcaption>Figure 1 of Bengio et al. (2003), reproduced from the paper for commentary.</figcaption></figure>
 
 - **Figure 1 (the architecture).** Read it bottom-up. The previous words index into the table $$C$$ (drawn as one shared block with arrows from each word position). The concatenated vectors go up into the $$\tanh$$ layer, then into the softmax over the full vocabulary. The dashed lines are the optional direct connections $$W$$. The picture is the template for every "embedding, then network, then softmax" model that followed.
 - **Table 1–2 (perplexity on Brown and AP News).** The rows compare $$n$$-gram baselines (interpolated trigram, Kneser–Ney back-off, class-based) against MLP variants with different $$n$$, $$h$$, $$m$$. The headline: the best neural model reaches a test perplexity about 24% below the best smoothed trigram on Brown, and mixing the neural model with the trigram helps further, because the two make different mistakes.

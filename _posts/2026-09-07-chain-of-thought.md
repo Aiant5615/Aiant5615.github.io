@@ -2,6 +2,7 @@
 title: "Chain-of-Thought Prompting Elicits Reasoning in Large Language Models (Wei et al., 2022)"
 date: 2026-09-07 12:05:00 +0900
 categories: [paper, llm-engineering]
+image: /assets/og-llm-engineering.png
 tags: [NLP]
 math: true
 rating: 4
@@ -48,19 +49,19 @@ Eight such exemplars, hand-written by the authors, are used for all arithmetic b
 
 ## Figures, explained
 
-<figure class="paper-fig"><img src="/assets/papers/cot/figure1.png" alt="Figure 1 from Wei et al. (2022)" loading="lazy"><figcaption>Figure 1 of Wei et al. (2022), reproduced from the paper for commentary.</figcaption></figure>
+<figure class="paper-fig"><img src="/assets/papers/cot/figure1.png" width="982" height="495" alt="Figure 1 from Wei et al. (2022)" loading="lazy"><figcaption>Figure 1 of Wei et al. (2022), reproduced from the paper for commentary.</figcaption></figure>
 
 - **Figure 1 (the contrast).** Two prompts side by side: standard prompting fails the tennis-ball question, chain-of-thought prompting solves it with the highlighted rationale.
 
-<figure class="paper-fig"><img src="/assets/papers/cot/figure2.png" alt="Figure 2 from Wei et al. (2022)" loading="lazy"><figcaption>Figure 2 of Wei et al. (2022), reproduced from the paper for commentary.</figcaption></figure>
+<figure class="paper-fig"><img src="/assets/papers/cot/figure2.png" width="456" height="424" alt="Figure 2 from Wei et al. (2022)" loading="lazy"><figcaption>Figure 2 of Wei et al. (2022), reproduced from the paper for commentary.</figcaption></figure>
 
 - **Figure 2 (PaLM 540B on GSM8K).** Bars for prior supervised state of the art, standard prompting, and chain-of-thought; the last bar is the new record.
 
-<figure class="paper-fig"><img src="/assets/papers/cot/figure3.png" alt="Figure 3 from Wei et al. (2022)" loading="lazy"><figcaption>Figure 3 of Wei et al. (2022), reproduced from the paper for commentary.</figcaption></figure>
+<figure class="paper-fig"><img src="/assets/papers/cot/figure3.png" width="1020" height="817" alt="Figure 3 from Wei et al. (2022)" loading="lazy"><figcaption>Figure 3 of Wei et al. (2022), reproduced from the paper for commentary.</figcaption></figure>
 
 - **Figure 3 (exemplars).** The ⟨input, chain of thought, output⟩ triples used for arithmetic, commonsense and symbolic tasks; worth reading to see how plain the rationales are.
 
-<figure class="paper-fig"><img src="/assets/papers/cot/figure4.png" alt="Figure 4 from Wei et al. (2022)" loading="lazy"><figcaption>Figure 4 of Wei et al. (2022), reproduced from the paper for commentary.</figcaption></figure>
+<figure class="paper-fig"><img src="/assets/papers/cot/figure4.png" width="461" height="770" alt="Figure 4 from Wei et al. (2022)" loading="lazy"><figcaption>Figure 4 of Wei et al. (2022), reproduced from the paper for commentary.</figcaption></figure>
 
 - **Figure 4 (scaling curves).** Accuracy vs model size on GSM8K, SVAMP and MAWPS for LaMDA, GPT-3 and PaLM, standard vs chain-of-thought; the chain-of-thought lines start below the standard lines for small models and cross above them sharply at the largest sizes.
 - **Figures 5–6 (ablations and robustness).** Bar charts for the ablation variants and for different annotators/exemplar sources.

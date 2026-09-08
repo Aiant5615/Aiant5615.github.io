@@ -2,6 +2,7 @@
 title: "Switch Transformers: Scaling to Trillion Parameter Models with Simple and Efficient Sparsity (Fedus, Zoph & Shazeer, 2021)"
 date: 2026-09-07 12:02:00 +0900
 categories: [paper, llm-engineering]
+image: /assets/og-llm-engineering.png
 tags: [NLP, DL]
 math: true
 rating: 4
@@ -74,23 +75,23 @@ Both vectors sum to one, so the product is minimized (at $$1/N$$) when routing i
 
 ## Figures, explained
 
-<figure class="paper-fig"><img src="/assets/papers/switch/figure1.png" alt="Figure 1 from Fedus et al. (2021)" loading="lazy"><figcaption>Figure 1 of Fedus et al. (2021), reproduced from the paper for commentary.</figcaption></figure>
+<figure class="paper-fig"><img src="/assets/papers/switch/figure1.png" width="1098" height="455" alt="Figure 1 from Fedus et al. (2021)" loading="lazy"><figcaption>Figure 1 of Fedus et al. (2021), reproduced from the paper for commentary.</figcaption></figure>
 
 - **Figure 1 (scaling and sample efficiency).** Left: perplexity vs parameters at constant FLOPs, improving with sparsity. Right: quality vs training step for T5-Base and Switch-Base with increasing experts.
 
-<figure class="paper-fig"><img src="/assets/papers/switch/figure2.png" alt="Figure 2 from Fedus et al. (2021)" loading="lazy"><figcaption>Figure 2 of Fedus et al. (2021), reproduced from the paper for commentary.</figcaption></figure>
+<figure class="paper-fig"><img src="/assets/papers/switch/figure2.png" width="1003" height="521" alt="Figure 2 from Fedus et al. (2021)" loading="lazy"><figcaption>Figure 2 of Fedus et al. (2021), reproduced from the paper for commentary.</figcaption></figure>
 
 - **Figure 2 (Switch encoder block).** The standard block with the FFN replaced by a router that sends each token ("More", "Parameters") to one of four FFN experts, drawn as parallel boxes.
 
-<figure class="paper-fig"><img src="/assets/papers/switch/figure3.png" alt="Figure 3 from Fedus et al. (2021)" loading="lazy"><figcaption>Figure 3 of Fedus et al. (2021), reproduced from the paper for commentary.</figcaption></figure>
+<figure class="paper-fig"><img src="/assets/papers/switch/figure3.png" width="1110" height="433" alt="Figure 3 from Fedus et al. (2021)" loading="lazy"><figcaption>Figure 3 of Fedus et al. (2021), reproduced from the paper for commentary.</figcaption></figure>
 
 - **Figure 3 (token routing dynamics).** Tokens flowing to experts with capacity factor 1.0 vs 1.5: at 1.0, a red overflow token is dropped; at 1.5, slots are padded (white). The trade-off between dropped tokens and wasted compute.
 
-<figure class="paper-fig"><img src="/assets/papers/switch/figure4.png" alt="Figure 4 from Fedus et al. (2021)" loading="lazy"><figcaption>Figure 4 of Fedus et al. (2021), reproduced from the paper for commentary.</figcaption></figure>
+<figure class="paper-fig"><img src="/assets/papers/switch/figure4.png" width="1076" height="413" alt="Figure 4 from Fedus et al. (2021)" loading="lazy"><figcaption>Figure 4 of Fedus et al. (2021), reproduced from the paper for commentary.</figcaption></figure>
 
 - **Figure 4 (scaling properties).** Left: quality vs experts at fixed steps. Right: quality vs step for 1–256 experts.
 
-<figure class="paper-fig"><img src="/assets/papers/switch/figure5.png" alt="Figure 5 from Fedus et al. (2021)" loading="lazy"><figcaption>Figure 5 of Fedus et al. (2021), reproduced from the paper for commentary.</figcaption></figure>
+<figure class="paper-fig"><img src="/assets/papers/switch/figure5.png" width="733" height="593" alt="Figure 5 from Fedus et al. (2021)" loading="lazy"><figcaption>Figure 5 of Fedus et al. (2021), reproduced from the paper for commentary.</figcaption></figure>
 
 - **Figure 5 (speed advantage).** Quality vs wall-clock time on 32 TPU v3 cores: Switch-Base reaches the T5-Base line in a fraction of the time; T5-Large is slower per step.
 

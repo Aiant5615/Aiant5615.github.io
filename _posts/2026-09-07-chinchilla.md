@@ -2,6 +2,7 @@
 title: "Training Compute-Optimal Large Language Models (Chinchilla, Hoffmann et al., 2022)"
 date: 2026-09-07 12:04:00 +0900
 categories: [paper, llm-engineering]
+image: /assets/og-llm-engineering.png
 tags: [NLP, DL]
 math: true
 rating: 5
@@ -65,23 +66,23 @@ Train a 70B model (same architecture family as Gopher, 80 layers, $$d = 8192$$, 
 
 ## Figures, explained
 
-<figure class="paper-fig"><img src="/assets/papers/chinchilla/figure1.png" alt="Figure 1 from Hoffmann et al. (2022)" loading="lazy"><figcaption>Figure 1 of Hoffmann et al. (2022), reproduced from the paper for commentary.</figcaption></figure>
+<figure class="paper-fig"><img src="/assets/papers/chinchilla/figure1.png" width="976" height="531" alt="Figure 1 from Hoffmann et al. (2022)" loading="lazy"><figcaption>Figure 1 of Hoffmann et al. (2022), reproduced from the paper for commentary.</figcaption></figure>
 
 - **Figure 1 (overlaid predictions).** Optimal parameters (left) and tokens (right) vs FLOPs from the three approaches, drawn over the compute budgets of GPT-3, Gopher, MT-NLG and Chinchilla; the existing models sit far above the parameter lines, i.e. they are oversized.
 
-<figure class="paper-fig"><img src="/assets/papers/chinchilla/figure2.png" alt="Figure 2 from Hoffmann et al. (2022)" loading="lazy"><figcaption>Figure 2 of Hoffmann et al. (2022), reproduced from the paper for commentary.</figcaption></figure>
+<figure class="paper-fig"><img src="/assets/papers/chinchilla/figure2.png" width="1148" height="322" alt="Figure 2 from Hoffmann et al. (2022)" loading="lazy"><figcaption>Figure 2 of Hoffmann et al. (2022), reproduced from the paper for commentary.</figcaption></figure>
 
 - **Figure 2 (training-curve envelope).** Left: hundreds of loss-vs-FLOPs curves and their lower envelope. Middle and right: the envelope's optimal $$N$$ and $$D$$ vs FLOPs, straight lines on log axes.
 
-<figure class="paper-fig"><img src="/assets/papers/chinchilla/figure3.png" alt="Figure 3 from Hoffmann et al. (2022)" loading="lazy"><figcaption>Figure 3 of Hoffmann et al. (2022), reproduced from the paper for commentary.</figcaption></figure>
+<figure class="paper-fig"><img src="/assets/papers/chinchilla/figure3.png" width="1148" height="355" alt="Figure 3 from Hoffmann et al. (2022)" loading="lazy"><figcaption>Figure 3 of Hoffmann et al. (2022), reproduced from the paper for commentary.</figcaption></figure>
 
 - **Figure 3 (IsoFLOP curves).** Left: loss vs parameters at each fixed budget, each a parabola with a clear minimum. Middle/right: the minima's $$N$$ and $$D$$ vs FLOPs.
 
-<figure class="paper-fig"><img src="/assets/papers/chinchilla/figure4.png" alt="Figure 4 from Hoffmann et al. (2022)" loading="lazy"><figcaption>Figure 4 of Hoffmann et al. (2022), reproduced from the paper for commentary.</figcaption></figure>
+<figure class="paper-fig"><img src="/assets/papers/chinchilla/figure4.jpg" width="1208" height="543" alt="Figure 4 from Hoffmann et al. (2022)" loading="lazy"><figcaption>Figure 4 of Hoffmann et al. (2022), reproduced from the paper for commentary.</figcaption></figure>
 
 - **Figure 4 (parametric fit).** Left: contours of the fitted $$\hat L(N, D)$$ with the efficient frontier drawn through them. Right: predicted loss along IsoFLOP slices vs observations.
 
-<figure class="paper-fig"><img src="/assets/papers/chinchilla/figure5.png" alt="Figure 5 from Hoffmann et al. (2022)" loading="lazy"><figcaption>Figure 5 of Hoffmann et al. (2022), reproduced from the paper for commentary.</figcaption></figure>
+<figure class="paper-fig"><img src="/assets/papers/chinchilla/figure5.png" width="972" height="524" alt="Figure 5 from Hoffmann et al. (2022)" loading="lazy"><figcaption>Figure 5 of Hoffmann et al. (2022), reproduced from the paper for commentary.</figcaption></figure>
 
 - **Figure 5 (Pile evaluation).** Bits-per-byte improvement of Chinchilla over Gopher per subset; every bar is positive.
 

@@ -2,6 +2,7 @@
 title: "Neural Machine Translation of Rare Words with Subword Units (Sennrich, Haddow & Birch, 2016)"
 date: 2026-09-07 09:07:00 +0900
 categories: [paper, llm-basics]
+image: /assets/og-llm-basics.png
 tags: [NLP]
 math: true
 rating: 4
@@ -50,7 +51,7 @@ The competing approach was a **back-off dictionary**: translate with a word-leve
 
 ## Figures and tables, explained
 
-<figure class="paper-fig"><img src="/assets/papers/bpe/figure1.png" alt="Figure 1 from Sennrich et al. (2016)" loading="lazy"><figcaption>Figure 1 of Sennrich et al. (2016), reproduced from the paper for commentary.</figcaption></figure>
+<figure class="paper-fig"><img src="/assets/papers/bpe/figure1.png" width="585" height="583" alt="Figure 1 from Sennrich et al. (2016)" loading="lazy"><figcaption>Figure 1 of Sennrich et al. (2016), reproduced from the paper for commentary.</figcaption></figure>
 
 - **Figure 1 (the code).** Learning BPE in Python: `get_stats` counts pairs, `merge_vocab` applies a merge with a regex that respects symbol boundaries. Worth reading closely; a tokenizer is genuinely this small.
 - **Table 1 (segmentation statistics).** For each segmentation (word-level, character n-gram variants, BPE with 60k merges, joint BPE 90k), the vocabulary size and the number of unknown types on the test set: BPE variants reach 0 unknowns while keeping sentences only modestly longer.

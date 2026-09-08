@@ -2,6 +2,7 @@
 title: "Learning to Summarize from Human Feedback (Stiennon et al., 2020)"
 date: 2026-09-07 10:04:00 +0900
 categories: [paper, llm-rl]
+image: /assets/og-llm-rl.png
 tags: [RL, NLP]
 math: true
 rating: 5
@@ -62,25 +63,25 @@ with a fixed $$\beta$$ (0.05 for the 6.7B model). The KL term is again both an e
 
 ## Figures, explained
 
-<figure class="paper-fig"><img src="/assets/papers/stiennon/figure1.png" alt="Figure 1 from Stiennon et al. (2020)" loading="lazy"><figcaption>Figure 1 of Stiennon et al. (2020), reproduced from the paper for commentary.</figcaption></figure>
+<figure class="paper-fig"><img src="/assets/papers/stiennon/figure1.png" width="724" height="526" alt="Figure 1 from Stiennon et al. (2020)" loading="lazy"><figcaption>Figure 1 of Stiennon et al. (2020), reproduced from the paper for commentary.</figcaption></figure>
 
 - **Figure 1.** The headline plot: preference over references vs model size for three training methods; only the human-feedback line crosses 0.5.
 
-<figure class="paper-fig"><img src="/assets/papers/stiennon/figure2.png" alt="Figure 2 from Stiennon et al. (2020)" loading="lazy"><figcaption>Figure 2 of Stiennon et al. (2020), reproduced from the paper for commentary.</figcaption></figure>
+<figure class="paper-fig"><img src="/assets/papers/stiennon/figure2.png" width="1035" height="591" alt="Figure 2 from Stiennon et al. (2020)" loading="lazy"><figcaption>Figure 2 of Stiennon et al. (2020), reproduced from the paper for commentary.</figcaption></figure>
 
 - **Figure 2.** The three-panel procedure (collect, train RM, train policy) with the loss written out on the reward-model panel.
 
-<figure class="paper-fig"><img src="/assets/papers/stiennon/figure3.png" alt="Figure 3 from Stiennon et al. (2020)" loading="lazy"><figcaption>Figure 3 of Stiennon et al. (2020), reproduced from the paper for commentary.</figcaption></figure>
+<figure class="paper-fig"><img src="/assets/papers/stiennon/figure3.png" width="427" height="372" alt="Figure 3 from Stiennon et al. (2020)" loading="lazy"><figcaption>Figure 3 of Stiennon et al. (2020), reproduced from the paper for commentary.</figcaption></figure>
 
-<figure class="paper-fig"><img src="/assets/papers/stiennon/figure4.png" alt="Figure 4 from Stiennon et al. (2020)" loading="lazy"><figcaption>Figure 4 of Stiennon et al. (2020), reproduced from the paper for commentary.</figcaption></figure>
+<figure class="paper-fig"><img src="/assets/papers/stiennon/figure4.png" width="1008" height="416" alt="Figure 4 from Stiennon et al. (2020)" loading="lazy"><figcaption>Figure 4 of Stiennon et al. (2020), reproduced from the paper for commentary.</figcaption></figure>
 
 - **Figures 3–4.** Bar charts and line plots of the quality axes and the CNN/DM transfer.
 
-<figure class="paper-fig"><img src="/assets/papers/stiennon/figure5.png" alt="Figure 5 from Stiennon et al. (2020)" loading="lazy"><figcaption>Figure 5 of Stiennon et al. (2020), reproduced from the paper for commentary.</figcaption></figure>
+<figure class="paper-fig"><img src="/assets/papers/stiennon/figure5.png" width="588" height="371" alt="Figure 5 from Stiennon et al. (2020)" loading="lazy"><figcaption>Figure 5 of Stiennon et al. (2020), reproduced from the paper for commentary.</figcaption></figure>
 
 - **Figure 5.** Two curves against KL: dashed (RM prediction) up and up, solid (actual preference) up then down.
 
-<figure class="paper-fig"><img src="/assets/papers/stiennon/figure6.png" alt="Figure 6 from Stiennon et al. (2020)" loading="lazy"><figcaption>Figure 6 of Stiennon et al. (2020), reproduced from the paper for commentary.</figcaption></figure>
+<figure class="paper-fig"><img src="/assets/papers/stiennon/figure6.png" width="497" height="363" alt="Figure 6 from Stiennon et al. (2020)" loading="lazy"><figcaption>Figure 6 of Stiennon et al. (2020), reproduced from the paper for commentary.</figcaption></figure>
 
 - **Figure 6.** Four RM accuracy curves, one per data size, each rising log-linearly with parameters; the human-baseline line sits above all of them.
 

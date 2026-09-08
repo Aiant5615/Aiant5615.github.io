@@ -341,3 +341,21 @@ ol.post-list.numbered li::before { content: counter(item); color: var(--muted); 
 .tab:hover { color: var(--text); }
 .tab.on { background: var(--accent); border-color: var(--accent); color: #fff; font-weight: 600; }
 .tab-panel .section-head h2 { margin-top: .4rem; }
+
+/* ───────── audit fixes ───────── */
+@media (max-width: 480px) {
+  ol.post-list.numbered li { grid-template-columns: 2rem 1fr; }
+  ol.post-list.numbered li .when { grid-column: 2; }
+  ol.post-list.numbered li > div { grid-column: 1 / -1; }
+  .post-list li > div { min-width: 0; }
+  .katex-display { font-size: .9em; }
+}
+.tabs { flex-wrap: nowrap; overflow-x: auto; -webkit-overflow-scrolling: touch; scrollbar-width: none; padding-bottom: .6rem; }
+.tabs::-webkit-scrollbar { display: none; }
+.tab { white-space: nowrap; flex: none; }
+.tab-panel.searching .section-head a { display: none; }
+.toc { margin: 0 0 1.6rem; padding: .9rem 1.1rem; background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); font-size: .92rem; }
+.toc-title { font-weight: 600; margin-bottom: .3rem; }
+.toc ol { margin: 0; padding-left: 1.3rem; columns: 2; column-gap: 2rem; }
+.toc li { break-inside: avoid; padding: .1rem 0; }
+@media (max-width: 560px) { .toc ol { columns: 1; } }

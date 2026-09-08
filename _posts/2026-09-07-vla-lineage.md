@@ -3,6 +3,7 @@ title: "VLA (Robotics): from RT-1 to π0, a 5-paper reading path"
 date: 2026-09-07 13:06:00 +0900
 overview: true
 categories: [paper, vla]
+image: /assets/og-vla.png
 tags: [Robotics]
 description: "Five papers on vision-language-action models: the first large robot Transformer, actions as language tokens on a web-scale VLM, an open cross-robot generalist with a diffusion head, an open 7B VLA, and a VLM backbone with a flow-matching action expert. Each has a full review."
 ---

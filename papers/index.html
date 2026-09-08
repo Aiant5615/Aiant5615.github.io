@@ -7,8 +7,9 @@ permalink: /papers/
 <p class="muted">Summaries with the equations and figures explained, grouped into reading paths. Pick a category; each path has an overview post and part-by-part navigation.</p>
 
 {% assign papers = site.categories.paper %}
+<input type="search" class="search" id="paper-search" placeholder="Search titles, authors, tags" autocomplete="off">
 <div class="tabs" id="paper-tabs" role="tablist">
-{% for entry in site.data.series %}{% assign info = entry[1] %}<button type="button" role="tab" class="tab" data-tab="{{ info.category }}">{{ info.tab }}</button>{% endfor %}
+{% for entry in site.data.series %}{% assign info = entry[1] %}<button type="button" role="tab" class="tab" data-tab="{{ info.category }}" aria-controls="{{ info.category }}" aria-selected="false">{{ info.tab }}</button>{% endfor %}
 </div>
 
 {% for entry in site.data.series %}
@@ -19,7 +20,7 @@ permalink: /papers/
   {% if in_series.size > 0 %}
   <ol class="post-list numbered">
     {% for post in in_series %}
-    <li>
+    <li data-text="{{ post.title | downcase | escape }} {{ post.paper.authors | downcase | escape }} {{ post.tags | join: ' ' | downcase }}">
       <span class="when">{% if post.paper.published %}{{ post.paper.published | append: "-01" | date: "%b %Y" }}{% endif %}</span>
       <div>
         <a class="t" href="{{ post.url | relative_url }}">{{ post.title }}</a>
@@ -40,7 +41,7 @@ permalink: /papers/
   <h2>Other reviews</h2>
   <ul class="post-list">
     {% for post in loose %}
-    <li>
+    <li data-text="{{ post.title | downcase | escape }} {{ post.paper.authors | downcase | escape }} {{ post.tags | join: ' ' | downcase }}">
       <span class="when">{% if post.paper.published %}{{ post.paper.published | append: "-01" | date: "%b %Y" }}{% endif %}</span>
       <div>
         <a class="t" href="{{ post.url | relative_url }}">{{ post.title }}</a>
@@ -55,12 +56,19 @@ permalink: /papers/
 {% endif %}
 <script>
 (function(){
-  const tabs=[...document.querySelectorAll('#paper-tabs .tab')], panels=[...document.querySelectorAll('.tab-panel')];
-  const other=document.getElementById('other'); if(other){ const b=document.createElement('button'); b.type='button'; b.className='tab'; b.dataset.tab='other'; b.textContent='Other'; b.setAttribute('role','tab'); document.getElementById('paper-tabs').appendChild(b); tabs.push(b); }
-  function show(id, push){ if(!panels.some(p=>p.dataset.panel===id)) id=tabs[0].dataset.tab;
-    panels.forEach(p=>p.hidden=p.dataset.panel!==id); tabs.forEach(t=>{ const on=t.dataset.tab===id; t.classList.toggle('on',on); t.setAttribute('aria-selected',on); });
+  const bar=document.getElementById('paper-tabs'), panels=[...document.querySelectorAll('.tab-panel')], q=document.getElementById('paper-search');
+  const other=document.getElementById('other'); if(other){ const b=document.createElement('button'); b.type='button'; b.className='tab'; b.dataset.tab='other'; b.textContent='Other'; b.setAttribute('role','tab'); b.setAttribute('aria-controls','other'); bar.appendChild(b); }
+  const tabs=[...bar.querySelectorAll('.tab')]; let current=tabs[0].dataset.tab;
+  function show(id, push){ if(!panels.some(p=>p.dataset.panel===id)) id=tabs[0].dataset.tab; current=id;
+    panels.forEach(p=>p.hidden=p.dataset.panel!==id); tabs.forEach(t=>{ const on=t.dataset.tab===id; t.classList.toggle('on',on); t.setAttribute('aria-selected',on); t.tabIndex=on?0:-1; });
     if(push) history.replaceState(null,'','#'+id); try{ localStorage.setItem('papers_tab', id); }catch(e){} }
-  tabs.forEach(t=>t.addEventListener('click',()=>show(t.dataset.tab,true)));
+  function search(){ const s=(q.value||'').trim().toLowerCase();
+    if(!s){ panels.forEach(p=>{ p.querySelectorAll('li').forEach(li=>li.style.display=''); p.classList.remove('searching'); }); show(current,false); return; }
+    panels.forEach(p=>{ let n=0; p.querySelectorAll('li').forEach(li=>{ const ok=(li.dataset.text||'').includes(s); li.style.display=ok?'':'none'; if(ok)n++; }); p.hidden=n===0; p.classList.add('searching'); });
+    tabs.forEach(t=>{ t.classList.remove('on'); t.setAttribute('aria-selected',false); }); }
+  tabs.forEach(t=>t.addEventListener('click',()=>{ q.value=''; search(); show(t.dataset.tab,true); }));
+  bar.addEventListener('keydown',e=>{ const i=tabs.findIndex(t=>t.dataset.tab===current); if(e.key==='ArrowRight'||e.key==='ArrowLeft'){ const j=(i+(e.key==='ArrowRight'?1:-1)+tabs.length)%tabs.length; show(tabs[j].dataset.tab,true); tabs[j].focus(); e.preventDefault(); } });
+  q.addEventListener('input',search);
   window.addEventListener('hashchange',()=>show(location.hash.slice(1),false));
   let init=location.hash.slice(1); if(!init){ try{ init=localStorage.getItem('papers_tab')||''; }catch(e){} }
   show(init||tabs[0].dataset.tab,false);

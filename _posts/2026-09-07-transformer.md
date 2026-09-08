@@ -2,6 +2,7 @@
 title: "Attention Is All You Need (Vaswani et al., 2017)"
 date: 2026-09-07 09:10:00 +0900
 categories: [paper, llm-basics]
+image: /assets/og-llm-basics.png
 tags: [NLP, DL]
 math: true
 rating: 5
@@ -131,19 +132,19 @@ Self-attention is cheaper than recurrence whenever $$n < d$$ (true for sentences
 
 ## Figures, explained
 
-<figure class="paper-fig"><img src="/assets/papers/transformer/figure1.png" alt="Figure 1 from Vaswani et al. (2017)" loading="lazy"><figcaption>Figure 1 of Vaswani et al. (2017), reproduced from the paper for commentary.</figcaption></figure>
+<figure class="paper-fig"><img src="/assets/papers/transformer/figure1.png" width="578" height="837" alt="Figure 1 from Vaswani et al. (2017)" loading="lazy"><figcaption>Figure 1 of Vaswani et al. (2017), reproduced from the paper for commentary.</figcaption></figure>
 
 - **Figure 1 (architecture).** Left tower: embedding + positions → [self-attention → add&norm → FFN → add&norm] × N. Right tower: output embedding (shifted right) → [masked self-attention → add&norm → cross-attention over the encoder output → add&norm → FFN → add&norm] × N → linear → softmax. My drawing above shows one block of each with the residual arcs dashed.
 
-<figure class="paper-fig"><img src="/assets/papers/transformer/figure2.png" alt="Figure 2 from Vaswani et al. (2017)" loading="lazy"><figcaption>Figure 2 of Vaswani et al. (2017), reproduced from the paper for commentary.</figcaption></figure>
+<figure class="paper-fig"><img src="/assets/papers/transformer/figure2.png" width="829" height="522" alt="Figure 2 from Vaswani et al. (2017)" loading="lazy"><figcaption>Figure 2 of Vaswani et al. (2017), reproduced from the paper for commentary.</figcaption></figure>
 
 - **Figure 2 (left: scaled dot-product; right: multi-head).** MatMul → scale → optional mask → softmax → MatMul, then the multi-head wrapper with $$h$$ parallel linears, concat, and a final linear.
 
-<figure class="paper-fig"><img src="/assets/papers/transformer/figure3.png" alt="Figure 3 from Vaswani et al. (2017)" loading="lazy"><figcaption>Figure 3 of Vaswani et al. (2017), reproduced from the paper for commentary.</figcaption></figure>
+<figure class="paper-fig"><img src="/assets/papers/transformer/figure3.png" width="1022" height="605" alt="Figure 3 from Vaswani et al. (2017)" loading="lazy"><figcaption>Figure 3 of Vaswani et al. (2017), reproduced from the paper for commentary.</figcaption></figure>
 
-<figure class="paper-fig"><img src="/assets/papers/transformer/figure4.png" alt="Figure 4 from Vaswani et al. (2017)" loading="lazy"><figcaption>Figure 4 of Vaswani et al. (2017), reproduced from the paper for commentary.</figcaption></figure>
+<figure class="paper-fig"><img src="/assets/papers/transformer/figure4.jpg" width="986" height="1231" alt="Figure 4 from Vaswani et al. (2017)" loading="lazy"><figcaption>Figure 4 of Vaswani et al. (2017), reproduced from the paper for commentary.</figcaption></figure>
 
-<figure class="paper-fig"><img src="/assets/papers/transformer/figure5.png" alt="Figure 5 from Vaswani et al. (2017)" loading="lazy"><figcaption>Figure 5 of Vaswani et al. (2017), reproduced from the paper for commentary.</figcaption></figure>
+<figure class="paper-fig"><img src="/assets/papers/transformer/figure5.jpg" width="978" height="1085" alt="Figure 5 from Vaswani et al. (2017)" loading="lazy"><figcaption>Figure 5 of Vaswani et al. (2017), reproduced from the paper for commentary.</figcaption></figure>
 
 - **Figures 3–5 (attention heads).** In the "making … more difficult" example, several heads at layer 5 connect "making" to "more difficult" across a long distance. In the anaphora example, heads resolve "its" to "the Law". Other heads have visibly syntactic structure. These pictures started the "what do heads do" literature.
 

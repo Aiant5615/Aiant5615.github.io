@@ -3,6 +3,7 @@ title: "LLM basics: from n-gram LMs to InstructGPT, a 16-paper reading path"
 date: 2026-09-07 09:17:00 +0900
 overview: true
 categories: [paper, llm-basics]
+image: /assets/og-llm-basics.png
 tags: [NLP]
 description: "The sixteen papers that get you from the first neural language model to RLHF, grouped by what each one added, with a detailed review of every one."
 ---

@@ -2,6 +2,7 @@
 title: "Constitutional AI: Harmlessness from AI Feedback (Bai et al., 2022)"
 date: 2026-09-07 10:05:00 +0900
 categories: [paper, llm-rl]
+image: /assets/og-llm-rl.png
 tags: [RL, NLP]
 math: true
 rating: 4
@@ -25,7 +26,7 @@ Train a harmless assistant without any human labels for harmlessness: (1) have a
 
 [InstructGPT](/blog/instructgpt/)-style RLHF needs tens of thousands of human comparisons per behaviour you want. This paper shows that for harmlessness the comparisons can come from the model itself, guided by natural-language principles, which makes the objective *inspectable* (you can read the constitution) and scalable. It introduced the term RLAIF.
 
-<figure class="paper-fig"><img src="/assets/papers/cai/figure1.png" alt="Figure 1 from Bai et al. (2022)" loading="lazy"><figcaption>Figure 1 of Bai et al. (2022), reproduced from the paper for commentary.</figcaption></figure>
+<figure class="paper-fig"><img src="/assets/papers/cai/figure1.png" width="1056" height="458" alt="Figure 1 from Bai et al. (2022)" loading="lazy"><figcaption>Figure 1 of Bai et al. (2022), reproduced from the paper for commentary.</figcaption></figure>
 
 ## Stage 1: supervised learning from critiques and revisions (SL-CAI)
 
@@ -57,21 +58,21 @@ Helpfulness and harmlessness are measured with **Elo scores** from crowdworker c
 
 ## Results
 
-<figure class="paper-fig"><img src="/assets/papers/cai/figure2.png" alt="Figure 2 from Bai et al. (2022)" loading="lazy"><figcaption>Figure 2 of Bai et al. (2022), reproduced from the paper for commentary.</figcaption></figure>
+<figure class="paper-fig"><img src="/assets/papers/cai/figure2.png" width="893" height="543" alt="Figure 2 from Bai et al. (2022)" loading="lazy"><figcaption>Figure 2 of Bai et al. (2022), reproduced from the paper for commentary.</figcaption></figure>
 
 - **Figure 2 (the Pareto plot).** Harmlessness Elo vs helpfulness Elo for the base, helpful-only RLHF, standard HH RLHF, constitutional SL and constitutional RL (with and without CoT). RL-CAI models lie to the upper right of the standard RLHF line: more harmless *at the same helpfulness*. The paper calls this a Pareto improvement.
 
-<figure class="paper-fig"><img src="/assets/papers/cai/figure3.png" alt="Figure 3 from Bai et al. (2022)" loading="lazy"><figcaption>Figure 3 of Bai et al. (2022), reproduced from the paper for commentary.</figcaption></figure>
+<figure class="paper-fig"><img src="/assets/papers/cai/figure3.png" width="1074" height="380" alt="Figure 3 from Bai et al. (2022)" loading="lazy"><figcaption>Figure 3 of Bai et al. (2022), reproduced from the paper for commentary.</figcaption></figure>
 
 - **Figure 3 (scaling).** Helpfulness and harmlessness Elo vs parameters, for helpful RLHF, HH RLHF and RL-CAI; harmlessness of RL-CAI grows fastest with scale, helpfulness tracks the helpful-only model.
 
-<figure class="paper-fig"><img src="/assets/papers/cai/figure4.png" alt="Figure 4 from Bai et al. (2022)" loading="lazy"><figcaption>Figure 4 of Bai et al. (2022), reproduced from the paper for commentary.</figcaption></figure>
+<figure class="paper-fig"><img src="/assets/papers/cai/figure4.png" width="732" height="523" alt="Figure 4 from Bai et al. (2022)" loading="lazy"><figcaption>Figure 4 of Bai et al. (2022), reproduced from the paper for commentary.</figcaption></figure>
 
 - **Figure 4 (HHH evaluations).** Accuracy of preference models on the HHH multiple-choice set vs parameters: a PM trained on human HH feedback, a pretrained LM, and chain-of-thought labels with and without ensembling. CoT labels overtake the human-feedback PM at the largest size.
 
-<figure class="paper-fig"><img src="/assets/papers/cai/figure5.png" alt="Figure 5 from Bai et al. (2022)" loading="lazy"><figcaption>Figure 5 of Bai et al. (2022), reproduced from the paper for commentary.</figcaption></figure>
+<figure class="paper-fig"><img src="/assets/papers/cai/figure5.png" width="1110" height="303" alt="Figure 5 from Bai et al. (2022)" loading="lazy"><figcaption>Figure 5 of Bai et al. (2022), reproduced from the paper for commentary.</figcaption></figure>
 
-<figure class="paper-fig"><img src="/assets/papers/cai/figure6.png" alt="Figure 6 from Bai et al. (2022)" loading="lazy"><figcaption>Figure 6 of Bai et al. (2022), reproduced from the paper for commentary.</figcaption></figure>
+<figure class="paper-fig"><img src="/assets/papers/cai/figure6.png" width="1111" height="340" alt="Figure 6 from Bai et al. (2022)" loading="lazy"><figcaption>Figure 6 of Bai et al. (2022), reproduced from the paper for commentary.</figcaption></figure>
 
 - **Figure 5 / 6 (revisions).** PM scores for harmlessness, helpfulness and combined HH as a function of the number of critique–revision rounds, for several model sizes; harmlessness rises monotonically, helpfulness dips slightly, and one revision captures most of the gain. Figure 6 shows the effect of the number of principles sampled.
 - Qualitatively (Section 4.3), RL-CAI answers harmful prompts by explaining *why* it will not help rather than refusing flatly, and is less evasive than the RLHF baseline.

@@ -2,6 +2,7 @@
 title: "Deep Reinforcement Learning from Human Preferences (Christiano et al., 2017)"
 date: 2026-09-07 10:02:00 +0900
 categories: [paper, llm-rl]
+image: /assets/og-llm-rl.png
 tags: [RL]
 math: true
 rating: 5
@@ -62,23 +63,23 @@ This is logistic regression on reward *differences*, so $$\hat r$$ is identifiab
 
 ## Figures, explained
 
-<figure class="paper-fig"><img src="/assets/papers/christiano/figure1.png" alt="Figure 1 from Christiano et al. (2017)" loading="lazy"><figcaption>Figure 1 of Christiano et al. (2017), reproduced from the paper for commentary.</figcaption></figure>
+<figure class="paper-fig"><img src="/assets/papers/christiano/figure1.png" width="483" height="221" alt="Figure 1 from Christiano et al. (2017)" loading="lazy"><figcaption>Figure 1 of Christiano et al. (2017), reproduced from the paper for commentary.</figcaption></figure>
 
 - **Figure 1 (schematic).** The triangle of RL algorithm ↔ environment, reward predictor feeding the RL algorithm, and human feedback feeding the predictor. It is the same diagram as RLHF for language models with "environment" replaced by "prompt".
 
-<figure class="paper-fig"><img src="/assets/papers/christiano/figure2.png" alt="Figure 2 from Christiano et al. (2017)" loading="lazy"><figcaption>Figure 2 of Christiano et al. (2017), reproduced from the paper for commentary.</figcaption></figure>
+<figure class="paper-fig"><img src="/assets/papers/christiano/figure2.png" width="1025" height="553" alt="Figure 2 from Christiano et al. (2017)" loading="lazy"><figcaption>Figure 2 of Christiano et al. (2017), reproduced from the paper for commentary.</figcaption></figure>
 
 - **Figure 2 (MuJoCo results).** Eight learning curves; orange is true-reward RL, purple is 700 human labels, blues are synthetic labels at three budgets. Purple tracks orange closely on most tasks; on Ant it beats it.
 
-<figure class="paper-fig"><img src="/assets/papers/christiano/figure3.png" alt="Figure 3 from Christiano et al. (2017)" loading="lazy"><figcaption>Figure 3 of Christiano et al. (2017), reproduced from the paper for commentary.</figcaption></figure>
+<figure class="paper-fig"><img src="/assets/papers/christiano/figure3.png" width="1025" height="558" alt="Figure 3 from Christiano et al. (2017)" loading="lazy"><figcaption>Figure 3 of Christiano et al. (2017), reproduced from the paper for commentary.</figcaption></figure>
 
 - **Figure 3 (Atari results).** Seven learning curves in the same colour scheme; note the flat purple line on Qbert and Enduro, the two failures discussed in the text.
 
-<figure class="paper-fig"><img src="/assets/papers/christiano/figure4.png" alt="Figure 4 from Christiano et al. (2017)" loading="lazy"><figcaption>Figure 4 of Christiano et al. (2017), reproduced from the paper for commentary.</figcaption></figure>
+<figure class="paper-fig"><img src="/assets/papers/christiano/figure4.png" width="724" height="204" alt="Figure 4 from Christiano et al. (2017)" loading="lazy"><figcaption>Figure 4 of Christiano et al. (2017), reproduced from the paper for commentary.</figcaption></figure>
 
 - **Figure 4 (backflip frames).** Four stills of the Hopper mid-backflip, the paper's most cited image.
 
-<figure class="paper-fig"><img src="/assets/papers/christiano/figure5.png" alt="Figure 5 from Christiano et al. (2017)" loading="lazy"><figcaption>Figure 5 of Christiano et al. (2017), reproduced from the paper for commentary.</figcaption></figure>
+<figure class="paper-fig"><img src="/assets/papers/christiano/figure5.jpg" width="982" height="529" alt="Figure 5 from Christiano et al. (2017)" loading="lazy"><figcaption>Figure 5 of Christiano et al. (2017), reproduced from the paper for commentary.</figcaption></figure>
 
 - **Figure 5 (ablations on MuJoCo).** Curves with components removed; "no online queries" and "no segments" are the ones that collapse.
 

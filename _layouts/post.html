@@ -5,7 +5,7 @@ layout: default
   <header class="post-header">
     <div class="post-meta">
 {% if page.paper.published %}<span title="When the paper came out">Paper: {{ page.paper.published | append: "-01" | date: "%b %Y" }}</span> · {% endif %}{% assign words = content | strip_html | number_of_words %}<span>{{ words | divided_by: 200 | plus: 1 }} min read</span>
-      {% for c in page.categories %}<a class="tag" href="{{ '/blog/#' | append: c | relative_url }}">{{ c }}</a>{% endfor %}{% for t in page.tags %}<a class="tag" href="{{ '/papers/#' | append: t | relative_url }}">#{{ t }}</a>{% endfor %}
+      {% for c in page.categories %}{% if c != 'paper' %}<a class="tag" href="{{ '/papers/#' | append: c | relative_url }}">{{ c }}</a>{% endif %}{% endfor %}{% for t in page.tags %}<a class="tag" href="{{ '/papers/#' | append: t | relative_url }}">#{{ t }}</a>{% endfor %}
     </div>
     <h1 class="post-title">{{ page.title }}</h1>
   </header>
@@ -23,6 +23,8 @@ layout: default
     {% if page.rating %}<div class="paper-card-rating">{% for i in (1..5) %}{% if i <= page.rating %}★{% else %}☆{% endif %}{% endfor %}</div>{% endif %}
   </aside>
   {% endif %}
+
+  <nav class="toc" id="toc" hidden><div class="toc-title">Contents</div><ol id="toc-list"></ol></nav>
 
   <div class="post-content">
     {{ content }}
@@ -47,6 +49,11 @@ layout: default
   </footer>
 </article>
 
+<script>
+(function(){const hs=[...document.querySelectorAll('.post-content h2[id]')]; if(hs.length<4) return;
+const ol=document.getElementById('toc-list'); hs.forEach(h=>{const li=document.createElement('li'); const a=document.createElement('a'); a.href='#'+h.id; a.textContent=h.textContent; li.appendChild(a); ol.appendChild(li);});
+document.getElementById('toc').hidden=false;})();
+</script>
 {% if page.math %}
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.css">
 <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.js"></script>

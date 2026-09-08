@@ -2,6 +2,7 @@
 title: "DeepSeekMath and Group Relative Policy Optimization (Shao et al., 2024)"
 date: 2026-09-07 10:07:00 +0900
 categories: [paper, llm-rl]
+image: /assets/og-llm-rl.png
 tags: [RL, NLP]
 math: true
 rating: 5
@@ -85,27 +86,27 @@ DeepSeekMath-RL 7B (GRPO on GSM8K + MATH chain-of-thought data, ~144k questions,
 
 ## Figures, explained
 
-<figure class="paper-fig"><img src="/assets/papers/deepseekmath/figure1.png" alt="Figure 1 from Shao et al. (2024)" loading="lazy"><figcaption>Figure 1 of Shao et al. (2024), reproduced from the paper for commentary.</figcaption></figure>
+<figure class="paper-fig"><img src="/assets/papers/deepseekmath/figure1.png" width="802" height="485" alt="Figure 1 from Shao et al. (2024)" loading="lazy"><figcaption>Figure 1 of Shao et al. (2024), reproduced from the paper for commentary.</figcaption></figure>
 
 - **Figure 1.** MATH accuracy of open models over 2023–24, with DeepSeekMath-7B above much larger models.
 
-<figure class="paper-fig"><img src="/assets/papers/deepseekmath/figure2.png" alt="Figure 2 from Shao et al. (2024)" loading="lazy"><figcaption>Figure 2 of Shao et al. (2024), reproduced from the paper for commentary.</figcaption></figure>
+<figure class="paper-fig"><img src="/assets/papers/deepseekmath/figure2.png" width="1142" height="439" alt="Figure 2 from Shao et al. (2024)" loading="lazy"><figcaption>Figure 2 of Shao et al. (2024), reproduced from the paper for commentary.</figcaption></figure>
 
 - **Figure 2.** The iterative data pipeline: fastText seed → recall from Common Crawl → discover domains → annotate URL paths → repeat.
 
-<figure class="paper-fig"><img src="/assets/papers/deepseekmath/figure3.png" alt="Figure 3 from Shao et al. (2024)" loading="lazy"><figcaption>Figure 3 of Shao et al. (2024), reproduced from the paper for commentary.</figcaption></figure>
+<figure class="paper-fig"><img src="/assets/papers/deepseekmath/figure3.jpg" width="1029" height="974" alt="Figure 3 from Shao et al. (2024)" loading="lazy"><figcaption>Figure 3 of Shao et al. (2024), reproduced from the paper for commentary.</figcaption></figure>
 
 - **Figure 3.** Benchmark curves (GSM8K, MATH, CMATH, BBH) vs tokens for four corpora; the DeepSeekMath corpus line is on top.
 
-<figure class="paper-fig"><img src="/assets/papers/deepseekmath/figure4.png" alt="Figure 4 from Shao et al. (2024)" loading="lazy"><figcaption>Figure 4 of Shao et al. (2024), reproduced from the paper for commentary.</figcaption></figure>
+<figure class="paper-fig"><img src="/assets/papers/deepseekmath/figure4.png" width="1087" height="485" alt="Figure 4 from Shao et al. (2024)" loading="lazy"><figcaption>Figure 4 of Shao et al. (2024), reproduced from the paper for commentary.</figcaption></figure>
 
 - **Figure 4.** PPO vs GRPO. Top: policy, reference, reward, value models, GAE, per-token advantage. Bottom: the same without the value model; a group of $$G$$ outputs, $$G$$ rewards, "group computation" producing $$A_1 \dots A_G$$.
 
-<figure class="paper-fig"><img src="/assets/papers/deepseekmath/figure5.png" alt="Figure 5 from Shao et al. (2024)" loading="lazy"><figcaption>Figure 5 of Shao et al. (2024), reproduced from the paper for commentary.</figcaption></figure>
+<figure class="paper-fig"><img src="/assets/papers/deepseekmath/figure5.png" width="992" height="476" alt="Figure 5 from Shao et al. (2024)" loading="lazy"><figcaption>Figure 5 of Shao et al. (2024), reproduced from the paper for commentary.</figcaption></figure>
 
-<figure class="paper-fig"><img src="/assets/papers/deepseekmath/figure6.png" alt="Figure 6 from Shao et al. (2024)" loading="lazy"><figcaption>Figure 6 of Shao et al. (2024), reproduced from the paper for commentary.</figcaption></figure>
+<figure class="paper-fig"><img src="/assets/papers/deepseekmath/figure6.png" width="992" height="478" alt="Figure 6 from Shao et al. (2024)" loading="lazy"><figcaption>Figure 6 of Shao et al. (2024), reproduced from the paper for commentary.</figcaption></figure>
 
-<figure class="paper-fig"><img src="/assets/papers/deepseekmath/figure7.png" alt="Figure 7 from Shao et al. (2024)" loading="lazy"><figcaption>Figure 7 of Shao et al. (2024), reproduced from the paper for commentary.</figcaption></figure>
+<figure class="paper-fig"><img src="/assets/papers/deepseekmath/figure7.png" width="1045" height="502" alt="Figure 7 from Shao et al. (2024)" loading="lazy"><figcaption>Figure 7 of Shao et al. (2024), reproduced from the paper for commentary.</figcaption></figure>
 
 - **Figure 5–7.** Training curves for RFT / online RFT / GRPO variants; iterative GRPO; Maj@K and Pass@K of SFT vs RL models.
 

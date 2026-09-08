@@ -2,6 +2,7 @@
 title: "Training Language Models to Follow Instructions with Human Feedback (InstructGPT, Ouyang et al., 2022)"
 date: 2026-09-07 09:16:00 +0900
 categories: [paper, llm-basics]
+image: /assets/og-llm-basics.png
 tags: [NLP, RL]
 math: true
 rating: 5
@@ -63,17 +64,17 @@ Held-out API prompts are scored by labelers on a 1–7 Likert scale and, mainly,
 
 ## Figures, explained
 
-<figure class="paper-fig"><img src="/assets/papers/instructgpt/figure1.png" alt="Figure 1 from Ouyang et al. (2022)" loading="lazy"><figcaption>Figure 1 of Ouyang et al. (2022), reproduced from the paper for commentary.</figcaption></figure>
+<figure class="paper-fig"><img src="/assets/papers/instructgpt/figure1.png" width="824" height="476" alt="Figure 1 from Ouyang et al. (2022)" loading="lazy"><figcaption>Figure 1 of Ouyang et al. (2022), reproduced from the paper for commentary.</figcaption></figure>
 
 - **Figure 1 (human evaluation vs model size).** Win rate against SFT-175B for GPT-3, GPT-3 with a carefully constructed prompt, SFT, PPO and PPO-ptx across 1.3B/6B/175B. The 1.3B PPO models beat 175B GPT-3; PPO-ptx and PPO are close; SFT alone is a large step above prompted GPT-3.
 
-<figure class="paper-fig"><img src="/assets/papers/instructgpt/figure2.png" alt="Figure 2 from Ouyang et al. (2022)" loading="lazy"><figcaption>Figure 2 of Ouyang et al. (2022), reproduced from the paper for commentary.</figcaption></figure>
+<figure class="paper-fig"><img src="/assets/papers/instructgpt/figure2.png" width="998" height="590" alt="Figure 2 from Ouyang et al. (2022)" loading="lazy"><figcaption>Figure 2 of Ouyang et al. (2022), reproduced from the paper for commentary.</figcaption></figure>
 
 - **Figure 2 (the three steps).** The diagram everyone reproduces: a prompt sampled → labeler writes an answer → SFT; several outputs sampled → labeler ranks → RM; a new prompt → policy answers → RM scores → PPO update.
 - **Figure 3 (Likert scores)** and **Figure 4 (metadata).** InstructGPT outputs are rated as following explicit constraints more often, attempting the right instruction more often, and hallucinating less often (21% vs 41% on closed-domain tasks).
 - **Figure 5 (held-out labelers, and prompt distributions).** The preference holds for labelers who did not produce training data and for prompts written for GPT-3 rather than for InstructGPT, evidence that the effect generalizes.
 
-<figure class="paper-fig"><img src="/assets/papers/instructgpt/figure6.png" alt="Figure 6 from Ouyang et al. (2022)" loading="lazy"><figcaption>Figure 6 of Ouyang et al. (2022), reproduced from the paper for commentary.</figcaption></figure>
+<figure class="paper-fig"><img src="/assets/papers/instructgpt/figure6.png" width="942" height="468" alt="Figure 6 from Ouyang et al. (2022)" loading="lazy"><figcaption>Figure 6 of Ouyang et al. (2022), reproduced from the paper for commentary.</figcaption></figure>
 
 - **Figure 6 (TruthfulQA).** Fraction of truthful and truthful-and-informative answers; PPO models roughly double GPT-3's truthfulness, more so with an "instruction+QA" prompt that permits "I have no comment".
 - **Figure 7 (toxicity).** Human-rated toxicity with and without a "respectful" instruction; InstructGPT is less toxic when told to be respectful and about the same when not, and *more* toxic when instructed to be.

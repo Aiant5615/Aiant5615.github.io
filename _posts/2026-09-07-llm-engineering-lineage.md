@@ -3,6 +3,7 @@ title: "LLM engineering: from RoPE to QLoRA, an 8-paper reading path"
 date: 2026-09-07 12:09:00 +0900
 overview: true
 categories: [paper, llm-engineering]
+image: /assets/og-llm-engineering.png
 tags: [NLP, DL]
 description: "Eight papers on the techniques that turn a Transformer language model into a modern LLM: rotary positions, mixture of experts, low-rank adaptation, compute-optimal scaling, chain-of-thought prompting, IO-aware attention, the LLaMA recipe, and 4-bit fine-tuning. Each has a full review."
 ---

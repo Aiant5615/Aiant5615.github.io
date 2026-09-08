@@ -50,7 +50,6 @@ permalink: /blog/:title/
 paginate_path: none
 
 plugins:
-  - jekyll-feed
   - jekyll-seo-tag
   - jekyll-sitemap
 

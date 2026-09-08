@@ -2,6 +2,7 @@
 title: "Neural Machine Translation by Jointly Learning to Align and Translate (Bahdanau, Cho & Bengio, 2015)"
 date: 2026-09-07 09:05:00 +0900
 categories: [paper, llm-basics]
+image: /assets/og-llm-basics.png
 tags: [NLP]
 math: true
 rating: 5
@@ -91,15 +92,15 @@ This is called **additive attention** because the query and key contributions ar
 
 ## Figures, explained
 
-<figure class="paper-fig"><img src="/assets/papers/bahdanau/figure1.png" alt="Figure 1 from Bahdanau et al. (2015)" loading="lazy"><figcaption>Figure 1 of Bahdanau et al. (2015), reproduced from the paper for commentary.</figcaption></figure>
+<figure class="paper-fig"><img src="/assets/papers/bahdanau/figure1.png" width="317" height="435" alt="Figure 1 from Bahdanau et al. (2015)" loading="lazy"><figcaption>Figure 1 of Bahdanau et al. (2015), reproduced from the paper for commentary.</figcaption></figure>
 
 - **Figure 1 (the model).** A bidirectional encoder at the bottom with arrows from *every* $$h_j$$ into a summation node labelled with $$\alpha_{t,j}$$, feeding the decoder state $$s_t$$ at the top. The redrawing above follows it.
 
-<figure class="paper-fig"><img src="/assets/papers/bahdanau/figure2.png" alt="Figure 2 from Bahdanau et al. (2015)" loading="lazy"><figcaption>Figure 2 of Bahdanau et al. (2015), reproduced from the paper for commentary.</figcaption></figure>
+<figure class="paper-fig"><img src="/assets/papers/bahdanau/figure2.png" width="700" height="395" alt="Figure 2 from Bahdanau et al. (2015)" loading="lazy"><figcaption>Figure 2 of Bahdanau et al. (2015), reproduced from the paper for commentary.</figcaption></figure>
 
 - **Figure 2 (BLEU vs sentence length).** Four curves. RNNsearch-50 (the attention model trained on up to 50 words) is essentially flat out to 60+ words; the encoder–decoder baselines fall off a cliff. This single plot is the empirical case for attention.
 
-<figure class="paper-fig"><img src="/assets/papers/bahdanau/figure3.png" alt="Figure 3 from Bahdanau et al. (2015)" loading="lazy"><figcaption>Figure 3 of Bahdanau et al. (2015), reproduced from the paper for commentary.</figcaption></figure>
+<figure class="paper-fig"><img src="/assets/papers/bahdanau/figure3.png" width="1021" height="1125" alt="Figure 3 from Bahdanau et al. (2015)" loading="lazy"><figcaption>Figure 3 of Bahdanau et al. (2015), reproduced from the paper for commentary.</figcaption></figure>
 
 - **Figure 3 (alignments).** Four grey-scale matrices, source words on the x-axis and generated French words on the y-axis, each pixel $$\alpha_{ij}$$. Mostly diagonal (English and French share word order), with the famous off-diagonal block where "European Economic Area" becomes "zone économique européenne", the adjectives reversed, and the model's weights reverse with them. Soft alignment also lets "the man" map onto "l'homme" by looking at both "the" and "man" to choose "l'" over "le".
 

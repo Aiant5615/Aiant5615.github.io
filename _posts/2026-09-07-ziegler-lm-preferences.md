@@ -2,6 +2,7 @@
 title: "Fine-Tuning Language Models from Human Preferences (Ziegler et al., 2019)"
 date: 2026-09-07 10:03:00 +0900
 categories: [paper, llm-rl]
+image: /assets/og-llm-rl.png
 tags: [RL, NLP]
 math: true
 rating: 4
@@ -58,23 +59,23 @@ Two data-collection regimes: **offline** (collect all labels from samples of $$\
 
 ## Figures, explained
 
-<figure class="paper-fig"><img src="/assets/papers/ziegler/figure1.png" alt="Figure 1 from Ziegler et al. (2019)" loading="lazy"><figcaption>Figure 1 of Ziegler et al. (2019), reproduced from the paper for commentary.</figcaption></figure>
+<figure class="paper-fig"><img src="/assets/papers/ziegler/figure1.png" width="616" height="350" alt="Figure 1 from Ziegler et al. (2019)" loading="lazy"><figcaption>Figure 1 of Ziegler et al. (2019), reproduced from the paper for commentary.</figcaption></figure>
 
 - **Figure 1 (training processes).** Two loops. Top: reward model training — a context goes through the policy, four continuations are scored by the RM and labelled by a human, the RM loss is applied. Bottom: policy training — the policy's continuation is scored by the (now fixed) RM and PPO is applied. Online mode interleaves the two.
 
-<figure class="paper-fig"><img src="/assets/papers/ziegler/figure2.png" alt="Figure 2 from Ziegler et al. (2019)" loading="lazy"><figcaption>Figure 2 of Ziegler et al. (2019), reproduced from the paper for commentary.</figcaption></figure>
+<figure class="paper-fig"><img src="/assets/papers/ziegler/figure2.png" width="616" height="453" alt="Figure 2 from Ziegler et al. (2019)" loading="lazy"><figcaption>Figure 2 of Ziegler et al. (2019), reproduced from the paper for commentary.</figcaption></figure>
 
 - **Figure 2 (mock-reward learning curves).** Mean mock reward vs episodes for direct optimization of the classifier ("direct") and for reward models trained from 5k, 20k, 60k labels at target KL 8. 60k labels gets within a hair of direct optimization; 5k lags.
 
-<figure class="paper-fig"><img src="/assets/papers/ziegler/figure3.png" alt="Figure 3 from Ziegler et al. (2019)" loading="lazy"><figcaption>Figure 3 of Ziegler et al. (2019), reproduced from the paper for commentary.</figcaption></figure>
+<figure class="paper-fig"><img src="/assets/papers/ziegler/figure3.png" width="1186" height="746" alt="Figure 3 from Ziegler et al. (2019)" loading="lazy"><figcaption>Figure 3 of Ziegler et al. (2019), reproduced from the paper for commentary.</figcaption></figure>
 
 - **Figure 3 (KL vs reward).** Reward achieved as a function of the KL between policy and $$\rho$$, for models trained with different label budgets, against the "optimal" curve from direct optimization. With more labels the frontier moves up; the gap widens at high KL because the RM is being exploited there.
 
-<figure class="paper-fig"><img src="/assets/papers/ziegler/figure4.png" alt="Figure 4 from Ziegler et al. (2019)" loading="lazy"><figcaption>Figure 4 of Ziegler et al. (2019), reproduced from the paper for commentary.</figcaption></figure>
+<figure class="paper-fig"><img src="/assets/papers/ziegler/figure4.png" width="1246" height="450" alt="Figure 4 from Ziegler et al. (2019)" loading="lazy"><figcaption>Figure 4 of Ziegler et al. (2019), reproduced from the paper for commentary.</figcaption></figure>
 
 - **Figure 4 (human evaluation).** Win rate of offline fine-tuned models against zero-shot for sentiment and descriptiveness, as a function of number of labels; both saturate around 80–90% by a few thousand labels.
 
-<figure class="paper-fig"><img src="/assets/papers/ziegler/figure5.png" alt="Figure 5 from Ziegler et al. (2019)" loading="lazy"><figcaption>Figure 5 of Ziegler et al. (2019), reproduced from the paper for commentary.</figcaption></figure>
+<figure class="paper-fig"><img src="/assets/papers/ziegler/figure5.png" width="1221" height="300" alt="Figure 5 from Ziegler et al. (2019)" loading="lazy"><figcaption>Figure 5 of Ziegler et al. (2019), reproduced from the paper for commentary.</figcaption></figure>
 
 - **Figure 5 (n-gram novelty).** Percent of 1-, 2-, 3-, 4-grams and sentences in summaries that do not appear in the source, for lead-3, supervised, zero-shot and RL models. The RL models are far less novel than supervised ones: they copy.
 
