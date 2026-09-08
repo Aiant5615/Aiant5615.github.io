@@ -460,27 +460,34 @@
   }
 
   // ───────── quick log: one item at a time, merged into today's entry ─────────
+  let quickDate = TODAY_KEY;   // the day the quick-log buttons act on (defaults to today; ◀ ▶ move it)
   function renderQuick(root) {
-    const t = get(TODAY_KEY);
+    const qd = parseKey(quickDate), isToday = quickDate === TODAY_KEY;
+    const t = get(quickDate);
     const btn = (label, fields, on, title, kind, extra = "") => `<button type="button" class="chip quick ${on ? "on" : ""}" data-fields='${esc(JSON.stringify(fields))}' ${kind ? `data-kind="${kind}"` : ""} title="${esc(title || "")}" ${extra}>${label}</button>`;
-    let html = btn(`🏢 ${t && t.arrive != null ? `In at ${fmt12(t.arrive)}` : "Arrived at…"}`, {}, !!(t && t.arrive != null), "Pick today's arrival time", "arrive");
-    html += btn(`🚪 ${t && t.leave != null ? `Out at ${fmt12(t.leave)}` : "Left at…"}`, {}, !!(t && t.leave != null), "Pick today's departure time", "leave");
+    let html = btn(`🏢 ${t && t.arrive != null ? `In at ${fmt12(t.arrive)}` : "Arrived at…"}`, {}, !!(t && t.arrive != null), "Pick the arrival time", "arrive");
+    html += btn(`🚪 ${t && t.leave != null ? `Out at ${fmt12(t.leave)}` : "Left at…"}`, {}, !!(t && t.leave != null), "Pick the departure time", "leave");
     HABITS.forEach(h => {
       const on = !!(t && t.done.has(h.key)), auto = !!(t && t.auto.has(h.key));
-      html += auto ? btn(`✓ ${h.emoji} ${esc(h.label)}`, {}, true, "Checked automatically from today's LeetCode solution", "", "disabled")
-                   : btn(`${on ? "✓" : "+"} ${h.emoji} ${esc(h.label)}`, on ? { remove: [h.key] } : { done: [h.key] }, on, on ? `Logged today — click to un-check ${h.label}` : `Mark ${h.label} done today`);
+      html += auto ? btn(`✓ ${h.emoji} ${esc(h.label)}`, {}, true, "Checked automatically from that day's LeetCode solution", "", "disabled")
+                   : btn(`${on ? "✓" : "+"} ${h.emoji} ${esc(h.label)}`, on ? { remove: [h.key] } : { done: [h.key] }, on, on ? `Logged — click to un-check ${h.label}` : `Mark ${h.label} done on this day`);
     });
-    root.innerHTML = `<div class="today-bar">${html}</div><p class="small muted" style="margin:.5rem 0 0" id="quick-status">Each button saves just that item and merges it into today's entry, immediately. Arrival and departure open a clock to pick the time; habit buttons toggle.</p>`;
+    const dateBar = `<div class="quick-date"><button type="button" class="btn btn-sm" data-shift="-1" aria-label="Previous day">◀</button><input type="date" name="quick-date" lang="en" value="${quickDate}" max="${TODAY_KEY}"><button type="button" class="btn btn-sm" data-shift="1" aria-label="Next day" ${isToday ? "disabled" : ""}>▶</button><span class="quick-date-label">${isToday ? "Today" : `${WD[qd.getDay()]}, ${MON[qd.getMonth()]} ${qd.getDate()}`}${t ? "" : " · no entry yet"}</span>${isToday ? "" : `<button type="button" class="btn btn-sm" data-today>Today</button>`}</div>`;
+    root.innerHTML = `${dateBar}<div class="today-bar">${html}</div><p class="small muted" style="margin:.5rem 0 0" id="quick-status">Each button saves just that item and merges it into the selected day's entry, immediately. Use ◀ ▶ or the date box to log or fix an earlier day. Arrival and departure open a clock; habit buttons toggle.</p>`;
+    const setDate = k => { if (!/^\d{4}-\d{2}-\d{2}$/.test(k) || k > TODAY_KEY) return; quickDate = k; renderQuick(root); };
+    root.querySelectorAll("[data-shift]").forEach(b => b.addEventListener("click", () => setDate(keyOf(addDays(qd, +b.dataset.shift)))));
+    root.querySelector("[name=quick-date]").addEventListener("change", ev => setDate(ev.target.value));
+    root.querySelector("[data-today]")?.addEventListener("click", () => setDate(TODAY_KEY));
     async function submit(fields, b) {
       b.disabled = true; b.textContent = "Saving…";
-      try { await saveEntry(TODAY_KEY, fields, false); renderAll(); document.getElementById("quick-status").innerHTML = `✓ Saved.`; }
+      try { await saveEntry(quickDate, fields, false); renderAll(); document.getElementById("quick-status").innerHTML = `✓ Saved for ${quickDate}.`; }
       catch (e) { renderAll(); document.getElementById("quick-status").innerHTML = `<span style="color:var(--danger)">Save failed: ${esc(e.message)}.</span> ${e.status === 404 || e.status === 403 ? "GitHub returns 404/403 when the token lacks <b>Contents: Read and write</b> on " + esc(DREPO) + ". Edit the token's Repository permissions on GitHub, then save again (no reconnect needed)." : e.status === 401 ? "The token is invalid or expired — reconnect above." : "Try again."}`; }
     }
     root.querySelectorAll("button.quick:not([disabled])").forEach(b => b.addEventListener("click", () => {
       const fields = JSON.parse(b.dataset.fields), kind = b.dataset.kind;
       if (kind) {
         const cur = t && t[kind] != null ? t[kind] : null;
-        openClock({ title: kind === "arrive" ? "Arrived at" : "Left at", initial: cur, doneLabel: "Save", onDone: m => { if (m == null) return; submit({ [kind]: fmtMin(m) }, b); } });
+        openClock({ title: (kind === "arrive" ? "Arrived at" : "Left at") + (isToday ? "" : ` · ${quickDate}`), initial: cur, doneLabel: "Save", onDone: m => { if (m == null) return; submit({ [kind]: fmtMin(m) }, b); } });
       } else submit(fields, b);
     }));
   }
@@ -562,6 +569,7 @@
     function flash(msg) { root.querySelector("#tr-hint").textContent = msg; setTimeout(update, 4000); }
   }
   function fillForm(k, silent) {
+    if (k && /^\d{4}-\d{2}-\d{2}$/.test(k) && k <= TODAY_KEY && !silent) { quickDate = k; const qr = document.getElementById("quick-log"); if (qr) renderQuick(qr); }
     if (!form) return;
     const e = get(k); if (!e) return;
     const set = (n, v) => { const i = form.querySelector(`[name=${n}]`); if (i) i.value = v ?? ""; };

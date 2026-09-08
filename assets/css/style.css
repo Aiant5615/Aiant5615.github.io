@@ -364,3 +364,6 @@ ol.post-list.numbered li::before { content: counter(item); color: var(--muted); 
 .interests { padding-left: 1.2rem; }
 .interests li { margin: .35rem 0; }
 .hero p { max-width: 60ch; }
+.quick-date { display: flex; align-items: center; gap: .4rem; flex-wrap: wrap; margin-bottom: .7rem; }
+.quick-date input[type=date] { font: inherit; font-size: .9rem; padding: .3rem .5rem; border: 1px solid var(--border); border-radius: 8px; background: var(--surface-2); color: var(--text); }
+.quick-date-label { font-weight: 600; margin-left: .2rem; }
