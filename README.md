@@ -19,7 +19,8 @@ but never times, notes or moods. Set the secret under Settings → Secrets and v
    *Repository access: only `Aiant5615/tracker`* and *Permissions: Contents → Read and write*. It is kept in that browser's
    localStorage only.
 2. **Quick buttons** on the tracker (arrival/departure open a clock; habit buttons toggle) save one item at a time and merge it
-   into the day. The **full form** saves several fields at once or another day; tick *Replace the whole entry* to start a day over.
+   into the day. The **log form** shows the whole stored day (any date up to today) and saves it exactly as shown: edit a field,
+   clear it, or un-tick a habit, then press Save.
 3. **Terminal**: `python scripts/log.py --arrive 9:10 english coding -n "note"` (uses `gh` auth; `--remove`, `--replace`, `--show`).
 
 Day format (`days.json`, keyed by date):

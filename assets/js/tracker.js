@@ -507,12 +507,10 @@
         <fieldset class="field field-wide" style="border:0;padding:0;margin:0"><legend class="small muted" style="padding:0;margin-bottom:.25rem">Done</legend><div class="checks">${habitChecks}</div></fieldset>
         <div class="field field-wide"><label for="tr-note">Note · one-line retro</label><textarea id="tr-note" name="note" placeholder="What I did, what's next"></textarea></div>
       </div>
-      <label class="check" style="margin-top:.8rem"><input type="checkbox" name="replace"> Replace the whole entry for this day (instead of merging)</label>
       <div class="form-actions">
-        <button type="button" class="btn btn-primary" id="tr-save">${e ? "Save changes" : "Save"}</button>
+        <button type="button" class="btn btn-primary" id="tr-save">Save</button>
         <span class="small muted" id="tr-hint"></span>
-      </div>
-      <p class="small muted" style="margin-bottom:0">Saves straight to the private data repo. Times use the clock button or free text like <code>9:10 AM</code>. Filled fields are merged into the day; un-ticking a habit removes it; leave a field empty to keep what is stored.</p>`;
+      </div>`;
     // prefill from the stored entry
     const set = (n, v) => { const i = root.querySelector(`[name=${n}]`); if (i) i.value = v ?? ""; };
     if (e) { set("arrive", fmt12(e.arrive)); set("leave", fmt12(e.leave)); set("wake", fmt12(e.wake)); set("sleep", e.sleep ?? ""); set("mood", e.mood ?? ""); set("focus", e.focus ?? ""); set("note", e.note); }
@@ -535,9 +533,9 @@
       const wasOn = e ? [...e.done].filter(k => !e.auto.has(k)) : [];
       const f = { arrive: tval("arrive"), leave: tval("leave"), wake: tval("wake"), sleep: val("sleep"), mood: val("mood"), focus: val("focus"), note: val("note"),
                   done: checked, remove: wasOn.filter(k => !checked.includes(k)) };
-      const replace = root.querySelector("[name=replace]").checked;
+      // the form shows the whole stored day, so what is on screen is what gets saved (cleared fields are cleared)
       const b = root.querySelector("#tr-save"); b.disabled = true; flash("Saving…");
-      try { await saveEntry(logDate, f, replace); formDirty = false; renderAll(); document.getElementById("tr-hint").textContent = `✓ Saved ${logDate === TODAY_KEY ? "today" : logDate}.`; }
+      try { await saveEntry(logDate, f, true); formDirty = false; renderAll(); document.getElementById("tr-hint").textContent = `✓ Saved ${logDate === TODAY_KEY ? "today" : logDate}.`; }
       catch (err) { flash(`<span style="color:var(--danger)">Save failed: ${esc(err.message)}.</span> ${err.status === 404 || err.status === 403 ? "GitHub returns 404/403 when the token lacks <b>Contents: Read and write</b> on " + esc(DREPO) + "." : err.status === 401 ? "The token is invalid or expired — reconnect above." : "Try again."}`); b.disabled = false; }
     });
   }
