@@ -459,125 +459,62 @@
     draw();
   }
 
-  // ───────── quick log: one item at a time, merged into today's entry ─────────
-  let quickDate = TODAY_KEY;   // the day the quick-log buttons act on (defaults to today; ◀ ▶ move it)
-  function renderQuick(root) {
-    const qd = parseKey(quickDate), isToday = quickDate === TODAY_KEY;
-    const t = get(quickDate);
-    const btn = (label, fields, on, title, kind, extra = "") => `<button type="button" class="chip quick ${on ? "on" : ""}" data-fields='${esc(JSON.stringify(fields))}' ${kind ? `data-kind="${kind}"` : ""} title="${esc(title || "")}" ${extra}>${label}</button>`;
-    let html = btn(`🏢 ${t && t.arrive != null ? `In at ${fmt12(t.arrive)}` : "Arrived at…"}`, {}, !!(t && t.arrive != null), "Pick the arrival time", "arrive");
-    html += btn(`🚪 ${t && t.leave != null ? `Out at ${fmt12(t.leave)}` : "Left at…"}`, {}, !!(t && t.leave != null), "Pick the departure time", "leave");
-    HABITS.forEach(h => {
-      const on = !!(t && t.done.has(h.key)), auto = !!(t && t.auto.has(h.key));
-      html += auto ? btn(`✓ ${h.emoji} ${esc(h.label)}`, {}, true, "Checked automatically from that day's LeetCode solution", "", "disabled")
-                   : btn(`${on ? "✓" : "+"} ${h.emoji} ${esc(h.label)}`, on ? { remove: [h.key] } : { done: [h.key] }, on, on ? `Logged — click to un-check ${h.label}` : `Mark ${h.label} done on this day`);
-    });
-    const dateBar = `<div class="quick-date"><button type="button" class="btn btn-sm" data-shift="-1" aria-label="Previous day">◀</button><input type="date" name="quick-date" lang="en" value="${quickDate}" max="${TODAY_KEY}"><button type="button" class="btn btn-sm" data-shift="1" aria-label="Next day" ${isToday ? "disabled" : ""}>▶</button><span class="quick-date-label">${isToday ? "Today" : `${WD[qd.getDay()]}, ${MON[qd.getMonth()]} ${qd.getDate()}`}${t ? "" : " · no entry yet"}</span>${isToday ? "" : `<button type="button" class="btn btn-sm" data-today>Today</button>`}</div>`;
-    root.innerHTML = `${dateBar}<div class="today-bar">${html}</div><p class="small muted" style="margin:.5rem 0 0" id="quick-status">Each button saves just that item and merges it into the selected day's entry, immediately. Use ◀ ▶ or the date box to log or fix an earlier day. Arrival and departure open a clock; habit buttons toggle.</p>`;
-    const setDate = k => { if (!/^\d{4}-\d{2}-\d{2}$/.test(k) || k > TODAY_KEY) return; quickDate = k; renderQuick(root); };
-    root.querySelectorAll("[data-shift]").forEach(b => b.addEventListener("click", () => setDate(keyOf(addDays(qd, +b.dataset.shift)))));
-    root.querySelector("[name=quick-date]").addEventListener("change", ev => setDate(ev.target.value));
-    root.querySelector("[data-today]")?.addEventListener("click", () => setDate(TODAY_KEY));
-    async function submit(fields, b) {
-      b.disabled = true; b.textContent = "Saving…";
-      try { await saveEntry(quickDate, fields, false); renderAll(); document.getElementById("quick-status").innerHTML = `✓ Saved for ${quickDate}.`; }
-      catch (e) { renderAll(); document.getElementById("quick-status").innerHTML = `<span style="color:var(--danger)">Save failed: ${esc(e.message)}.</span> ${e.status === 404 || e.status === 403 ? "GitHub returns 404/403 when the token lacks <b>Contents: Read and write</b> on " + esc(DREPO) + ". Edit the token's Repository permissions on GitHub, then save again (no reconnect needed)." : e.status === 401 ? "The token is invalid or expired — reconnect above." : "Try again."}`; }
-    }
-    root.querySelectorAll("button.quick:not([disabled])").forEach(b => b.addEventListener("click", () => {
-      const fields = JSON.parse(b.dataset.fields), kind = b.dataset.kind;
-      if (kind) {
-        const cur = t && t[kind] != null ? t[kind] : null;
-        openClock({ title: (kind === "arrive" ? "Arrived at" : "Left at") + (isToday ? "" : ` · ${quickDate}`), initial: cur, doneLabel: "Save", onDone: m => { if (m == null) return; submit({ [kind]: fmtMin(m) }, b); } });
-      } else submit(fields, b);
-    }));
-  }
-
-  // ───────── log form → prefilled GitHub Issue form ─────────
-  let form = null;
-  function initForm(root) {
+  // ───────── the one log form: date, times, numbers, habits, note; merges into the selected day ─────────
+  let form = null, logDate = TODAY_KEY, formDirty = false;
+  function renderLogForm(root) {
     form = root;
-    const habitChecks = HABITS.map(h => `<label class="check"><input type="checkbox" name="done" value="${h.key}"> ${h.emoji} ${esc(h.label)}</label>`).join("");
+    const d = parseKey(logDate), isToday = logDate === TODAY_KEY, e = get(logDate);
+    const habitChecks = HABITS.map(h => { const on = !!(e && e.done.has(h.key)), auto = !!(e && e.auto.has(h.key)); return `<label class="check ${on ? "on" : ""}${auto ? " auto" : ""}" title="${auto ? "Checked automatically from that day's LeetCode solution" : ""}"><input type="checkbox" name="done" value="${h.key}" ${on ? "checked" : ""} ${auto ? "disabled" : ""}> ${h.emoji} ${esc(h.label)}</label>`; }).join("");
     root.innerHTML = `
+      <div class="quick-date"><button type="button" class="btn btn-sm" data-shift="-1" aria-label="Previous day">◀</button><input type="date" name="date" lang="en" value="${logDate}" max="${TODAY_KEY}"><button type="button" class="btn btn-sm" data-shift="1" aria-label="Next day" ${isToday ? "disabled" : ""}>▶</button><span class="quick-date-label">${isToday ? "Today" : `${WD[d.getDay()]}, ${MON[d.getMonth()]} ${d.getDate()}`}</span><span class="small muted">${e ? "· has an entry, fields below are what is saved" : "· no entry yet"}</span>${isToday ? "" : `<button type="button" class="btn btn-sm" data-today>Today</button>`}</div>
       <div class="form-grid">
-        <div class="field"><label for="tr-date">Date</label><input id="tr-date" type="date" name="date" lang="en" value="${TODAY_KEY}"></div>
         <div class="field"><label for="tr-arrive">Arrived at</label>${timeField("arrive")}</div>
         <div class="field"><label for="tr-leave">Left at</label>${timeField("leave")}</div>
-        <fieldset class="field field-wide" style="border:0;padding:0;margin:0"><legend class="small muted" style="padding:0;margin-bottom:.25rem">Done today</legend><div class="checks">${habitChecks}</div></fieldset>
-        <div class="field field-wide"><label for="tr-note">Note · one-line retro</label><textarea id="tr-note" name="note" placeholder="What I did today, what's next"></textarea></div>
+        <div class="field"><label for="tr-wake">Woke up at</label>${timeField("wake")}</div>
+        <div class="field"><label for="tr-sleep">Sleep (hours)</label><input id="tr-sleep" type="number" name="sleep" step="0.5" min="0" max="16" placeholder="7"></div>
+        <div class="field"><label for="tr-mood">Mood (1–5)</label><select id="tr-mood" name="mood"><option value="">–</option><option value="5">😄 5 great</option><option value="4">🙂 4 good</option><option value="3">😐 3 okay</option><option value="2">😕 2 meh</option><option value="1">😩 1 rough</option></select></div>
+        <div class="field"><label for="tr-focus">Focus (hours)</label><input id="tr-focus" type="number" name="focus" step="0.5" min="0" max="16" placeholder="3"></div>
+        <fieldset class="field field-wide" style="border:0;padding:0;margin:0"><legend class="small muted" style="padding:0;margin-bottom:.25rem">Done</legend><div class="checks">${habitChecks}</div></fieldset>
+        <div class="field field-wide"><label for="tr-note">Note · one-line retro</label><textarea id="tr-note" name="note" placeholder="What I did, what's next"></textarea></div>
       </div>
-      <details class="more"><summary>More (wake-up · sleep · mood · focus)</summary>
-        <div class="form-grid">
-          <div class="field"><label for="tr-wake">Woke up at</label>${timeField("wake")}</div>
-          <div class="field"><label for="tr-sleep">Sleep (hours)</label><input id="tr-sleep" type="number" name="sleep" step="0.5" min="0" max="16" placeholder="7"></div>
-          <div class="field"><label for="tr-mood">Mood (1–5)</label><select id="tr-mood" name="mood"><option value="">–</option><option value="5">😄 5 great</option><option value="4">🙂 4 good</option><option value="3">😐 3 okay</option><option value="2">😕 2 meh</option><option value="1">😩 1 rough</option></select></div>
-          <div class="field"><label for="tr-focus">Focus (hours)</label><input id="tr-focus" type="number" name="focus" step="0.5" min="0" max="16" placeholder="3"></div>
-        </div>
-      </details>
       <label class="check" style="margin-top:.8rem"><input type="checkbox" name="replace"> Replace the whole entry for this day (instead of merging)</label>
       <div class="form-actions">
-        <button type="button" class="btn btn-primary" id="tr-save">Save</button>
-        <button type="button" class="btn" id="tr-copy">Copy YAML</button>
+        <button type="button" class="btn btn-primary" id="tr-save">${e ? "Save changes" : "Save"}</button>
         <span class="small muted" id="tr-hint"></span>
       </div>
-      <pre class="yaml-preview"><code id="tr-yaml"></code></pre>
-      <p class="small muted">Saves straight to the private data repo. Fields you fill in are <b>merged</b> into that day's existing entry; tick "Replace the whole entry" to start the day over (that also un-checks habits you leave unticked).
-      From a terminal: <code>python scripts/log.py --arrive 9:10 english coding</code>.</p>`;
-    root.querySelectorAll(".timefield input").forEach(i => {
-      i.addEventListener("blur", () => { const m = parseTime(i.value); if (m != null) i.value = fmt12(m); else if (i.value.trim()) i.classList.add("bad"); update(); });
-      i.addEventListener("input", () => i.classList.remove("bad"));
-    });
+      <p class="small muted" style="margin-bottom:0">Saves straight to the private data repo. Times use the clock button or free text like <code>9:10 AM</code>. Filled fields are merged into the day; un-ticking a habit removes it; leave a field empty to keep what is stored.</p>`;
+    // prefill from the stored entry
+    const set = (n, v) => { const i = root.querySelector(`[name=${n}]`); if (i) i.value = v ?? ""; };
+    if (e) { set("arrive", fmt12(e.arrive)); set("leave", fmt12(e.leave)); set("wake", fmt12(e.wake)); set("sleep", e.sleep ?? ""); set("mood", e.mood ?? ""); set("focus", e.focus ?? ""); set("note", e.note); }
+    formDirty = false;
+    const val = n => { const i = root.querySelector(`[name=${n}]`); return i ? i.value.trim() : ""; };
+    const tval = n => { const m = parseTime(val(n)); return m == null ? "" : fmtMin(m); };
+    const flash = msg => { root.querySelector("#tr-hint").innerHTML = msg; };
+    const setDate = k => { if (!/^\d{4}-\d{2}-\d{2}$/.test(k) || k > TODAY_KEY) return; if (formDirty && !confirm("Discard unsaved changes on this day?")) return; logDate = k; renderLogForm(root); };
+    root.querySelectorAll("[data-shift]").forEach(b => b.addEventListener("click", () => setDate(keyOf(addDays(d, +b.dataset.shift)))));
+    root.querySelector("[name=date]").addEventListener("change", ev => setDate(ev.target.value));
+    root.querySelector("[data-today]")?.addEventListener("click", () => setDate(TODAY_KEY));
+    root.querySelectorAll("input:not([name=date]),textarea,select").forEach(i => i.addEventListener("input", () => { formDirty = true; }));
+    root.querySelectorAll(".timefield input").forEach(i => { i.addEventListener("blur", () => { const m = parseTime(i.value); if (m != null) i.value = fmt12(m); else if (i.value.trim()) i.classList.add("bad"); }); i.addEventListener("input", () => i.classList.remove("bad")); });
     root.querySelectorAll(".timefield .clock").forEach(b => b.addEventListener("click", () => fieldClock(root.querySelector(`[name=${b.dataset.for}]`))));
-    root.querySelectorAll(".check input").forEach(i => i.addEventListener("change", () => { i.closest(".check").classList.toggle("on", i.checked); update(); }));
-    root.querySelectorAll("input,textarea,select").forEach(i => i.addEventListener("input", update));
-    root.querySelector("[name=date]").addEventListener("change", ev => { const e = get(ev.target.value); if (e) fillForm(ev.target.value, true); else update(); });
-    root.querySelector("#tr-copy").addEventListener("click", () => {
-      navigator.clipboard.writeText(yaml()).then(() => flash("Copied ✓")).catch(() => flash("Copy failed — copy the YAML below manually"));
-    });
-    root.querySelector("[name=replace]").addEventListener("change", ev => ev.target.closest(".check").classList.toggle("on", ev.target.checked));
+    root.querySelectorAll(".check input").forEach(i => i.addEventListener("change", () => { i.closest(".check").classList.toggle("on", i.checked); formDirty = true; }));
     root.querySelector("#tr-save").addEventListener("click", async () => {
-      const d = val("date"); if (!/^\d{4}-\d{2}-\d{2}$/.test(d)) return flash("Please enter a date");
-      const f = { arrive: tval("arrive"), leave: tval("leave"), wake: tval("wake"), sleep: val("sleep"), mood: val("mood"), focus: val("focus"), note: val("note"), done: [...root.querySelectorAll("[name=done]:checked")].map(i => i.value) };
+      const bad = [...root.querySelectorAll(".timefield input")].filter(i => i.value.trim() && parseTime(i.value) == null);
+      if (bad.length) return flash(`<span style="color:var(--danger)">Check the time in "${esc(bad[0].previousElementSibling ? bad[0].closest(".field").querySelector("label").textContent : "")}" — use 9:10 AM or 09:10.</span>`);
+      const checked = [...root.querySelectorAll("[name=done]:checked")].map(i => i.value);
+      const wasOn = e ? [...e.done].filter(k => !e.auto.has(k)) : [];
+      const f = { arrive: tval("arrive"), leave: tval("leave"), wake: tval("wake"), sleep: val("sleep"), mood: val("mood"), focus: val("focus"), note: val("note"),
+                  done: checked, remove: wasOn.filter(k => !checked.includes(k)) };
       const replace = root.querySelector("[name=replace]").checked;
       const b = root.querySelector("#tr-save"); b.disabled = true; flash("Saving…");
-      try { await saveEntry(d, f, replace); renderAll(); fillForm(d, true); flash("✓ Saved"); }
-      catch (e) { flash(`Save failed: ${e.message}`); }
-      b.disabled = false;
+      try { await saveEntry(logDate, f, replace); formDirty = false; renderAll(); document.getElementById("tr-hint").textContent = `✓ Saved ${logDate === TODAY_KEY ? "today" : logDate}.`; }
+      catch (err) { flash(`<span style="color:var(--danger)">Save failed: ${esc(err.message)}.</span> ${err.status === 404 || err.status === 403 ? "GitHub returns 404/403 when the token lacks <b>Contents: Read and write</b> on " + esc(DREPO) + "." : err.status === 401 ? "The token is invalid or expired — reconnect above." : "Try again."}`); b.disabled = false; }
     });
-    root._update = update;
-    if (get(TODAY_KEY)) fillForm(TODAY_KEY, true); else update();
-
-    function val(n) { const i = root.querySelector(`[name=${n}]`); return i ? i.value.trim() : ""; }
-    function tval(n) { const m = parseTime(val(n)); return m == null ? "" : fmtMin(m); }   // 24h "HH:MM" for YAML/issue
-    function yaml() {
-      const lines = [];
-      if (tval("arrive")) lines.push(`arrive: "${tval("arrive")}"`);
-      if (tval("leave")) lines.push(`leave: "${tval("leave")}"`);
-      if (tval("wake")) lines.push(`wake: "${tval("wake")}"`);
-      if (val("sleep")) lines.push(`sleep: ${+val("sleep")}`);
-      if (val("mood")) lines.push(`mood: ${+val("mood")}`);
-      if (val("focus")) lines.push(`focus: ${+val("focus")}`);
-      const dn = [...root.querySelectorAll("[name=done]:checked")].map(i => i.value); if (dn.length) lines.push(`done: [${dn.join(", ")}]`);
-      if (val("note")) lines.push(`note: ${JSON.stringify(val("note"))}`);
-      return lines.join("\n") + "\n";
-    }
-    function update() {
-      root.querySelector("#tr-yaml").textContent = yaml();
-      const d = val("date");
-      root.querySelector("#tr-save").textContent = get(d) ? "Save (merge into this day)" : "Save";
-      root.querySelector("#tr-hint").textContent = `→ ${DFILE} · ${d || "YYYY-MM-DD"}`;
-    }
-    function flash(msg) { root.querySelector("#tr-hint").textContent = msg; setTimeout(update, 4000); }
   }
   function fillForm(k, silent) {
-    if (k && /^\d{4}-\d{2}-\d{2}$/.test(k) && k <= TODAY_KEY && !silent) { quickDate = k; const qr = document.getElementById("quick-log"); if (qr) renderQuick(qr); }
-    if (!form) return;
-    const e = get(k); if (!e) return;
-    const set = (n, v) => { const i = form.querySelector(`[name=${n}]`); if (i) i.value = v ?? ""; };
-    set("date", k); set("arrive", fmt12(e.arrive)); set("leave", fmt12(e.leave)); set("wake", fmt12(e.wake)); set("sleep", e.sleep ?? ""); set("mood", e.mood ?? ""); set("focus", e.focus ?? ""); set("note", e.note);
-    form.querySelectorAll("[name=done]").forEach(i => { i.checked = e.done.has(i.value); i.closest(".check").classList.toggle("on", i.checked); });
-    if (e.wake != null || e.sleep != null || e.mood != null || e.focus != null) form.querySelector("details.more").open = true;
-    form._update();
-    if (!silent) { const w = document.getElementById("full-form-wrap"); if (w) w.open = true; form.scrollIntoView({ behavior: "smooth", block: "start" }); }
+    if (!form || !k || !/^\d{4}-\d{2}-\d{2}$/.test(k) || k > TODAY_KEY) return;
+    if (k !== logDate) { if (formDirty && !confirm("Discard unsaved changes on this day?")) return; logDate = k; renderLogForm(form); }
+    if (!silent) form.scrollIntoView({ behavior: "smooth", block: "start" });
   }
 
   // ───────── CSV export ─────────
@@ -635,8 +572,7 @@
     if ($("tracker-count")) $("tracker-count").hidden = false;
     if ($("today-bar")) renderToday($("today-bar"));
     if ($("stats")) { $("stats").hidden = empty; if (!empty) renderStats($("stats")); }
-    if ($("quick-log")) renderQuick($("quick-log"));
-    if ($("log-form") && !form) initForm($("log-form"));
+    if ($("log-form") && (!form || !formDirty)) renderLogForm($("log-form"));
     if ($("heatmap")) renderHeatmap($("heatmap"), $("heatmap-select"));
     if ($("arrive-chart")) renderArriveChart($("arrive-chart"));
     if ($("weekly")) renderWeekly($("weekly"));
