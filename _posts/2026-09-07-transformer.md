@@ -1,7 +1,7 @@
 ---
 title: "Attention Is All You Need (Vaswani et al., 2017)"
 date: 2026-09-07 09:10:00 +0900
-categories: [paper, llm-basic]
+categories: [paper, llm-basics]
 tags: [NLP, DL]
 math: true
 rating: 5

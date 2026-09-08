@@ -1,17 +1,26 @@
-# Reading series. Posts reference these with `series:` + `series_order:`; `index` is the overview post.
+# Reading series (tabs on /papers/). Posts reference these with `series:` + `series_order:`; `index` is the overview post; `category` is the Jekyll category and the tab id.
 transformer-lineage:
+  tab: LLM basics
   title: "LLM basics: from n-gram LMs to InstructGPT"
   index: /blog/transformer-lineage/
-  category: llm-basic
+  category: llm-basics
 llm-rl:
+  tab: LLM RL
   title: "LLM RL: from PPO to DeepSeek-R1"
   index: /blog/llm-rl-lineage/
   category: llm-rl
 multimodal-llm:
-  title: "Multimodal LLMs: from ViT to Qwen2-VL"
+  tab: Vision LLM
+  title: "Vision LLMs: from ViT to Qwen2-VL"
   index: /blog/multimodal-lineage/
-  category: multimodal
+  category: vision-llm
+vla:
+  tab: VLA (Robotics)
+  title: "VLA (Robotics): from RT-1 to π0"
+  index: /blog/vla-lineage/
+  category: vla
 llm-advanced:
-  title: "LLM advanced: from RoPE to QLoRA"
-  index: /blog/llm-advanced-lineage/
-  category: llm-advanced
+  tab: LLM engineering
+  title: "LLM engineering: from RoPE to QLoRA"
+  index: /blog/llm-engineering-lineage/
+  category: llm-engineering

@@ -1,7 +1,7 @@
 ---
 title: "Neural Machine Translation by Jointly Learning to Align and Translate (Bahdanau, Cho & Bengio, 2015)"
 date: 2026-09-07 09:05:00 +0900
-categories: [paper, llm-basic]
+categories: [paper, llm-basics]
 tags: [NLP]
 math: true
 rating: 5

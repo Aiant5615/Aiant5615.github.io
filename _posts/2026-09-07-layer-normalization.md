@@ -1,7 +1,7 @@
 ---
 title: "Layer Normalization (Ba, Kiros & Hinton, 2016)"
 date: 2026-09-07 09:09:00 +0900
-categories: [paper, llm-basic]
+categories: [paper, llm-basics]
 tags: [DL]
 math: true
 rating: 4

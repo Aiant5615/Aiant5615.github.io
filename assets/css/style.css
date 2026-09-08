@@ -334,3 +334,10 @@ ol.post-list.numbered { counter-reset: item; }
 ol.post-list.numbered li { grid-template-columns: 2rem 84px 1fr; counter-increment: item; }
 @media (max-width: 480px) { ol.post-list.numbered li { grid-template-columns: 2rem 1fr; } ol.post-list.numbered .when { grid-column: 2; } }
 ol.post-list.numbered li::before { content: counter(item); color: var(--muted); font-variant-numeric: tabular-nums; font-size: .9rem; padding-top: .1rem; }
+
+/* ───────── papers tabs ───────── */
+.tabs { display: flex; flex-wrap: wrap; gap: .35rem; margin: 1rem 0 1.2rem; border-bottom: 1px solid var(--border); padding-bottom: .6rem; }
+.tab { font: inherit; font-size: .92rem; padding: .4rem .85rem; border-radius: 999px; border: 1px solid var(--border); background: var(--surface); color: var(--muted); cursor: pointer; }
+.tab:hover { color: var(--text); }
+.tab.on { background: var(--accent); border-color: var(--accent); color: #fff; font-weight: 600; }
+.tab-panel .section-head h2 { margin-top: .4rem; }

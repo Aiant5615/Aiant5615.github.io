@@ -4,43 +4,65 @@ title: Paper Reviews
 permalink: /papers/
 ---
 <h1>Paper Reviews</h1>
-<p class="muted">Summaries with the equations and figures explained. Grouped into reading paths; each path has an overview post and part-by-part navigation.</p>
+<p class="muted">Summaries with the equations and figures explained, grouped into reading paths. Pick a category; each path has an overview post and part-by-part navigation.</p>
 
 {% assign papers = site.categories.paper %}
+<div class="tabs" id="paper-tabs" role="tablist">
+{% for entry in site.data.series %}{% assign info = entry[1] %}<button type="button" role="tab" class="tab" data-tab="{{ info.category }}">{{ info.tab }}</button>{% endfor %}
+</div>
+
 {% for entry in site.data.series %}
 {% assign key = entry[0] %}{% assign info = entry[1] %}
 {% assign in_series = papers | where: "series", key | sort: "series_order" %}
-{% if in_series.size > 0 %}
-<div class="section-head" id="{{ info.category }}"><h2>{{ info.title }}</h2><a class="small" href="{{ info.index | relative_url }}">Overview →</a></div>
-<ol class="post-list numbered">
-  {% for post in in_series %}
-  <li>
-    <span class="when">{% if post.paper.published %}{{ post.paper.published | append: "-01" | date: "%b %Y" }}{% endif %}</span>
-    <div>
-      <a class="t" href="{{ post.url | relative_url }}">{{ post.title }}</a>
-      {% if post.rating %}<span class="tag" style="color:var(--warn)">{% for i in (1..post.rating) %}★{% endfor %}</span>{% endif %}
-      {% for t in post.tags %}<span class="tag">#{{ t }}</span>{% endfor %}
-      <div class="x">{% if post.paper %}{{ post.paper.authors }}{% if post.paper.venue %} · {{ post.paper.venue }}{% endif %}{% else %}{{ post.description | default: post.excerpt | strip_html | strip_newlines | truncate: 120 }}{% endif %}</div>
-    </div>
-  </li>
-  {% endfor %}
-</ol>
-{% endif %}
+<section class="tab-panel" id="{{ info.category }}" data-panel="{{ info.category }}" hidden>
+  <div class="section-head"><h2>{{ info.title }}</h2>{% if in_series.size > 0 %}<a class="small" href="{{ info.index | relative_url }}">Overview →</a>{% endif %}</div>
+  {% if in_series.size > 0 %}
+  <ol class="post-list numbered">
+    {% for post in in_series %}
+    <li>
+      <span class="when">{% if post.paper.published %}{{ post.paper.published | append: "-01" | date: "%b %Y" }}{% endif %}</span>
+      <div>
+        <a class="t" href="{{ post.url | relative_url }}">{{ post.title }}</a>
+        {% if post.rating %}<span class="tag" style="color:var(--warn)">{% for i in (1..post.rating) %}★{% endfor %}</span>{% endif %}
+        {% for t in post.tags %}<span class="tag">#{{ t }}</span>{% endfor %}
+        <div class="x">{% if post.paper %}{{ post.paper.authors }}{% if post.paper.venue %} · {{ post.paper.venue }}{% endif %}{% else %}{{ post.description | default: post.excerpt | strip_html | strip_newlines | truncate: 120 }}{% endif %}</div>
+      </div>
+    </li>
+    {% endfor %}
+  </ol>
+  {% else %}<div class="empty">No reviews in this category yet.</div>{% endif %}
+</section>
 {% endfor %}
 
 {% assign loose = papers | where_exp: "p", "p.series == nil" | where_exp: "p", "p.overview != true" %}
 {% if loose.size > 0 %}
-<h2>Other reviews</h2>
-<ul class="post-list">
-  {% for post in loose %}
-  <li>
-    <div>
-      <a class="t" href="{{ post.url | relative_url }}">{{ post.title }}</a>
-      {% if post.rating %}<span class="tag" style="color:var(--warn)">{% for i in (1..post.rating) %}★{% endfor %}</span>{% endif %}
-      {% for t in post.tags %}<span class="tag">#{{ t }}</span>{% endfor %}
-      <div class="x">{% if post.paper %}{{ post.paper.authors }}{% if post.paper.venue %} · {{ post.paper.venue }}{% endif %}{% if post.paper.year %} {{ post.paper.year }}{% endif %}{% else %}{{ post.description | default: post.excerpt | strip_html | strip_newlines | truncate: 120 }}{% endif %}</div>
-    </div>
-  </li>
-  {% endfor %}
-</ul>
+<section class="tab-panel" id="other" data-panel="other" hidden>
+  <h2>Other reviews</h2>
+  <ul class="post-list">
+    {% for post in loose %}
+    <li>
+      <span class="when">{% if post.paper.published %}{{ post.paper.published | append: "-01" | date: "%b %Y" }}{% endif %}</span>
+      <div>
+        <a class="t" href="{{ post.url | relative_url }}">{{ post.title }}</a>
+        {% if post.rating %}<span class="tag" style="color:var(--warn)">{% for i in (1..post.rating) %}★{% endfor %}</span>{% endif %}
+        {% for t in post.tags %}<span class="tag">#{{ t }}</span>{% endfor %}
+        <div class="x">{% if post.paper %}{{ post.paper.authors }}{% if post.paper.venue %} · {{ post.paper.venue }}{% endif %}{% else %}{{ post.description | default: post.excerpt | strip_html | strip_newlines | truncate: 120 }}{% endif %}</div>
+      </div>
+    </li>
+    {% endfor %}
+  </ul>
+</section>
 {% endif %}
+<script>
+(function(){
+  const tabs=[...document.querySelectorAll('#paper-tabs .tab')], panels=[...document.querySelectorAll('.tab-panel')];
+  const other=document.getElementById('other'); if(other){ const b=document.createElement('button'); b.type='button'; b.className='tab'; b.dataset.tab='other'; b.textContent='Other'; b.setAttribute('role','tab'); document.getElementById('paper-tabs').appendChild(b); tabs.push(b); }
+  function show(id, push){ if(!panels.some(p=>p.dataset.panel===id)) id=tabs[0].dataset.tab;
+    panels.forEach(p=>p.hidden=p.dataset.panel!==id); tabs.forEach(t=>{ const on=t.dataset.tab===id; t.classList.toggle('on',on); t.setAttribute('aria-selected',on); });
+    if(push) history.replaceState(null,'','#'+id); try{ localStorage.setItem('papers_tab', id); }catch(e){} }
+  tabs.forEach(t=>t.addEventListener('click',()=>show(t.dataset.tab,true)));
+  window.addEventListener('hashchange',()=>show(location.hash.slice(1),false));
+  let init=location.hash.slice(1); if(!init){ try{ init=localStorage.getItem('papers_tab')||''; }catch(e){} }
+  show(init||tabs[0].dataset.tab,false);
+})();
+</script>

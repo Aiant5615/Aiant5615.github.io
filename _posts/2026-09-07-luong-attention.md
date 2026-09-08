@@ -1,7 +1,7 @@
 ---
 title: "Effective Approaches to Attention-based Neural Machine Translation (Luong, Pham & Manning, 2015)"
 date: 2026-09-07 09:06:00 +0900
-categories: [paper, llm-basic]
+categories: [paper, llm-basics]
 tags: [NLP]
 math: true
 rating: 4

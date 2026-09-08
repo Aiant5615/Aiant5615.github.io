@@ -1,7 +1,7 @@
 ---
 title: "A Neural Probabilistic Language Model (Bengio et al., 2003)"
 date: 2026-09-07 09:01:00 +0900
-categories: [paper, llm-basic]
+categories: [paper, llm-basics]
 tags: [NLP]
 math: true
 rating: 4

@@ -1,7 +1,7 @@
 ---
 title: "Switch Transformers: Scaling to Trillion Parameter Models with Simple and Efficient Sparsity (Fedus, Zoph & Shazeer, 2021)"
 date: 2026-09-07 12:02:00 +0900
-categories: [paper, llm-advanced]
+categories: [paper, llm-engineering]
 tags: [NLP, DL]
 math: true
 rating: 4

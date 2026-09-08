@@ -1,7 +1,7 @@
 ---
 title: "Neural Machine Translation of Rare Words with Subword Units (Sennrich, Haddow & Birch, 2016)"
 date: 2026-09-07 09:07:00 +0900
-categories: [paper, llm-basic]
+categories: [paper, llm-basics]
 tags: [NLP]
 math: true
 rating: 4

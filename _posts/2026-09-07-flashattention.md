@@ -1,7 +1,7 @@
 ---
 title: "FlashAttention: Fast and Memory-Efficient Exact Attention with IO-Awareness (Dao et al., 2022)"
 date: 2026-09-07 12:06:00 +0900
-categories: [paper, llm-advanced]
+categories: [paper, llm-engineering]
 tags: [DL, Systems]
 math: true
 rating: 5

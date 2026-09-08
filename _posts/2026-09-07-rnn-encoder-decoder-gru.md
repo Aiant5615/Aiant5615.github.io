@@ -1,7 +1,7 @@
 ---
 title: "Learning Phrase Representations using RNN Encoder–Decoder (Cho et al., 2014)"
 date: 2026-09-07 09:03:00 +0900
-categories: [paper, llm-basic]
+categories: [paper, llm-basics]
 tags: [NLP]
 math: true
 rating: 4

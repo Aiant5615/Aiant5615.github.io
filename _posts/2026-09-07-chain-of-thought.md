@@ -1,7 +1,7 @@
 ---
 title: "Chain-of-Thought Prompting Elicits Reasoning in Large Language Models (Wei et al., 2022)"
 date: 2026-09-07 12:05:00 +0900
-categories: [paper, llm-advanced]
+categories: [paper, llm-engineering]
 tags: [NLP]
 math: true
 rating: 4

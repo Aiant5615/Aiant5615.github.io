@@ -1,7 +1,7 @@
 ---
 title: "Training Language Models to Follow Instructions with Human Feedback (InstructGPT, Ouyang et al., 2022)"
 date: 2026-09-07 09:16:00 +0900
-categories: [paper, llm-basic]
+categories: [paper, llm-basics]
 tags: [NLP, RL]
 math: true
 rating: 5

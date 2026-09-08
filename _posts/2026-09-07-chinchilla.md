@@ -1,7 +1,7 @@
 ---
 title: "Training Compute-Optimal Large Language Models (Chinchilla, Hoffmann et al., 2022)"
 date: 2026-09-07 12:04:00 +0900
-categories: [paper, llm-advanced]
+categories: [paper, llm-engineering]
 tags: [NLP, DL]
 math: true
 rating: 5
