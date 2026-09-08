@@ -359,3 +359,8 @@ ol.post-list.numbered li::before { content: counter(item); color: var(--muted); 
 .toc ol { margin: 0; padding-left: 1.3rem; columns: 2; column-gap: 2rem; }
 .toc li { break-inside: avoid; padding: .1rem 0; }
 @media (max-width: 560px) { .toc ol { columns: 1; } }
+
+/* ───────── home ───────── */
+.interests { padding-left: 1.2rem; }
+.interests li { margin: .35rem 0; }
+.hero p { max-width: 60ch; }

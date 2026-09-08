@@ -37,7 +37,6 @@ shows stats, a daily heatmap, and the code for each language.
 
 | Path | Purpose |
 |---|---|
-| `_data/goals.yml` | Weekly goals. The entry whose `week` matches the current ISO week (`2026-W37`) shows on the home page |
 | `_posts/` | Blog posts. `categories: [paper, <tab>]` marks a review and its tab on /papers/ (llm-basics, llm-rl, vision-llm, vla, llm-engineering); `series`/`series_order` place it in a reading path defined in `_data/series.yml` |
 | `_drafts/` | Not built. Contains two post templates |
 | `_config.yml` | Site info, `tracker_repo` (private data), `tracker.habits`, `arrive_goal`, `skip_weekends` |
