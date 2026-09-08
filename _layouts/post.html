@@ -55,8 +55,8 @@ const ol=document.getElementById('toc-list'); hs.forEach(h=>{const li=document.c
 document.getElementById('toc').hidden=false;})();
 </script>
 {% if page.math %}
-<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.css">
-<script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.js"></script>
-<script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/contrib/auto-render.min.js"
+<link rel="stylesheet" href="{{ '/assets/vendor/katex/katex.min.css' | relative_url }}">
+<script defer src="{{ '/assets/vendor/katex/katex.min.js' | relative_url }}"></script>
+<script defer src="{{ '/assets/vendor/katex/contrib/auto-render.min.js' | relative_url }}"
   onload="renderMathInElement(document.querySelector('.post-content'),{delimiters:[{left:'$$',right:'$$',display:true},{left:'\\[',right:'\\]',display:true},{left:'\\(',right:'\\)',display:false},{left:'$',right:'$',display:false}],throwOnError:false});"></script>
 {% endif %}

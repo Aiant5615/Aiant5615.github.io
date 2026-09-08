@@ -15,9 +15,11 @@ but never times, notes or moods. Set the secret under Settings → Secrets and v
 
 ## Logging a day
 
-1. **Unlock once per device**: Tracker page → "Private" → the password field takes a fine-grained personal access token with
-   *Repository access: only `Aiant5615/tracker`* and *Permissions: Contents → Read and write*. It is kept in that browser's
-   localStorage only; "Lock" removes it.
+1. **Set up each device once**: Tracker page → "Private · set up this device" → paste a fine-grained personal access token
+   (*Repository access: only `Aiant5615/tracker`*, *Permissions: Contents → Read and write*) and choose a password. The token is
+   stored in that browser only, encrypted with the password (PBKDF2 + AES-GCM in `localStorage`); the decrypted token lives in
+   `sessionStorage` for the open tab. Each new tab or browser start asks for the password; "Lock" clears the session,
+   "Forget this device" deletes the encrypted token.
 2. **One tap** on the tracker's today bar: the arrival and leave chips open a clock, habit chips toggle, the mood chip picks
    1–5; each saves that one item into the day at once. The **log form** below shows the whole stored day (any date up to
    today) and saves it exactly as shown: edit a field, clear it, or un-tick a habit, then press Save; *Delete this day*
@@ -48,6 +50,7 @@ shows stats, a daily heatmap, and the code for each language.
 |---|---|
 | `_posts/` | Blog posts. `categories: [paper, <tab>]` marks a review and its tab on /papers/ (llm-basics, llm-rl, vision-llm, vla, llm-engineering, diffusion-rl); `series`/`series_order` place it in a reading path defined in `_data/series.yml` |
 | `_drafts/` | Not built. Contains two post templates |
+| `assets/vendor/` | Self-hosted KaTeX 0.16.11 and highlight.js 11.9.0 (no CDN scripts; a CSP in `_includes/head.html` allows scripts from this site only) |
 | `_config.yml` | Site info, `tracker_repo` (private data), `tracker.habits`, `arrive_goal`, `skip_weekends` |
 | `.github/workflows/sync-leetcode.yml` | Hourly: leetcode repo → `_data/leetcode.json` + `coding` habit |
 | `scripts/sync_leetcode.py` | The converter used by that workflow |

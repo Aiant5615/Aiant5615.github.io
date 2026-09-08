@@ -432,10 +432,31 @@
   const fieldClock = input => openClock({ initial: parseTime(input.value), anchor: input, allowClear: true, onDone: m => { input.value = m == null ? "" : fmt12(m); input.classList.remove("bad"); input.dispatchEvent(new Event("input", { bubbles: true })); } });
 
   // ───────── private storage: GitHub Contents API with a token stored only in this browser ─────────
-  const TOKEN_KEY = "gh_token", USER_KEY = "gh_user", CACHE_KEY = "tracker_cache";
+  // The GitHub token is kept only as an AES-GCM ciphertext in localStorage ("vault"), locked with a password chosen by
+  // the owner (PBKDF2-SHA256, 200k iterations). The decrypted token lives in sessionStorage for the current tab only.
+  const TOKEN_KEY = "gh_token", USER_KEY = "gh_user", CACHE_KEY = "tracker_cache", VAULT_KEY = "gh_vault", SESSION_KEY = "gh_session";
   const lsGet = k => { try { return localStorage.getItem(k); } catch { return null; } };
   const lsSet = (k, v) => { try { v == null ? localStorage.removeItem(k) : localStorage.setItem(k, v); } catch {} };
-  const token = () => lsGet(TOKEN_KEY) || "";
+  const ssGet = k => { try { return sessionStorage.getItem(k); } catch { return null; } };
+  const ssSet = (k, v) => { try { v == null ? sessionStorage.removeItem(k) : sessionStorage.setItem(k, v); } catch {} };
+  const token = () => ssGet(SESSION_KEY) || "";
+  const hasVault = () => !!lsGet(VAULT_KEY);
+  const u8b64 = u => btoa(String.fromCharCode(...u)), b64u8 = s => Uint8Array.from(atob(s), c => c.charCodeAt(0));
+  async function vaultKey(pw, salt) {
+    const km = await crypto.subtle.importKey("raw", new TextEncoder().encode(pw), "PBKDF2", false, ["deriveKey"]);
+    return crypto.subtle.deriveKey({ name: "PBKDF2", salt, iterations: 200000, hash: "SHA-256" }, km, { name: "AES-GCM", length: 256 }, false, ["encrypt", "decrypt"]);
+  }
+  async function vaultSave(tok, pw) {
+    const salt = crypto.getRandomValues(new Uint8Array(16)), iv = crypto.getRandomValues(new Uint8Array(12));
+    const ct = new Uint8Array(await crypto.subtle.encrypt({ name: "AES-GCM", iv }, await vaultKey(pw, salt), new TextEncoder().encode(tok)));
+    lsSet(VAULT_KEY, JSON.stringify({ v: 1, salt: u8b64(salt), iv: u8b64(iv), ct: u8b64(ct) }));
+  }
+  async function vaultOpen(pw) {   // → token, or null when the password is wrong
+    let v; try { v = JSON.parse(lsGet(VAULT_KEY) || "null"); } catch { v = null; }
+    if (!v || !v.ct) return null;
+    try { return new TextDecoder().decode(await crypto.subtle.decrypt({ name: "AES-GCM", iv: b64u8(v.iv) }, await vaultKey(pw, b64u8(v.salt)), b64u8(v.ct))); }
+    catch { return null; }
+  }
   const DREPO = CFG.trackerRepo || "", DBRANCH = CFG.trackerBranch || "main", DFILE = CFG.trackerFile || "days.json";
   let fileSha = null;
   async function gh(path, opts = {}) {
@@ -486,31 +507,48 @@
     catch (e) { if (manual) { const s = document.getElementById("quick-status"); if (s) s.innerHTML = `<span style="color:var(--danger)">Still failing: ${esc(e.message)}</span>`; } return false; }
   }
   function renderConnect(root) {
-    const user = lsGet(USER_KEY);
+    const TOKEN_RE = /^(github_pat_|ghp_|gho_)[A-Za-z0-9_]{20,}$/;
+    const clean = s => String(s || "").replace(/[^\x21-\x7E]/g, "");   // printable ASCII only: strips spaces, "…", zero-width characters
+    const legacy = lsGet(TOKEN_KEY);   // token saved in plain text by the earlier version: it is moved into the vault once a password is set
     const draw = (msg = "") => {
-      root.innerHTML = token()
-        ? `<details class="more"><summary>🔓 Private · unlocked${user ? ` as @${esc(user)}` : ""} ${msg ? `· <span class="muted">${esc(msg)}</span>` : ""}</summary>
-             <div class="card"><button type="button" class="btn btn-sm" id="gh-remove">Lock</button></div></details>`
-        : `<details class="more" open><summary>🔒 Private ${msg ? `· <span class="muted">${esc(msg)}</span>` : ""}</summary>
-             <div class="card"><div class="form-actions"><input type="password" id="gh-token" class="search" style="margin:0;flex:1;min-width:200px" placeholder="Password" autocomplete="current-password" aria-label="Password"><button type="button" class="btn btn-primary" id="gh-save">Unlock</button></div></div></details>`;
-      root.querySelector("#gh-remove")?.addEventListener("click", () => { lsSet(TOKEN_KEY, null); lsSet(USER_KEY, null); lsSet(CACHE_KEY, null); RAW = {}; rebuild(); draw("locked"); boot(); });
-      root.querySelector("#gh-token")?.addEventListener("keydown", ev => { if (ev.key === "Enter") root.querySelector("#gh-save").click(); });
-      root.querySelector("#gh-save")?.addEventListener("click", async () => {
-        const rawIn = root.querySelector("#gh-token").value;
-        const t = rawIn.replace(/[^\x21-\x7E]/g, "");   // keep printable ASCII only: strips spaces, Korean text, "…", curly quotes, zero-width characters
-        if (!t) return;
-        if (!/^(github_pat_|ghp_|gho_)[A-Za-z0-9_]{20,}$/.test(t)) { draw("wrong password"); return; }
-        lsSet(TOKEN_KEY, t);
+      const user = lsGet(USER_KEY), note = msg ? `· <span class="muted">${esc(msg)}</span>` : "";
+      const pw = (id, ph) => `<input type="password" id="${id}" class="search" style="margin:0;flex:1;min-width:160px" placeholder="${ph}" autocomplete="${id === "gh-token" ? "off" : id === "gh-new" ? "new-password" : "current-password"}" aria-label="${ph}">`;
+      if (token()) root.innerHTML = `<details class="more"><summary>🔓 Private · unlocked${user ? ` as @${esc(user)}` : ""} ${note}</summary>
+          <div class="card"><div class="form-actions"><button type="button" class="btn btn-sm" id="gh-lock">Lock</button><button type="button" class="btn btn-sm btn-danger" id="gh-reset" style="margin-left:auto">Forget this device</button></div></div></details>`;
+      else if (hasVault()) root.innerHTML = `<details class="more" open><summary>🔒 Private ${note}</summary>
+          <div class="card"><div class="form-actions">${pw("gh-pw", "Password")}<button type="button" class="btn btn-primary" id="gh-open">Unlock</button><button type="button" class="btn btn-sm" id="gh-reset" style="margin-left:auto" title="Forget the saved token on this device">Reset</button></div></div></details>`;
+      else root.innerHTML = `<details class="more" open><summary>🔒 Private · set up this device ${note}</summary>
+          <div class="card"><div class="form-actions">${legacy ? "" : pw("gh-token", "GitHub token")}${pw("gh-new", "New password")}${pw("gh-new2", "Repeat password")}<button type="button" class="btn btn-primary" id="gh-setup">Save</button></div></div></details>`;
+      const on = (id, fn) => root.querySelector("#" + id)?.addEventListener("click", fn);
+      root.querySelectorAll("input").forEach(i => i.addEventListener("keydown", ev => { if (ev.key === "Enter") (root.querySelector("#gh-open") || root.querySelector("#gh-setup"))?.click(); }));
+      on("gh-lock", () => { ssSet(SESSION_KEY, null); RAW = {}; rebuild(); draw("locked"); boot(); });
+      on("gh-reset", () => { if (!confirm("Forget the saved token on this device? You will need the GitHub token again to set it up.")) return; ssSet(SESSION_KEY, null); lsSet(VAULT_KEY, null); lsSet(TOKEN_KEY, null); lsSet(USER_KEY, null); lsSet(CACHE_KEY, null); RAW = {}; rebuild(); draw(); boot(); });
+      on("gh-open", async () => {
+        const p = root.querySelector("#gh-pw").value; if (!p) return;
+        const b = root.querySelector("#gh-open"); b.disabled = true;
+        const tok = await vaultOpen(p);
+        if (!tok) { draw("wrong password"); return; }
+        ssSet(SESSION_KEY, tok); draw("unlocked ✓"); boot();
+      });
+      on("gh-setup", async () => {
+        const tok = legacy ? clean(legacy) : clean(root.querySelector("#gh-token").value);
+        const p1 = root.querySelector("#gh-new").value, p2 = root.querySelector("#gh-new2").value;
+        if (!TOKEN_RE.test(tok)) { draw("that is not a GitHub token"); return; }
+        if (p1.length < 6) { draw("password needs at least 6 characters"); return; }
+        if (p1 !== p2) { draw("passwords differ"); return; }
+        const b = root.querySelector("#gh-setup"); b.disabled = true; draw("checking…"); 
+        ssSet(SESSION_KEY, tok);
         try {
           const u = await gh("/user");
           try { await gh(`/repos/${DREPO}`); } catch (e) { throw new Error(`cannot see ${DREPO} (${e.status})`); }
           try { await gh(`/repos/${DREPO}/commits?per_page=1`); } catch (e) { throw new Error(`no write access to ${DREPO} (${e.message})`); }
-          lsSet(USER_KEY, u.login); draw("unlocked ✓");
+          await vaultSave(tok, p1); lsSet(TOKEN_KEY, null); lsSet(USER_KEY, u.login); draw("unlocked ✓");
         }
-        catch (e) { lsSet(TOKEN_KEY, null); draw(`rejected: ${e.message}`); return; }
+        catch (e) { ssSet(SESSION_KEY, null); draw(`rejected: ${e.message}`); return; }
         boot();
       });
     };
+    if (!window.isSecureContext || !window.crypto || !crypto.subtle) { root.innerHTML = `<div class="card small muted">🔒 Private · needs HTTPS</div>`; return; }
     draw();
   }
 
@@ -569,7 +607,7 @@
       const b = root.querySelector("#tr-save"); b.disabled = true; flash("Saving…");
       try { await saveEntry(logDate, f, true); formDirty = false; renderAll(); document.getElementById("tr-hint").textContent = `✓ Saved ${logDate === TODAY_KEY ? "today" : logDate}.`; }
       catch (err) {
-        const why = err.status === 404 || err.status === 403 ? "No write access to " + esc(DREPO) + "." : err.status === 401 ? "Password no longer works — lock and unlock again." : "Kept on this device; it is retried when the page loads again.";
+        const why = err.status === 404 || err.status === 403 ? "No write access to " + esc(DREPO) + "." : err.status === 401 ? "GitHub rejected the saved token — use Reset above and set it up again." : "Kept on this device; it is retried when the page loads again.";
         if (!(err.status === 401 || err.status === 403 || err.status === 404)) setPending(logDate, f, true);
         flash(`<span style="color:var(--danger)">Save failed: ${esc(err.message)}.</span> ${why} <button type="button" class="btn btn-sm" data-retry>Retry</button>`);
         root.querySelector("[data-retry]")?.addEventListener("click", () => b.click());
@@ -660,7 +698,7 @@
     try { const c = JSON.parse(lsGet(CACHE_KEY) || "null"); if (c && c.raw) { RAW = c.raw; rebuild(); renderAll(); } } catch {}   // show cached data instantly
     try { await loadRemote(); renderAll(); await flushPending(false); }
     catch (e) {
-      const msg = e.status === 401 || e.status === 403 ? `Password no longer works (${e.message}). Lock and unlock again.` : `Could not load ${DFILE} from ${DREPO}: ${e.message}`;
+      const msg = e.status === 401 || e.status === 403 ? `GitHub rejected the saved token (${e.message}). Use Reset and set it up again.` : `Could not load ${DFILE} from ${DREPO}: ${e.message}`;
       if ($("quick-status")) $("quick-status").innerHTML = `<span style="color:var(--danger)">${esc(msg)}</span>`;
       else if ($("today-bar")) $("today-bar").innerHTML = `<span style="color:var(--danger)">${esc(msg)}</span>`;
     }
