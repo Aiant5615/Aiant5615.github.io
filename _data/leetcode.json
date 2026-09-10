@@ -1,4 +1,21 @@
 {
- "updated": "2026-09-07T14:41+09:00",
- "problems": []
+ "updated": "2026-09-10T16:13+09:00",
+ "problems": [
+  {
+   "id": 1,
+   "slug": "two-sum",
+   "title": "Two Sum",
+   "difficulty": "Easy",
+   "url": "https://leetcode.com/problems/two-sum",
+   "path": "0001-two-sum",
+   "langs": {
+    "py": {
+     "file": "0001-two-sum.py",
+     "date": "2026-09-07"
+    }
+   },
+   "first": "2026-09-07",
+   "last": "2026-09-07"
+  }
+ ]
 }
