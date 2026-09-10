@@ -14,16 +14,26 @@ EXT = {".c": "c", ".cpp": "cpp", ".cc": "cpp", ".cxx": "cpp", ".py": "py"}
 SKIP_DIRS = {".git", ".github", "node_modules"}
 
 
-def first_commit_date(repo, path):
-    """KST date (YYYY-MM-DD) of the most recent commit that added `path`, or None."""
+def _log(repo, path, *extra):
     try:
-        out = subprocess.run(["git", "-C", repo, "log", "--diff-filter=A", "--follow", "--format=%aI", "--", path],
-                             capture_output=True, text=True, check=True).stdout.strip().splitlines()
+        return subprocess.run(["git", "-C", repo, "log", *extra, "--format=%aI", "--", path],
+                              capture_output=True, text=True, check=True).stdout.strip().splitlines()
     except subprocess.CalledProcessError:
-        return None
-    if not out: return None
-    dt = datetime.fromisoformat(out[0].replace("Z", "+00:00"))   # newest addition: a file deleted and re-added counts from the re-add
-    return dt.astimezone(KST).date().isoformat()
+        return []
+
+
+def _kst(iso):
+    return datetime.fromisoformat(iso.replace("Z", "+00:00")).astimezone(KST).date().isoformat()
+
+
+def commit_dates(repo, path):
+    """(first, all): KST date of the most recent commit that added `path` (a file deleted and re-added counts from
+    the re-add), and every commit date touching it since then — each accepted re-submission is one more commit."""
+    added = _log(repo, path, "--diff-filter=A", "--follow")
+    if not added: return None, []
+    first_iso = added[0]; first = _kst(first_iso)
+    every = sorted({_kst(d) for d in _log(repo, path) if d >= first_iso})
+    return first, every
 
 
 def parse_readme(path):
@@ -51,8 +61,8 @@ def scan(repo):
         for f in sorted(os.listdir(d)):
             lang = EXT.get(os.path.splitext(f)[1].lower())
             if not lang or lang in langs: continue
-            date = first_commit_date(repo, os.path.join(name, f))
-            langs[lang] = {"file": f, "date": date}
+            date, every = commit_dates(repo, os.path.join(name, f))
+            langs[lang] = {"file": f, "date": date, "days": every}   # days: first solve plus every later re-submission
         if not langs: continue
         m = re.match(r"^(\d+)[-_.]?(.*)$", name)
         slug = (m.group(2) if m else name).strip("-_ ") or name
@@ -61,8 +71,9 @@ def scan(repo):
              "url": f"https://leetcode.com/problems/{slug}/", "path": name, "langs": langs}
         p.update({k: v for k, v in parse_readme(os.path.join(d, "README.md")).items() if v})
         dates = [l["date"] for l in langs.values() if l["date"]]
+        alld = sorted({d for l in langs.values() for d in l["days"]})
         p["first"] = min(dates) if dates else None
-        p["last"] = max(dates) if dates else None
+        p["last"] = alld[-1] if alld else None
         problems.append(p)
     problems.sort(key=lambda p: (p["last"] or "", p["id"] or 0), reverse=True)
     return problems

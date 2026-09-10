@@ -1,5 +1,5 @@
 {
- "updated": "2026-09-10T16:15+09:00",
+ "updated": "2026-09-10T20:00+09:00",
  "problems": [
   {
    "id": 1,
@@ -9,9 +9,19 @@
    "url": "https://leetcode.com/problems/two-sum",
    "path": "0001-two-sum",
    "langs": {
+    "c": {
+     "file": "0001-two-sum.c",
+     "date": "2026-09-10",
+     "days": [
+      "2026-09-10"
+     ]
+    },
     "py": {
      "file": "0001-two-sum.py",
-     "date": "2026-09-10"
+     "date": "2026-09-10",
+     "days": [
+      "2026-09-10"
+     ]
     }
    },
    "first": "2026-09-10",

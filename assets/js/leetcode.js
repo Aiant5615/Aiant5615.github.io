@@ -14,9 +14,9 @@
   const MON = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
   const TODAY = new Date(); TODAY.setHours(0, 0, 0, 0);
 
-  // solves per day: date → count of (problem, lang) first-commits; problemsByDay: date → set of problems
+  // activity per day: first solves and every accepted re-submission (l.days), so reviewing a problem counts too
   const byDay = {};
-  P.forEach(p => Object.values(p.langs || {}).forEach(l => { if (l.date) byDay[l.date] = (byDay[l.date] || 0) + 1; }));
+  P.forEach(p => Object.values(p.langs || {}).forEach(l => (l.days && l.days.length ? l.days : [l.date]).forEach(d => { if (d) byDay[d] = (byDay[d] || 0) + 1; })));
   const days = Object.keys(byDay).sort();
   function streak() { let d = TODAY, n = 0; if (!byDay[keyOf(d)]) d = addDays(d, -1); while (byDay[keyOf(d)]) { n++; d = addDays(d, -1); } return n; }
   function best() { let b = 0, c = 0, prev = null; days.forEach(k => { const d = parseKey(k); c = prev && (d - prev) / 864e5 === 1 ? c + 1 : 1; b = Math.max(b, c); prev = d; }); return b; }

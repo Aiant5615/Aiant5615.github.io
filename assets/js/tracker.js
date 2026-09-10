@@ -49,7 +49,7 @@
 
   // ───────── data (RAW = what's stored in the private repo; E = derived view incl. LeetCode auto-check) ─────────
   let RAW = {}, E = {}, KEYS = [];
-  const LC_DAYS = (() => { const m = {}; ((window.LEETCODE_DATA && window.LEETCODE_DATA.problems) || []).forEach(p => Object.values(p.langs || {}).forEach(l => { if (l.date) m[l.date] = (m[l.date] || 0) + 1; })); return m; })();
+  const LC_DAYS = (() => { const m = {}; ((window.LEETCODE_DATA && window.LEETCODE_DATA.problems) || []).forEach(p => Object.values(p.langs || {}).forEach(l => (l.days && l.days.length ? l.days : [l.date]).forEach(d => { if (d) m[d] = (m[d] || 0) + 1; }))); return m; })();   // first solves and re-submissions
   const LC_HABIT = CFG.leetcodeHabit && HMAP[CFG.leetcodeHabit] ? CFG.leetcodeHabit : null;
   function normalize(k, raw) {
     const done = new Set();
