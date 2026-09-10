@@ -15,14 +15,14 @@ SKIP_DIRS = {".git", ".github", "node_modules"}
 
 
 def first_commit_date(repo, path):
-    """KST date (YYYY-MM-DD) of the commit that added `path`, or None."""
+    """KST date (YYYY-MM-DD) of the most recent commit that added `path`, or None."""
     try:
         out = subprocess.run(["git", "-C", repo, "log", "--diff-filter=A", "--follow", "--format=%aI", "--", path],
                              capture_output=True, text=True, check=True).stdout.strip().splitlines()
     except subprocess.CalledProcessError:
         return None
     if not out: return None
-    dt = datetime.fromisoformat(out[-1].replace("Z", "+00:00"))
+    dt = datetime.fromisoformat(out[0].replace("Z", "+00:00"))   # newest addition: a file deleted and re-added counts from the re-add
     return dt.astimezone(KST).date().isoformat()
 
 
