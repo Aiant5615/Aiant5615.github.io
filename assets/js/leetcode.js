@@ -32,13 +32,12 @@
   }
 
   function renderStats(root) {
-    const tile = (l, v, s) => `<div class="stat"><div class="stat-label">${l}</div><div class="stat-value">${v}</div><div class="stat-sub">${s}</div></div>`;
-    const diff = ["Easy", "Medium", "Hard"].map(d => `${d[0]} ${P.filter(p => p.difficulty === d).length}`).join(" · ");
+    const tile = (l, v) => `<div class="stat stat-lc"><div class="stat-label">${l}</div><div class="stat-value">${v}</div></div>`;
     root.innerHTML = `<div class="grid grid-4">
-      ${tile("✅ Solved", `${total}<span class="unit">problems</span>`, diff)}
-      ${tile("🔥 Daily streak", `${streak()}<span class="unit">days</span>`, `best ${best()} · ${thisWeek} days this week`)}
-      ${tile("🌐 All three languages", `${all3}<span class="unit">/ ${total}</span>`, LANGS.map(([k, l]) => `${l} ${perLang[k]}`).join(" · "))}
-      ${tile("📅 Last solve", days.length ? days[days.length - 1] : "–", days.length ? `${byDay[days[days.length - 1]]} file(s) that day` : "")}
+      ${tile("✅ Solved", `${total}<span class="unit">${total === 1 ? "problem" : "problems"}</span>`)}
+      ${tile("🔥 Daily streak", `${streak()}<span class="unit">${streak() === 1 ? "day" : "days"}</span>`)}
+      ${tile("🌐 All three languages", `${all3}<span class="unit">/ ${total}</span>`)}
+      ${tile("📅 Last solve", days.length ? days[days.length - 1] : "–")}
     </div>`;
   }
 

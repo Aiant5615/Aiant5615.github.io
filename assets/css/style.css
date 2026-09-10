@@ -264,6 +264,8 @@ details.more > summary { cursor: pointer; color: var(--muted); font-size: .88rem
 .log-hint code { background: rgba(0,0,0,.06); }
 .stat-late { color: var(--danger); }
 .goal-met { color: var(--accent); }
+.stat-lc .stat-label { font-size: 1rem; color: var(--text); font-weight: 600; }
+.stat-lc .stat-value { margin-top: .35rem; }
 #stats { margin-top: 2.4rem; }
 #stats .grid + .grid { margin-top: .9rem; }
 .pips { display: flex; gap: 4px; margin: .45rem 0 .2rem; }
