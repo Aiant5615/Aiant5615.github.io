@@ -30,6 +30,44 @@ layout: default
     {{ content }}
   </div>
 
+  {% assign slug = page.url | split: "/" | last %}
+  {% assign cdir = "/code/" | append: slug | append: "/" %}
+  {% assign impl = "" | split: "" %}{% for f in site.static_files %}{% if f.path contains cdir and f.extname == ".py" %}{% assign impl = impl | push: f %}{% endif %}{% endfor %}
+  {% if impl.size > 0 %}
+  <section class="impl" id="implementation">
+    <h2 id="impl-title">Implementation <span class="small muted" style="font-weight:400">PyTorch, from the paper's equations · runs on a CPU in under a minute</span></h2>
+    <div class="impl-head">
+      <div class="seg" id="impl-files">{% for f in impl %}<button type="button" data-src="{{ f.path | relative_url }}" class="{% if forloop.first %}on{% endif %}">{{ f.name }}</button>{% endfor %}</div>
+      <span class="impl-tools"><button type="button" class="btn btn-sm" id="impl-copy">Copy</button> <a class="btn btn-sm" id="impl-gh" href="https://github.com/{{ site.github_repo }}/blob/main{{ impl[0].path }}" target="_blank" rel="noopener">GitHub ↗</a></span>
+    </div>
+    <pre class="impl-code"><code class="language-python" id="impl-code">Loading…</code></pre>
+    <p class="small muted impl-run">Run: <code>python3 code/{{ slug }}/{{ impl[0].name }}</code> — needs only <code>torch</code> and <code>numpy</code>. All implementations: <a href="https://github.com/{{ site.github_repo }}/tree/main/code">code/</a>.</p>
+  </section>
+  <link rel="stylesheet" id="hljs-light" href="{{ '/assets/lib/hljs/github.min.css' | relative_url }}">
+  <link rel="stylesheet" id="hljs-dark" href="{{ '/assets/lib/hljs/github-dark.min.css' | relative_url }}" media="(prefers-color-scheme: dark)">
+  <script src="{{ '/assets/lib/hljs/highlight.min.js' | relative_url }}"></script>
+  <script>
+  (function(){
+    const code=document.getElementById('impl-code'), seg=document.getElementById('impl-files'), gh=document.getElementById('impl-gh'), repo='https://github.com/{{ site.github_repo }}/blob/main';
+    let text='';
+    async function load(btn){
+      seg.querySelectorAll('button').forEach(b=>b.classList.toggle('on',b===btn));
+      gh.href=repo+btn.dataset.src.replace(/\?.*$/,'');
+      code.textContent='Loading…';
+      try{ text=await (await fetch(btn.dataset.src+'?v={{ site.time | date: "%s" }}')).text(); }catch(e){ code.textContent='Could not load the file. Open it on GitHub instead.'; return; }
+      code.textContent=text; code.className='language-python'; if(window.hljs) hljs.highlightElement(code);
+    }
+    seg.addEventListener('click',e=>{ const b=e.target.closest('button'); if(b) load(b); });
+    document.getElementById('impl-copy').addEventListener('click',()=>{ navigator.clipboard.writeText(text).then(()=>{ const b=document.getElementById('impl-copy'); b.textContent='Copied ✓'; setTimeout(()=>b.textContent='Copy',1500); }); });
+    // theme toggle: swap the highlight stylesheet with the site theme
+    const dark=document.getElementById('hljs-dark'), light=document.getElementById('hljs-light');
+    function sync(){ const t=document.documentElement.getAttribute('data-theme'); if(t){ dark.media=t==='dark'?'all':'not all'; light.media=t==='dark'?'not all':'all'; } }
+    new MutationObserver(sync).observe(document.documentElement,{attributes:true,attributeFilter:['data-theme']}); sync();
+    load(seg.querySelector('button'));
+  })();
+  </script>
+  {% endif %}
+
   {% if page.series %}
   {% assign sp = site.posts | where: "series", page.series | sort: "series_order" %}
   {% assign prev_n = page.series_order | minus: 1 %}{% assign next_n = page.series_order | plus: 1 %}

@@ -411,3 +411,11 @@ ol.post-list.numbered li::before { content: counter(item); color: var(--muted); 
 .legend-left { justify-content: flex-start; gap: .4rem; }
 .legend .sw { width: 14px; height: 4px; border-radius: 2px; display: inline-block; }
 .sw-sleep { background: var(--accent); } .sw-mood { background: var(--mood); }
+
+/* paper implementation viewer */
+.impl { margin-top: 2.4rem; }
+.impl-head { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: .5rem; margin-bottom: .5rem; }
+.impl-tools { display: inline-flex; gap: .4rem; }
+.impl-code { max-height: 720px; overflow: auto; font-size: .82rem; line-height: 1.5; }
+.impl-code code { font-size: .82rem; }
+.impl-run { margin-top: .5rem; }
