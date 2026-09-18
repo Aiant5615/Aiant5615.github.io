@@ -1,0 +1,1 @@
+{"architecture-figure-2": ["block_mask", "OctoTransformer", "cosine_schedule", "DiffusionHead"], "data-and-training-figure-3": ["make_batch", "train"], "fine-tuning-recipe-section-4": ["OctoTransformer"], "results-section-5": ["main"]}
