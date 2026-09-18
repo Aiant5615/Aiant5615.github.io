@@ -1,0 +1,15 @@
+{
+"why-it-opens-the-multimodal-list": [
+"[the Vision Transformer]"
+],
+"the-model-equation-by-equation": [
+"MSA",
+"Block",
+"ViT"
+],
+"training-and-results": [
+"accuracy",
+"pos_embedding_grid_check",
+"main"
+]
+}

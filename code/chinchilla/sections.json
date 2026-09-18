@@ -1,0 +1,16 @@
+{
+"the-question": [
+"loss_law",
+"synthetic_runs"
+],
+"three-approaches": [
+"fit_approach3",
+"isoflop_argmin"
+],
+"chinchilla": [
+"compute_optimal"
+],
+"results-section-4": [
+"main"
+]
+}

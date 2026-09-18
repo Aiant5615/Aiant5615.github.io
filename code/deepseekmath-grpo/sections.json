@@ -1,0 +1,16 @@
+{
+"the-corpus-sections-2-3": [
+"reward"
+],
+"ppo-written-for-language-models": [
+"token_log_probs",
+"grpo_loss"
+],
+"grpo": [
+"[GRPO]"
+],
+"a-unified-view-section-52": [
+"group_advantages",
+"kl_k3"
+]
+}

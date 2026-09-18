@@ -1,0 +1,20 @@
+{
+"why-it-is-first-in-an-llm-reading-list": [
+"[toy environment]"
+],
+"from-policy-gradient-to-the-surrogate": [
+"surrogates"
+],
+"the-clipped-objective": [
+"surrogates",
+"ppo_loss"
+],
+"the-alternative-adaptive-kl-penalty": [
+"train"
+],
+"the-full-loss-and-advantages": [
+"gae",
+"ppo_loss",
+"[Algorithm 1]"
+]
+}

@@ -1,0 +1,18 @@
+{
+"the-framing-tasks-as-conditioning": [
+"make_webtext"
+],
+"data-webtext": [
+"[synthetic WebText: documents that happen to demonstrate tasks (Section 2)]"
+],
+"input-representation-byte-level-bpe": [
+"random_word"
+],
+"model": [
+"[model (2.3)]"
+],
+"zero-shot-evaluation": [
+"zero_shot_accuracy",
+"main"
+]
+}

@@ -1,0 +1,11 @@
+{
+"global-attention-equation-by-equation": [
+"Attention"
+],
+"local-attention": [
+"Attention"
+],
+"input-feeding": [
+"LuongNMT"
+]
+}

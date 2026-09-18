@@ -1,0 +1,12 @@
+{
+"the-encoderdecoder-equation-by-equation": [
+"RNNEncoderDecoder"
+],
+"the-gated-recurrent-unit": [
+"GRUCell"
+],
+"how-it-was-used": [
+"[toy phrase pairs]",
+"main"
+]
+}

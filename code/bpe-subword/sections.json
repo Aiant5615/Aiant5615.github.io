@@ -1,0 +1,15 @@
+{
+"the-algorithm": [
+"[Figure 1: learning BPE]",
+"[applying BPE to new text]"
+],
+"joint-vs-separate-vocabularies": [
+"main"
+],
+"what-it-replaces": [
+"[synthetic morphological corpus]"
+],
+"figures-and-tables-explained": [
+"learn_bpe"
+]
+}

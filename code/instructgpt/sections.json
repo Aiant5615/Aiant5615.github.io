@@ -1,0 +1,21 @@
+{
+"data-and-labelers": [
+"[the hidden \"human\" (labelers)]"
+],
+"step-1-supervised-fine-tuning-sft": [
+"main"
+],
+"step-2-reward-model-rm": [
+"train_reward_model"
+],
+"step-3-reinforcement-learning-ppo-and-ppo-ptx": [
+"gae",
+"ppo"
+],
+"evaluation": [
+"main"
+],
+"limitations-the-authors-emphasize": [
+"r_star"
+]
+}

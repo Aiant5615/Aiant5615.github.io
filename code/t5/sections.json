@@ -1,0 +1,23 @@
+{
+"the-text-to-text-format": [
+"make_task_batch"
+],
+"architecture": [
+"[model (2.1)]"
+],
+"the-pretraining-objective-worked-through": [
+"random_spans_noise_mask",
+"span_corrupt",
+"make_pretrain_batch"
+],
+"architectures-and-attention-masks-compared-section-32": [
+"Attention",
+"T5"
+],
+"the-rest-of-the-study": [
+"main"
+],
+"the-final-recipe-and-results": [
+"main"
+]
+}

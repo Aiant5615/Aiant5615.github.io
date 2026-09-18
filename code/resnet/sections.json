@@ -1,0 +1,15 @@
+{
+"why-it-is-in-a-language-model-reading-list": [
+"Shortcut"
+],
+"the-degradation-problem": [
+"CifarResNet",
+"main"
+],
+"residual-learning-equation-by-equation": [
+"conv3x3",
+"Shortcut",
+"BasicBlock",
+"Bottleneck"
+]
+}

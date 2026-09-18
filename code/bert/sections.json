@@ -1,0 +1,21 @@
+{
+"why-not-just-train-bidirectionally": [
+"SelfAttention",
+"EncoderLayer"
+],
+"masked-language-modeling-mlm": [
+"mask_tokens",
+"make_pretrain_batch"
+],
+"next-sentence-prediction-nsp": [
+"sample_document",
+"make_pretrain_batch"
+],
+"input-representation": [
+"BERT"
+],
+"fine-tuning": [
+"make_cls_batch",
+"finetune"
+]
+}

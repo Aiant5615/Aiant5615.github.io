@@ -1,0 +1,16 @@
+{
+"the-setup": [
+"[toy language model ρ / policy π]",
+"[the \"human\": a mock reward, as in Section 4.1's mock-sentiment experiments]"
+],
+"reward-model": [
+"[reward model r(x, y)]"
+],
+"policy-objective": [
+"ppo_step"
+],
+"tasks-and-results": [
+"run",
+"main"
+]
+}

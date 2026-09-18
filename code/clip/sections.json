@@ -1,0 +1,14 @@
+{
+"the-objective": [
+"clip_loss"
+],
+"encoders-and-data": [
+"[synthetic (image, caption) pairs]",
+"ImageEncoder",
+"TextEncoder",
+"CLIP"
+],
+"zero-shot-transfer": [
+"[zero-shot transfer (Section 3.1.4)]"
+]
+}

@@ -26,43 +26,91 @@ layout: default
 
   <nav class="toc" id="toc" hidden><div class="toc-title">Contents</div><ol id="toc-list"></ol></nav>
 
-  <div class="post-content">
-    {{ content }}
-  </div>
-
   {% assign slug = page.url | split: "/" | last %}
   {% assign cdir = "/code/" | append: slug | append: "/" %}
   {% assign impl = "" | split: "" %}{% for f in site.static_files %}{% if f.path contains cdir and f.extname == ".py" %}{% assign impl = impl | push: f %}{% endif %}{% endfor %}
+  <div class="post-columns{% if impl.size > 0 %} has-code{% endif %}">
+  <div class="post-content">
+    {{ content }}
+  </div>
   {% if impl.size > 0 %}
+  <aside class="impl-pane">
   <section class="impl" id="implementation">
-    <h2 id="impl-title">Implementation <span class="small muted" style="font-weight:400">PyTorch, from the paper's equations · runs on a CPU in under a minute</span></h2>
+    <h2 id="impl-title">Implementation <span class="small muted" style="font-weight:400">PyTorch, from the paper's equations · CPU, under a minute</span></h2>
     <div class="impl-head">
       <div class="seg" id="impl-files">{% for f in impl %}<button type="button" data-src="{{ f.path | relative_url }}" class="{% if forloop.first %}on{% endif %}">{{ f.name }}</button>{% endfor %}</div>
-      <span class="impl-tools"><button type="button" class="btn btn-sm" id="impl-copy">Copy</button> <a class="btn btn-sm" id="impl-gh" href="https://github.com/{{ site.github_repo }}/blob/main{{ impl[0].path }}" target="_blank" rel="noopener">GitHub ↗</a></span>
+      <span class="impl-tools"><span class="small muted" id="impl-sec"></span><button type="button" class="btn btn-sm" id="impl-copy">Copy</button> <a class="btn btn-sm" id="impl-gh" href="https://github.com/{{ site.github_repo }}/blob/main{{ impl[0].path }}" target="_blank" rel="noopener">GitHub ↗</a></span>
     </div>
-    <pre class="impl-code"><code class="language-python" id="impl-code">Loading…</code></pre>
-    <p class="small muted impl-run">Run: <code>python3 code/{{ slug }}/{{ impl[0].name }}</code> — needs only <code>torch</code> and <code>numpy</code>. All implementations: <a href="https://github.com/{{ site.github_repo }}/tree/main/code">code/</a>.</p>
+    <pre class="impl-code"><span class="impl-wrap"><span class="impl-marks"></span><code class="language-python" id="impl-code">Loading…</code></span></pre>
+    <p class="small muted impl-run">Run: <code>python3 code/{{ slug }}/{{ impl[0].name }}</code> — needs only <code>torch</code> and <code>numpy</code>. Hover a section of the review to see the code it corresponds to; click its chip to pin. All implementations: <a href="https://github.com/{{ site.github_repo }}/tree/main/code">code/</a>.</p>
   </section>
+  </aside>
+  {% endif %}
+  </div>
+
+  {% if impl.size > 0 %}
   <link rel="stylesheet" id="hljs-light" href="{{ '/assets/lib/hljs/github.min.css' | relative_url }}">
   <link rel="stylesheet" id="hljs-dark" href="{{ '/assets/lib/hljs/github-dark.min.css' | relative_url }}" media="(prefers-color-scheme: dark)">
   <script src="{{ '/assets/lib/hljs/highlight.min.js' | relative_url }}"></script>
   <script>
   (function(){
-    const code=document.getElementById('impl-code'), seg=document.getElementById('impl-files'), gh=document.getElementById('impl-gh'), repo='https://github.com/{{ site.github_repo }}/blob/main';
-    let text='';
+    const code=document.getElementById('impl-code'), pre=code.closest('pre'), marks=pre.querySelector('.impl-marks'), seg=document.getElementById('impl-files'), gh=document.getElementById('impl-gh'), secLabel=document.getElementById('impl-sec');
+    const repo='https://github.com/{{ site.github_repo }}/blob/main', v='{{ site.time | date: "%s" }}';
+    const wide=()=>window.matchMedia('(min-width: 1180px)').matches;
+    let text='', regions={}, map={}, pinned=null;
+    // top-level regions of the file: "def name"/"class name" (decorators included) and "[banner text]" spanning to the next banner
+    function parseRegions(src){
+      const lines=src.split('\n'), starts=[], out={};
+      for(let i=0;i<lines.length;i++){ const l=lines[i];
+        if(/^# ───/.test(l)) starts.push({i,kind:'banner',name:'['+l.replace(/^#[\s─]*/,'').replace(/[\s─]*$/,'')+']'});
+        else if(/^@/.test(l)) starts.push({i,kind:'def',name:null});
+        else if(/^(def|class) /.test(l)){ const n=l.split(/[ (:]/)[1]; const p=starts[starts.length-1]; if(p&&p.kind==='def'&&p.name===null) p.name=n; else starts.push({i,kind:'def',name:n}); } }
+      const trim=e=>{ while(e>0&&!lines[e-1].trim()) e--; return e; };
+      starts.forEach((s,k)=>{ if(!s.name) return; let e;
+        if(s.kind==='banner'){ const nb=starts.slice(k+1).find(x=>x.kind==='banner'); e=nb?nb.i:lines.length; }
+        else { const nx=starts[k+1]; e=nx?nx.i:lines.length; }
+        out[s.name]=[s.i+1, trim(e)]; });
+      return out;
+    }
+    function rangesFor(names){ const rs=names.map(n=>regions[n]).filter(Boolean).sort((a,b)=>a[0]-b[0]); const m=[]; rs.forEach(r=>{ if(m.length&&r[0]<=m[m.length-1][1]+2) m[m.length-1][1]=Math.max(m[m.length-1][1],r[1]); else m.push([r[0],r[1]]); }); return m; }
+    function lineHeight(){ return code.getBoundingClientRect().height/Math.max(1,text.split('\n').length); }
+    function highlight(ranges, scroll){
+      marks.innerHTML=''; if(!ranges||!ranges.length){ secLabel.textContent=''; return; }
+      const lh=lineHeight();
+      ranges.forEach(([s,e])=>{ const d=document.createElement('span'); d.className='impl-mark'; d.style.top=((s-1)*lh)+'px'; d.style.height=((e-s+1)*lh)+'px'; marks.appendChild(d); });
+      secLabel.textContent='lines '+ranges.map(r=>r[0]+'–'+r[1]).join(', ');
+      if(scroll){ const top=(ranges[0][0]-1)*lh; pre.scrollTo({top:Math.max(0,top-lh*2), behavior:'smooth'}); }
+    }
+    function wireSections(){
+      const content=document.querySelector('.post-content'); const hs=[...content.querySelectorAll('h2[id]')];
+      hs.forEach((h,i)=>{ const sec=document.createElement('section'); sec.className='rsec'; sec.dataset.sec=h.id; h.parentNode.insertBefore(sec,h);
+        let n=h; while(n && !(n!==h && n.tagName==='H2')){ const nx=n.nextSibling; sec.appendChild(n); n=nx; } });
+      content.querySelectorAll('.rsec').forEach(sec=>{ const names=map[sec.dataset.sec]; if(!names) return; const rs=rangesFor(names); if(!rs.length) return;
+        sec.classList.add('has-code'); const h=sec.querySelector('h2');
+        const chip=document.createElement('button'); chip.type='button'; chip.className='sec-code'; chip.textContent='code · lines '+rs.map(r=>r[0]+'–'+r[1]).join(', '); h.appendChild(chip);
+        sec.addEventListener('mouseenter',()=>{ if(pinned) return; sec.classList.add('hot'); highlight(rs, wide()); });
+        sec.addEventListener('mouseleave',()=>{ if(pinned) return; sec.classList.remove('hot'); highlight(pinned?pinned.rs:null); });
+        chip.addEventListener('click',()=>{ if(pinned&&pinned.sec===sec){ pinned=null; sec.classList.remove('pinned'); highlight(null); return; }
+          if(pinned) pinned.sec.classList.remove('pinned'); pinned={sec,rs}; sec.classList.add('pinned'); highlight(rs, true);
+          if(!wide()) document.getElementById('implementation').scrollIntoView({behavior:'smooth', block:'start'}); });
+      });
+    }
     async function load(btn){
       seg.querySelectorAll('button').forEach(b=>b.classList.toggle('on',b===btn));
       gh.href=repo+btn.dataset.src.replace(/\?.*$/,'');
       code.textContent='Loading…';
-      try{ text=await (await fetch(btn.dataset.src+'?v={{ site.time | date: "%s" }}')).text(); }catch(e){ code.textContent='Could not load the file. Open it on GitHub instead.'; return; }
+      try{ text=await (await fetch(btn.dataset.src+'?v='+v)).text(); }catch(e){ code.textContent='Could not load the file. Open it on GitHub instead.'; return; }
       code.textContent=text; code.className='language-python'; if(window.hljs) hljs.highlightElement(code);
+      regions=parseRegions(text);
+      try{ map=await (await fetch(btn.dataset.src.replace(/[^/]+$/,'sections.json')+'?v='+v)).json(); }catch(e){ map={}; }
+      if(!document.querySelector('.rsec')) wireSections();
     }
     seg.addEventListener('click',e=>{ const b=e.target.closest('button'); if(b) load(b); });
     document.getElementById('impl-copy').addEventListener('click',()=>{ navigator.clipboard.writeText(text).then(()=>{ const b=document.getElementById('impl-copy'); b.textContent='Copied ✓'; setTimeout(()=>b.textContent='Copy',1500); }); });
-    // theme toggle: swap the highlight stylesheet with the site theme
     const dark=document.getElementById('hljs-dark'), light=document.getElementById('hljs-light');
     function sync(){ const t=document.documentElement.getAttribute('data-theme'); if(t){ dark.media=t==='dark'?'all':'not all'; light.media=t==='dark'?'not all':'all'; } }
     new MutationObserver(sync).observe(document.documentElement,{attributes:true,attributeFilter:['data-theme']}); sync();
+    window.addEventListener('resize',()=>{ if(pinned) highlight(pinned.rs); });
     load(seg.querySelector('button'));
   })();
   </script>

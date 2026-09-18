@@ -1,0 +1,13 @@
+{
+"derivation-step-by-step": [
+"[DPO]",
+"[the RLHF closed form, by enumeration]"
+],
+"what-the-gradient-does": [
+"dpo_loss"
+],
+"theory-section-5": [
+"implicit_reward",
+"optimal_policy"
+]
+}

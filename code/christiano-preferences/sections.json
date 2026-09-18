@@ -1,0 +1,13 @@
+{
+"the-setup": [
+"[environment with a hidden true reward]",
+"[the oracle \"human\" and query selection]"
+],
+"the-preference-model-and-its-loss": [
+"[reward predictor r̂(o, a) and its ensemble]"
+],
+"experiments": [
+"[policy: tabular softmax, advantage actor-critic on r̂]",
+"main"
+]
+}

@@ -1,0 +1,11 @@
+{
+"the-three-steps-figure-2": [
+"[reward model r_θ(x, y)]",
+"[PPO with a fixed KL coefficient β]"
+],
+"equations": [
+"rm_loss",
+"ppo_train",
+"evaluate"
+]
+}

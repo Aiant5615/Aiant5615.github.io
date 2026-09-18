@@ -1,0 +1,19 @@
+{
+"in-context-learning-defined": [
+"[the task distribution]"
+],
+"model-and-training": [
+"[model: same decoder-only Transformer as GPT-2 (2.1)]",
+"train"
+],
+"scaling-behaviour": [
+"main"
+],
+"results-by-task-family": [
+"in_context_accuracy",
+"bayes_optimal"
+],
+"limitations-the-paper-states": [
+"bayes_optimal"
+]
+}

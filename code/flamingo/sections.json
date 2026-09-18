@@ -1,0 +1,14 @@
+{
+"architecture-figure-3": [
+"[frozen backbones]",
+"[the trainable bridge]"
+],
+"training-objective": [
+"make_interleaved",
+"lm_loss"
+],
+"few-shot-evaluation": [
+"caption_accuracy",
+"main"
+]
+}

@@ -1,0 +1,27 @@
+{
+"scaled-dot-product-attention": [
+"scaled_dot_product_attention"
+],
+"multi-head-attention": [
+"MultiHeadAttention"
+],
+"position-wise-feed-forward-network": [
+"FeedForward"
+],
+"embeddings-and-positional-encoding": [
+"PositionalEncoding",
+"Transformer"
+],
+"residuals-normalization-regularization": [
+"SublayerConnection",
+"EncoderLayer",
+"DecoderLayer"
+],
+"training-schedule": [
+"noam_lr",
+"label_smoothed_nll"
+],
+"complexity-table-1": [
+"scaled_dot_product_attention"
+]
+}
