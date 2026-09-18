@@ -1,0 +1,1 @@
+{"the-q-former-figure-2": ["attention_mask", "QFormerLayer", "QFormer"], "stage-1-vision-language-representation-learning": ["itc_loss", "itg_loss", "itm_loss"], "stage-2-vision-to-language-generative-learning-figure-3": ["stage2_loss", "run_stage2"], "results": ["main"]}
