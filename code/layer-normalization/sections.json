@@ -1,0 +1,1 @@
+{"batch-norm-restated": ["batch_norm"], "layer-norm-equation-by-equation": ["layer_norm", "LayerNorm", "LSTM"], "the-invariance-table": ["invariance_table", "gradient_vs_weight_norm"], "results": ["train_lstm", "main"]}
