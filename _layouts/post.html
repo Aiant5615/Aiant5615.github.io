@@ -88,7 +88,7 @@ layout: default
 </article>
 
 <script>
-(function(){const hs=[...document.querySelectorAll('.post-content h2[id]')]; if(hs.length<4) return;
+(function(){const hs=[...document.querySelectorAll('.post-content h2[id], #implementation h2[id]')]; if(hs.length<4) return;
 const ol=document.getElementById('toc-list'); hs.forEach(h=>{const li=document.createElement('li'); const a=document.createElement('a'); a.href='#'+h.id; a.textContent=h.textContent; li.appendChild(a); ol.appendChild(li);});
 document.getElementById('toc').hidden=false;})();
 </script>
