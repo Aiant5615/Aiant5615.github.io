@@ -51,7 +51,7 @@ def learn_bpe(word_freqs, num_merges, verbose=0):
         pairs = get_stats(vocab)
         if not pairs:
             break
-        best = max(pairs, key=pairs.get)
+        best = max(pairs, key=lambda pair: (pairs[pair], pair))   # ties broken like subword-nmt: by the pair itself
         vocab = merge_vocab(best, vocab)
         merges.append(best)
         if i < verbose:
@@ -108,7 +108,9 @@ def main():
     print("  dictionary after 10 merges:", vocab)
     seg = apply_bpe("lowest", merges)
     print(f"  unseen word 'lowest' -> {' '.join(seg)}")
-    # 'e s' and 's t' tie at 9 in the first round; the paper's dictionary order picks 's t', ours 'e s' — both are valid
+    # 'e s', 's t' and 't </w>' all tie at 9 in the first round. The paper's Figure 1 shows 's t' first; the released
+    # subword-nmt tool breaks ties by the pair itself (max over (count, pair)), which we copy, so the order differs but
+    # the learned vocabulary and the segmentation of 'lowest' are the same.
     assert {"".join(m) for m in merges[:5]} >= {"est</w>", "low"}, "merges differ from the paper's worked example"
     assert seg == ["low", "est</w>"], "segmentation of 'lowest' differs from the paper"
 
