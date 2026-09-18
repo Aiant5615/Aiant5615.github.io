@@ -50,7 +50,7 @@ shows stats, a daily heatmap, and the code for each language.
 |---|---|
 | `_posts/` | Blog posts. `categories: [paper, <tab>]` marks a review and its tab on /papers/ (llm-basics, llm-rl, vision-llm, vla, llm-engineering, diffusion-rl); `series`/`series_order` place it in a reading path defined in `_data/series.yml` |
 | `_drafts/` | Not built. Contains two post templates |
-| `code/<slug>/` | One runnable PyTorch file per review (`python3 code/<slug>/<slug>.py`, torch + numpy only, CPU, under a minute); the review page shows it in an "Implementation" section. `code/run_all.sh` runs them all |
+| `code/<slug>/` | One runnable PyTorch file per review (`python3 code/<slug>/<slug>.py`, torch + numpy only, CPU, under a minute); the review page shows it beside the text (two columns on wide screens); `code/<slug>/sections.json` maps review headings to function/class names so hovering a section highlights its code. `code/run_all.sh` runs them all; `scripts/check_sections.py` validates the maps |
 | `assets/lib/` | Self-hosted KaTeX 0.16.11 and highlight.js 11.9.0 (no CDN scripts; a CSP in `_includes/head.html` allows scripts from this site only) |
 | `_config.yml` | Site info, `tracker_repo` (private data), `tracker.habits`, `arrive_goal`, `skip_weekends` |
 | `.github/workflows/sync-leetcode.yml` | Hourly: leetcode repo → `_data/leetcode.json` + `coding` habit |
