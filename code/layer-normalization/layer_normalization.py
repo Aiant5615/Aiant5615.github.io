@@ -33,8 +33,8 @@ def layer_norm(a, g, b, eps=1e-5):
     """a: (..., H). mu^l = mean_i a_i, sigma^l = sqrt(mean_i (a_i - mu^l)^2) over the H units of EACH example (eq. 3);
     output g/sigma^l * (a - mu^l) + b, the same mu, sigma for every unit of the example (eq. 4, before f)."""
     mu = a.mean(-1, keepdim=True)
-    sigma = ((a - mu) ** 2).mean(-1, keepdim=True).sqrt()
-    return g * (a - mu) / (sigma + eps) + b
+    sigma = (((a - mu) ** 2).mean(-1, keepdim=True) + eps).sqrt()     # eps inside the sqrt (official code): finite
+    return g * (a - mu) / sigma + b                                       # gradient even for an all-zero vector (h^0 = 0)
 
 
 class LayerNorm(nn.Module):
@@ -48,27 +48,29 @@ class LayerNorm(nn.Module):
 
 # ───────────────────────── recurrent networks with and without LN (Section 3.1) ─────────────────────────
 class LSTM(nn.Module):
-    """A plain LSTM, or the LN-LSTM of the paper: a^t = W_hh h^{t-1} + W_xh x^t is split into the four gate
-    pre-activations, each of which is layer-normalised (own gain/bias) before the nonlinearity; the cell c^t is
-    normalised before the output gate: h^t = o ⊙ tanh(LN(c^t))."""
+    """A plain LSTM, or the LN-LSTM of the paper (supplementary, "Layer normalized LSTM"):
+        (f, i, o, g) = LN(W_h h^{t-1}; α_1, β_1) + LN(W_x x^t; α_2, β_2) + b
+        c^t = σ(f) ⊙ c^{t-1} + σ(i) ⊙ tanh(g),      h^t = σ(o) ⊙ tanh(LN(c^t; α_3, β_3))
+    i.e. the recurrent and the input term are normalised separately over the whole 4H pre-activation vector,
+    each with its own gain and bias, and the cell is normalised before the output gate."""
     def __init__(self, d_in, H, ln=False):
         super().__init__()
         self.H, self.ln = H, ln
-        self.W_xh, self.W_hh = nn.Linear(d_in, 4 * H), nn.Linear(H, 4 * H, bias=False)
+        self.W_xh, self.W_hh = nn.Linear(d_in, 4 * H, bias=False), nn.Linear(H, 4 * H, bias=False)
+        self.b = nn.Parameter(torch.zeros(4 * H))
+        with torch.no_grad():                                            # forget-gate bias 1 (the usual LSTM init)
+            self.b[H:2 * H].fill_(1.0)
         if ln:
-            self.ln_gates = nn.ModuleList([LayerNorm(H) for _ in range(4)])
-            self.ln_cell = LayerNorm(H)
-            with torch.no_grad():                                        # the paper's LSTM init: forget-gate bias 1 via b
-                self.ln_gates[1].b.fill_(1.0)
+            self.ln_h, self.ln_x, self.ln_cell = LayerNorm(4 * H), LayerNorm(4 * H), LayerNorm(H)
 
     def forward(self, x):                                                # x: (B, T, d_in) -> h_T (B, H)
         B, T, _ = x.shape
         h = c = x.new_zeros(B, self.H)
         for t in range(T):
-            a = self.W_xh(x[:, t]) + self.W_hh(h)                        # a^t = W_hh h^{t-1} + W_xh x^t
-            i, f, o, u = a.chunk(4, -1)
+            rec, inp = self.W_hh(h), self.W_xh(x[:, t])
             if self.ln:
-                i, f, o, u = (ln(z) for ln, z in zip(self.ln_gates, (i, f, o, u)))
+                rec, inp = self.ln_h(rec), self.ln_x(inp)
+            i, f, o, u = (rec + inp + self.b).chunk(4, -1)
             c = torch.sigmoid(f) * c + torch.sigmoid(i) * torch.tanh(u)
             h = torch.sigmoid(o) * torch.tanh(self.ln_cell(c) if self.ln else c)
         return h
