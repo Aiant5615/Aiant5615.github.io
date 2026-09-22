@@ -1,0 +1,1 @@
+{"stage-1-supervised-learning-from-critiques-and-revisions-sl-cai": ["critique", "revise", "critique_revision", "sft"], "stage-2-rl-from-ai-feedback-rl-cai": ["ai_feedback_pairs", "train_pm", "PreferenceModel", "ppo"], "evaluation": ["true_helpfulness", "true_harm", "true_evasiveness", "human_harmlessness_pairs", "evaluate"], "results": ["main"]}
