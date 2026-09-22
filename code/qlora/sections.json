@@ -1,0 +1,1 @@
+{"block-wise-quantization-restated": ["quantize_blockwise", "dequantize_blockwise"], "the-three-ingredients": ["nf4_levels", "double_quantize", "double_dequantize", "QLoRALinear"], "memory-figure-1": ["bits_per_parameter"], "fidelity-and-the-guanaco-results": ["LoRALinear", "make_data", "adapt", "train", "main"], "figures-explained": ["main"]}
