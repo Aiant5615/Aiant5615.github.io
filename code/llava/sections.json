@@ -1,0 +1,1 @@
+{"architecture-figure-1": ["VisionEncoder", "LLM", "LLaVA"], "the-data-section-3": ["caption", "gpt4_questions", "make_batch"], "training": ["build_sequence", "answer_loss", "train", "main"], "evaluation": ["accuracy"], "figures-explained": ["LLaVA"]}
