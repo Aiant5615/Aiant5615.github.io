@@ -1,0 +1,1 @@
+{"the-problem-section-3": ["make_problem", "make_batch", "evaluate"], "multimodal-cot-section-4": ["PatchExtractor", "MHA", "EncLayer", "DecLayer", "MMCoT", "train"], "results-section-56": ["main"], "figures-explained": ["evaluate", "main"]}
