@@ -126,8 +126,8 @@
     root.innerHTML = `<div class="game-layout">` + descPane() + `<div class="game-main">` + head + `<div class="game-board" id="game-board">${doneLines}
         <div class="game-line"><pre class="ghost hljs" id="game-ghost">${ghostHtml(line, G.mask)}</pre><input id="game-input" class="typed" type="text" spellcheck="false" autocomplete="off" autocapitalize="off" autocorrect="off" aria-label="Type the next line"></div>
         ${upcoming}${left > 0 ? `<div class="game-left muted small">${left} more line${left === 1 ? "" : "s"}</div>` : ""}</div>
-      <div class="game-tools"><span class="small" id="game-msg">${G.msg || (G.mode === "hard" ? "Type the line and press Enter · Tab inserts 4 spaces · Esc quits" : "Enter submits · → types the next grey character, ⇧→ a word, ← the whole line (auto-typed lines score 0) · Esc quits")}</span>
-        <span style="margin-left:auto;display:flex;gap:.4rem"><button type="button" class="btn btn-sm" id="game-hint" title="Reveal one more token (costs a point of this line)">Hint</button><button type="button" class="btn btn-sm" id="game-skip" title="Reveal the whole line, 0 points">Skip</button></span></div></div></div>`;
+      <div class="game-tools"><span class="small" id="game-msg">${G.msg || ""}</span>
+        <span style="margin-left:auto;display:flex;gap:.4rem"><button type="button" class="btn btn-sm" id="game-skip" title="Reveal the whole line, 0 points">Skip</button></span></div></div></div>`;
     moveRunner();
     const input = root.querySelector("#game-input");
     input.value = G.typed != null ? G.typed : indent;
@@ -141,7 +141,6 @@
     });
     input.addEventListener("input", () => { G.typed = input.value; paint(input.value); });
     paint(input.value);
-    root.querySelector("#game-hint").addEventListener("click", () => { reveal("hint"); G.typed = input.value; render(); });
     root.querySelector("#game-skip").addEventListener("click", skip);
     root.querySelector("#game-quit").addEventListener("click", quit);
   }
