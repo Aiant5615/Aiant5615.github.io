@@ -70,13 +70,15 @@
           ? `<span class="lang on" data-p="${i}" data-l="${k}" title="first solved ${p.langs[k].date || "?"}">${l}</span>`
           : `<span class="lang off">${l}</span>`).join("");
         const url = p.url || `https://leetcode.com/problems/${p.slug}/`;
-        return `<tr data-i="${i}"><td class="num">${p.id ?? ""}</td><td><a href="${esc(url)}" target="_blank" rel="noopener">${esc(p.title)}</a></td>
+        const best = window.LCGame ? window.LCGame.bestFor(p.slug) : null;
+        return `<tr data-i="${i}"><td class="num">${p.id ?? ""}</td><td><a href="${esc(url)}" target="_blank" rel="noopener">${esc(p.title)}</a>${best != null ? ` <span class="game-badge" title="best practice score">🎮 ${best}%</span>` : ""}</td>
           <td>${p.difficulty ? `<span class="diff diff-${p.difficulty.toLowerCase()}">${p.difficulty}</span>` : ""}</td>
           <td>${chips}</td><td class="num hide-sm">${p.first || ""}</td>
-          <td class="small"><a href="https://github.com/${CFG.repo}/tree/${CFG.branch || "main"}/${encodeURIComponent(p.path)}" target="_blank" rel="noopener">GitHub ↗</a></td></tr>`;
+          <td class="small"><button type="button" class="btn btn-sm game-play" data-p="${i}" title="Retype this solution line by line">▶ Play</button> <a href="https://github.com/${CFG.repo}/tree/${CFG.branch || "main"}/${encodeURIComponent(p.path)}" target="_blank" rel="noopener">GitHub ↗</a></td></tr>`;
       });
       root.innerHTML = rows.length ? `<div style="overflow-x:auto"><table class="lc-table"><thead><tr><th>#</th><th>Problem</th><th>Difficulty</th><th>Languages</th><th class="hide-sm">First solved</th><th></th></tr></thead><tbody>${rows.join("")}</tbody></table></div>` : `<div class="empty">Nothing matches.</div>`;
       root.querySelectorAll(".lang.on").forEach(ch => ch.addEventListener("click", () => toggleCode(ch)));
+      root.querySelectorAll(".game-play").forEach(b => b.addEventListener("click", () => { const p = P.filter(x => !diff || x.difficulty === diff)[+b.dataset.p]; window.LCGame.start(p, Object.keys(p.langs)[0], "easy"); }));
     };
     if (filterRoot) {
       filterRoot.innerHTML = `<div class="seg">${["", "Easy", "Medium", "Hard"].map(d => `<button type="button" data-d="${d}" class="${d === diff ? "on" : ""}">${d || "All"}</button>`).join("")}</div>`;
@@ -108,8 +110,9 @@
     const empty = total === 0;
     $("lc-onboarding").hidden = !empty; $("lc-sections").hidden = empty; $("lc-stats").hidden = empty;
     $("lc-updated").textContent = D.updated ? `Last synced ${D.updated.replace("T", " ").slice(0, 16)} KST` : "";
-    if (!empty) { renderStats($("lc-stats")); renderHeatmap($("lc-heatmap")); renderTable($("lc-table"), $("lc-filter")); }
+    if (!empty) { renderStats($("lc-stats")); renderHeatmap($("lc-heatmap")); renderTable($("lc-table"), $("lc-filter")); if (window.LCGame) window.LCGame.renderLauncher($("lc-game-launch"), P); }
   }
+  document.addEventListener("lc-game-finished", () => { if (total) renderTable($("lc-table"), $("lc-filter")); });
   async function boot() {
     const connected = !!V.token();
     $("lc-body").hidden = !connected;
