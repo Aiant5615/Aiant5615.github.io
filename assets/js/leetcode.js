@@ -65,47 +65,23 @@
   function renderTable(root, filterRoot) {
     let diff = "";
     const draw = () => {
-      const rows = P.filter(p => !diff || p.difficulty === diff).map((p, i) => {
-        const chips = LANGS.map(([k, l]) => p.langs[k]
-          ? `<span class="lang on" data-p="${i}" data-l="${k}" title="first solved ${p.langs[k].date || "?"}">${l}</span>`
-          : `<span class="lang off">${l}</span>`).join("");
+      const rows = P.filter(p => !diff || p.difficulty === diff).sort((a, b) => (a.id || 0) - (b.id || 0)).map(p => {
         const url = p.url || `https://leetcode.com/problems/${p.slug}/`;
         const best = window.LCGame ? window.LCGame.bestFor(p.slug) : null;
-        return `<tr data-i="${i}"><td class="num">${p.id ?? ""}</td><td><a href="${esc(url)}" target="_blank" rel="noopener">${esc(p.title)}</a>${best != null ? ` <span class="game-badge" title="best practice score">🎮 ${best}%</span>` : ""}</td>
+        return `<tr><td class="num">${p.id ?? ""}</td><td><a href="${esc(url)}" target="_blank" rel="noopener">${esc(p.title)}</a>${best != null ? ` <span class="game-badge" title="best practice score">🎮 ${best}%</span>` : ""}</td>
           <td>${p.difficulty ? `<span class="diff diff-${p.difficulty.toLowerCase()}">${p.difficulty}</span>` : ""}</td>
-          <td>${chips}</td><td class="num hide-sm">${p.first || ""}</td>
-          <td class="small"><button type="button" class="btn btn-sm game-play" data-p="${i}" title="Retype this solution line by line">▶ Play</button> <a href="https://github.com/${CFG.repo}/tree/${CFG.branch || "main"}/${encodeURIComponent(p.path)}" target="_blank" rel="noopener">GitHub ↗</a></td></tr>`;
+          <td class="small"><button type="button" class="btn btn-sm game-play" data-slug="${esc(p.slug)}" title="Retype this solution line by line">▶ Play</button> <a href="https://github.com/${CFG.repo}/tree/${CFG.branch || "main"}/${encodeURIComponent(p.path)}" target="_blank" rel="noopener">GitHub ↗</a></td></tr>`;
       });
-      root.innerHTML = rows.length ? `<div style="overflow-x:auto"><table class="lc-table"><thead><tr><th>#</th><th>Problem</th><th>Difficulty</th><th>Languages</th><th class="hide-sm">First solved</th><th></th></tr></thead><tbody>${rows.join("")}</tbody></table></div>` : `<div class="empty">Nothing matches.</div>`;
-      root.querySelectorAll(".lang.on").forEach(ch => ch.addEventListener("click", () => toggleCode(ch)));
-      root.querySelectorAll(".game-play").forEach(b => b.addEventListener("click", () => { const p = P.filter(x => !diff || x.difficulty === diff)[+b.dataset.p]; window.LCGame.start(p, Object.keys(p.langs)[0], "easy"); }));
+      root.innerHTML = rows.length ? `<div style="overflow-x:auto"><table class="lc-table"><thead><tr><th>#</th><th>Problem</th><th>Difficulty</th><th></th></tr></thead><tbody>${rows.join("")}</tbody></table></div>` : `<div class="empty">Nothing matches.</div>`;
+      root.querySelectorAll(".game-play").forEach(b => b.addEventListener("click", () => { const p = P.find(x => x.slug === b.dataset.slug); if (p) window.LCGame.start(p, Object.keys(p.langs)[0], "easy"); }));
     };
     if (filterRoot) {
       filterRoot.innerHTML = `<div class="seg">${["", "Easy", "Medium", "Hard"].map(d => `<button type="button" data-d="${d}" class="${d === diff ? "on" : ""}">${d || "All"}</button>`).join("")}</div>`;
       filterRoot.querySelectorAll("button").forEach(b => b.addEventListener("click", () => { diff = b.dataset.d; filterRoot.querySelectorAll("button").forEach(x => x.classList.toggle("on", x === b)); draw(); }));
     }
     draw();
-    async function toggleCode(chip) {
-      const tr = chip.closest("tr"), next = tr.nextElementSibling;
-      const already = next && next.classList.contains("lc-code") && next.dataset.l === chip.dataset.l;
-      if (next && next.classList.contains("lc-code")) next.remove();
-      tr.querySelectorAll(".lang.open").forEach(x => x.classList.remove("open"));
-      if (already) return;
-      chip.classList.add("open");
-      const p = P.filter(x => !diff || x.difficulty === diff)[+chip.dataset.p], f = p.langs[chip.dataset.l].file;
-      const row = document.createElement("tr"); row.className = "lc-code"; row.dataset.l = chip.dataset.l;
-      row.innerHTML = `<td colspan="6"><div class="code-head"><span>${esc(f)}</span><a href="https://github.com/${CFG.repo}/blob/${CFG.branch || "main"}/${encodeURIComponent(p.path)}/${encodeURIComponent(f)}" target="_blank" rel="noopener">open on GitHub ↗</a></div><pre><code>Loading…</code></pre></td>`;
-      tr.after(row);
-      try {
-        const txt = await V.ghRaw(CFG.repo, `${p.path}/${f}`, CFG.branch || "main");
-        const code = row.querySelector("code"); code.textContent = txt;
-        code.className = `language-${{ c: "c", cpp: "cpp", py: "python" }[chip.dataset.l]}`;
-        if (window.hljs) hljs.highlightElement(code);
-      } catch { row.querySelector("code").textContent = "Could not load the file."; }
-    }
   }
 
-  const $ = id => document.getElementById(id);
   // practice-count heatmaps: one per language, a cell per problem (sorted by number), darker = more games played
   const PRACTICE = [["py", "Python", "37, 99, 235"], ["c", "C", "220, 38, 38"], ["cpp", "C++", "234, 88, 12"]];   // base colours (RGB)
   function renderPractice(root) {
