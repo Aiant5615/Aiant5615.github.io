@@ -2,7 +2,7 @@
 
 A GitHub Pages site for tracking grad school life. https://aiant5615.github.io
 
-The blog, papers, LeetCode, and about pages are public. **The tracker is private**: its data lives in the private repo
+The blog, papers, and about pages are public. **The tracker and the LeetCode page are private**: its data lives in the private repo
 [Aiant5615/tracker](https://github.com/Aiant5615/tracker) (`days.json`) and the tracker page only shows anything in a browser where
 the owner has connected a GitHub token.
 
@@ -10,7 +10,7 @@ the owner has connected a GitHub token.
 
 `.github/workflows/sync-heatmap.yml` runs hourly, reads the private `days.json` with the repository secret **TRACKER_TOKEN**
 (any token with Contents read on `Aiant5615/tracker`), and writes `_data/heatmap.json` holding only, per day, how many habits
-were checked. The home page draws its heatmap from that file plus the public LeetCode data, so visitors see activity levels
+were checked. The home page draws its heatmap from that file (LeetCode solution days are folded in as the coding habit), so visitors see activity levels
 but never times, notes or moods. Set the secret under Settings → Secrets and variables → Actions.
 
 ## Logging a day
@@ -34,14 +34,14 @@ Day format (`days.json`, keyed by date):
 ```
 
 Times are 24-hour `HH:MM` in the data and shown as 12-hour AM/PM on the page. The `coding` habit is also checked automatically
-on days with a new LeetCode solution (derived from the public `_data/leetcode.json`, nothing is written).
+on days with a new LeetCode solution (derived from `leetcode.json` in the private tracker repo, nothing is written).
 
 ## LeetCode
 
 Solutions live in a separate repo, [Aiant5615/leetcode](https://github.com/Aiant5615/leetcode), one folder per problem
 (`0001-two-sum/0001-two-sum.{c,cpp,py}`). The [LeetHub](https://github.com/raphaelheinz/LeetHub-3.0) extension pushes every
 accepted submission there. `.github/workflows/sync-leetcode.yml` pulls that repo hourly (or on demand from the Actions tab),
-writes `_data/leetcode.json`. The `/leetcode/` page
+writes `leetcode.json` into the private tracker repo (with the `TRACKER_TOKEN` secret). The `/leetcode/` page is unlocked with the same password as the tracker and reads that file through the GitHub API; it
 shows stats, a daily heatmap, and the code for each language.
 
 ## Layout
@@ -53,8 +53,9 @@ shows stats, a daily heatmap, and the code for each language.
 | `code/<slug>/` | One runnable PyTorch file per review (`python3 code/<slug>/<slug>.py`, torch + numpy only, CPU, under a minute); the review page shows it beside the text (two columns on wide screens); `code/<slug>/sections.json` maps review headings to function/class names so hovering a section highlights its code. `code/run_all.sh` runs them all; `scripts/check_sections.py` validates the maps |
 | `assets/lib/` | Self-hosted KaTeX 0.16.11 and highlight.js 11.9.0 (no CDN scripts; a CSP in `_includes/head.html` allows scripts from this site only) |
 | `_config.yml` | Site info, `tracker_repo` (private data), `tracker.habits`, `arrive_goal`, `skip_weekends` |
-| `.github/workflows/sync-leetcode.yml` | Hourly: leetcode repo → `_data/leetcode.json` + `coding` habit |
+| `.github/workflows/sync-leetcode.yml` | Hourly: leetcode repo → `leetcode.json` in the private tracker repo (+ `coding` habit) |
 | `scripts/sync_leetcode.py` | The converter used by that workflow |
+| `assets/js/vault.js` | Password-locked token vault shared by the tracker and LeetCode pages |
 | `scripts/log.py` | Terminal logger (edits the private `days.json` via `gh api`) |
 
 ## Tracker settings

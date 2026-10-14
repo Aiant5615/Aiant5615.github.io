@@ -49,7 +49,8 @@
 
   // ───────── data (RAW = what's stored in the private repo; E = derived view incl. LeetCode auto-check) ─────────
   let RAW = {}, E = {}, KEYS = [];
-  const LC_DAYS = (() => { const m = {}; ((window.LEETCODE_DATA && window.LEETCODE_DATA.problems) || []).forEach(p => Object.values(p.langs || {}).forEach(l => (l.days && l.days.length ? l.days : [l.date]).forEach(d => { if (d) m[d] = (m[d] || 0) + 1; }))); return m; })();   // first solves and re-submissions
+  let LC_DAYS = {};   // date -> number of LeetCode solution files that day (first solves and re-submissions), from the private leetcode.json
+  const setLeetcode = data => { const m = {}; ((data && data.problems) || []).forEach(p => Object.values(p.langs || {}).forEach(l => (l.days && l.days.length ? l.days : [l.date]).forEach(d => { if (d) m[d] = (m[d] || 0) + 1; }))); LC_DAYS = m; };
   const LC_HABIT = CFG.leetcodeHabit && HMAP[CFG.leetcodeHabit] ? CFG.leetcodeHabit : null;
   function normalize(k, raw) {
     const done = new Set();
@@ -431,45 +432,18 @@
   }
   const fieldClock = input => openClock({ initial: parseTime(input.value), anchor: input, allowClear: true, onDone: m => { input.value = m == null ? "" : fmt12(m); input.classList.remove("bad"); input.dispatchEvent(new Event("input", { bubbles: true })); } });
 
-  // ───────── private storage: GitHub Contents API with a token stored only in this browser ─────────
-  // The GitHub token is kept only as an AES-GCM ciphertext in localStorage ("vault"), locked with a password chosen by
-  // the owner (PBKDF2-SHA256, 200k iterations). The decrypted token lives in sessionStorage for the current tab only.
-  const TOKEN_KEY = "gh_token", USER_KEY = "gh_user", CACHE_KEY = "tracker_cache", VAULT_KEY = "gh_vault", SESSION_KEY = "gh_session";
-  const lsGet = k => { try { return localStorage.getItem(k); } catch { return null; } };
-  const lsSet = (k, v) => { try { v == null ? localStorage.removeItem(k) : localStorage.setItem(k, v); } catch {} };
-  const ssGet = k => { try { return sessionStorage.getItem(k); } catch { return null; } };
-  const ssSet = (k, v) => { try { v == null ? sessionStorage.removeItem(k) : sessionStorage.setItem(k, v); } catch {} };
-  const token = () => ssGet(SESSION_KEY) || "";
-  const hasVault = () => !!lsGet(VAULT_KEY);
-  const u8b64 = u => btoa(String.fromCharCode(...u)), b64u8 = s => Uint8Array.from(atob(s), c => c.charCodeAt(0));
-  async function vaultKey(pw, salt) {
-    const km = await crypto.subtle.importKey("raw", new TextEncoder().encode(pw), "PBKDF2", false, ["deriveKey"]);
-    return crypto.subtle.deriveKey({ name: "PBKDF2", salt, iterations: 200000, hash: "SHA-256" }, km, { name: "AES-GCM", length: 256 }, false, ["encrypt", "decrypt"]);
-  }
-  async function vaultSave(tok, pw) {
-    const salt = crypto.getRandomValues(new Uint8Array(16)), iv = crypto.getRandomValues(new Uint8Array(12));
-    const ct = new Uint8Array(await crypto.subtle.encrypt({ name: "AES-GCM", iv }, await vaultKey(pw, salt), new TextEncoder().encode(tok)));
-    lsSet(VAULT_KEY, JSON.stringify({ v: 1, salt: u8b64(salt), iv: u8b64(iv), ct: u8b64(ct) }));
-  }
-  async function vaultOpen(pw) {   // → token, or null when the password is wrong
-    let v; try { v = JSON.parse(lsGet(VAULT_KEY) || "null"); } catch { v = null; }
-    if (!v || !v.ct) return null;
-    try { return new TextDecoder().decode(await crypto.subtle.decrypt({ name: "AES-GCM", iv: b64u8(v.iv) }, await vaultKey(pw, b64u8(v.salt)), b64u8(v.ct))); }
-    catch { return null; }
-  }
+  // ───────── private storage: GitHub Contents API with a token stored only in this browser (see vault.js) ─────────
+  const V = window.GHVault, CACHE_KEY = "tracker_cache", LC_FILE = "leetcode.json";
+  const lsGet = V.lsGet, lsSet = V.lsSet, token = V.token, gh = V.gh;
   const DREPO = CFG.trackerRepo || "", DBRANCH = CFG.trackerBranch || "main", DFILE = CFG.trackerFile || "days.json";
   let fileSha = null;
-  async function gh(path, opts = {}) {
-    const r = await fetch(`https://api.github.com${path}`, { ...opts, cache: "no-store", headers: { Authorization: `Bearer ${token()}`, Accept: "application/vnd.github+json", "X-GitHub-Api-Version": "2022-11-28", ...(opts.body ? { "Content-Type": "application/json" } : {}), ...(opts.headers || {}) } });
-    if (!r.ok) { let msg = `${r.status}`; try { msg += " " + ((await r.json()).message || ""); } catch {} const e = new Error(msg); e.status = r.status; throw e; }
-    return r.json();
-  }
   const b64enc = str => btoa(unescape(encodeURIComponent(str)));
   const b64dec = b => decodeURIComponent(escape(atob(b.replace(/\n/g, ""))));
   async function loadRemote() {
     try { const r = await gh(`/repos/${DREPO}/contents/${DFILE}?ref=${DBRANCH}`); fileSha = r.sha; RAW = JSON.parse(b64dec(r.content) || "{}") || {}; }
     catch (e) { if (e.status === 404) { fileSha = null; RAW = {}; } else throw e; }   // 404: file not created yet
-    lsSet(CACHE_KEY, JSON.stringify({ at: Date.now(), raw: RAW }));
+    try { setLeetcode(JSON.parse(await V.ghRaw(DREPO, LC_FILE, DBRANCH))); } catch (e) { if (e.status !== 404) console.warn("leetcode.json:", e.message); }
+    lsSet(CACHE_KEY, JSON.stringify({ at: Date.now(), raw: RAW, lc: LC_DAYS }));
     rebuild();
   }
   // Merge one day's changes: times/numbers replaced when given, habits added (or removed via `remove`), notes appended.
@@ -493,7 +467,7 @@
     if (fileSha) body.sha = fileSha;
     try { const r = await gh(`/repos/${DREPO}/contents/${DFILE}`, { method: "PUT", body: JSON.stringify(body) }); fileSha = r.content.sha; }
     catch (e) { if ((e.status === 409 || e.status === 422) && attempt === 0) { await loadRemote(); return writeDays(next, message, 1); } throw e; }
-    RAW = sorted; lsSet(CACHE_KEY, JSON.stringify({ at: Date.now(), raw: RAW })); rebuild();
+    RAW = sorted; lsSet(CACHE_KEY, JSON.stringify({ at: Date.now(), raw: RAW, lc: LC_DAYS })); rebuild();
   }
   async function saveEntry(date, f, replace) { return writeDays({ ...RAW, [date]: mergeInto(RAW[date], f, replace) }, `log: ${date}`); }
   async function deleteEntry(date) { const next = { ...RAW }; delete next[date]; return writeDays(next, `delete: ${date}`); }
@@ -506,52 +480,6 @@
     try { await saveEntry(p.date, p.f, p.replace); try { localStorage.removeItem(PENDING_KEY); } catch {} renderAll(); const s = document.getElementById("quick-status"); if (s) s.textContent = `✓ Saved the pending change for ${p.date}`; return true; }
     catch (e) { if (manual) { const s = document.getElementById("quick-status"); if (s) s.innerHTML = `<span style="color:var(--danger)">Still failing: ${esc(e.message)}</span>`; } return false; }
   }
-  function renderConnect(root) {
-    const TOKEN_RE = /^(github_pat_|ghp_|gho_)[A-Za-z0-9_]{20,}$/;
-    const clean = s => String(s || "").replace(/[^\x21-\x7E]/g, "");   // printable ASCII only: strips spaces, "…", zero-width characters
-    const legacy = lsGet(TOKEN_KEY);   // token saved in plain text by the earlier version: it is moved into the vault once a password is set
-    const draw = (msg = "") => {
-      const user = lsGet(USER_KEY), note = msg ? `· <span class="muted">${esc(msg)}</span>` : "";
-      const pw = (id, ph) => `<input type="password" id="${id}" class="search" style="margin:0;flex:1;min-width:160px" placeholder="${ph}" autocomplete="${id === "gh-token" ? "off" : id === "gh-new" ? "new-password" : "current-password"}" aria-label="${ph}">`;
-      if (token()) root.innerHTML = `<details class="more"><summary>🔓 Private · unlocked${user ? ` as @${esc(user)}` : ""} ${note}</summary>
-          <div class="card"><div class="form-actions"><button type="button" class="btn btn-sm" id="gh-lock">Lock</button><button type="button" class="btn btn-sm btn-danger" id="gh-reset" style="margin-left:auto">Forget this device</button></div></div></details>`;
-      else if (hasVault()) root.innerHTML = `<details class="more" open><summary>🔒 Private ${note}</summary>
-          <div class="card"><div class="form-actions">${pw("gh-pw", "Password")}<button type="button" class="btn btn-primary" id="gh-open">Unlock</button><button type="button" class="btn btn-sm" id="gh-reset" style="margin-left:auto" title="Forget the saved token on this device">Reset</button></div></div></details>`;
-      else root.innerHTML = `<details class="more" open><summary>🔒 Private · set up this device ${note}</summary>
-          <div class="card"><div class="form-actions">${legacy ? "" : pw("gh-token", "GitHub token")}${pw("gh-new", "New password")}${pw("gh-new2", "Repeat password")}<button type="button" class="btn btn-primary" id="gh-setup">Save</button></div></div></details>`;
-      const on = (id, fn) => root.querySelector("#" + id)?.addEventListener("click", fn);
-      root.querySelectorAll("input").forEach(i => i.addEventListener("keydown", ev => { if (ev.key === "Enter") (root.querySelector("#gh-open") || root.querySelector("#gh-setup"))?.click(); }));
-      on("gh-lock", () => { ssSet(SESSION_KEY, null); RAW = {}; rebuild(); draw("locked"); boot(); });
-      on("gh-reset", () => { if (!confirm("Forget the saved token on this device? You will need the GitHub token again to set it up.")) return; ssSet(SESSION_KEY, null); lsSet(VAULT_KEY, null); lsSet(TOKEN_KEY, null); lsSet(USER_KEY, null); lsSet(CACHE_KEY, null); RAW = {}; rebuild(); draw(); boot(); });
-      on("gh-open", async () => {
-        const p = root.querySelector("#gh-pw").value; if (!p) return;
-        const b = root.querySelector("#gh-open"); b.disabled = true;
-        const tok = await vaultOpen(p);
-        if (!tok) { draw("wrong password"); return; }
-        ssSet(SESSION_KEY, tok); draw("unlocked ✓"); boot();
-      });
-      on("gh-setup", async () => {
-        const tok = legacy ? clean(legacy) : clean(root.querySelector("#gh-token").value);
-        const p1 = root.querySelector("#gh-new").value, p2 = root.querySelector("#gh-new2").value;
-        if (!TOKEN_RE.test(tok)) { draw("that is not a GitHub token"); return; }
-        if (p1.length < 6) { draw("password needs at least 6 characters"); return; }
-        if (p1 !== p2) { draw("passwords differ"); return; }
-        const b = root.querySelector("#gh-setup"); b.disabled = true; draw("checking…"); 
-        ssSet(SESSION_KEY, tok);
-        try {
-          const u = await gh("/user");
-          try { await gh(`/repos/${DREPO}`); } catch (e) { throw new Error(`cannot see ${DREPO} (${e.status})`); }
-          try { await gh(`/repos/${DREPO}/commits?per_page=1`); } catch (e) { throw new Error(`no write access to ${DREPO} (${e.message})`); }
-          await vaultSave(tok, p1); lsSet(TOKEN_KEY, null); lsSet(USER_KEY, u.login); draw("unlocked ✓");
-        }
-        catch (e) { ssSet(SESSION_KEY, null); draw(`rejected: ${e.message}`); return; }
-        boot();
-      });
-    };
-    if (!window.isSecureContext || !window.crypto || !crypto.subtle) { root.innerHTML = `<div class="card small muted">🔒 Private · needs HTTPS</div>`; return; }
-    draw();
-  }
-
   // ───────── the one log form: date, times, numbers, habits, note; merges into the selected day ─────────
   let form = null, logDate = TODAY_KEY, formDirty = false;
   function renderLogForm(root) {
@@ -630,12 +558,12 @@
     if (!silent) form.scrollIntoView({ behavior: "smooth", block: "start" });
   }
 
-  // ───────── public heatmap (home): per-day habit counts from _data/heatmap.json + LeetCode days, no token needed ─────────
+  // ───────── public heatmap (home): per-day habit counts from _data/heatmap.json (coding days included by the sync), no token needed ─────────
   function renderPublicHeatmap(root) {
     const pub = window.PUBLIC_HEATMAP || {}; const days = pub.days || {};
     const nH = Math.max(1, HKEYS.length);
-    const countOf = k => { const d = days[k]; let n = d ? d.n : 0; if (LC_HABIT && LC_DAYS[k] && !(d && d.c)) n += 1; return d || LC_DAYS[k] ? n : null; };
-    const anyData = Object.keys(days).length || Object.keys(LC_DAYS).length;
+    const countOf = k => { const d = days[k]; return d ? d.n : null; };
+    const anyData = Object.keys(days).length;
     const note = document.getElementById("pub-heat-note");
     if (!anyData) { root.innerHTML = `<div class="empty">No activity data yet.</div>`; if (note) note.textContent = ""; return; }
     const cell = 12, gap = 3, step = cell + gap, left = 22, top = 18;
@@ -695,7 +623,7 @@
       if ($("tracker-count")) $("tracker-count").hidden = true;
       return;
     }
-    try { const c = JSON.parse(lsGet(CACHE_KEY) || "null"); if (c && c.raw) { RAW = c.raw; rebuild(); renderAll(); } } catch {}   // show cached data instantly
+    try { const c = JSON.parse(lsGet(CACHE_KEY) || "null"); if (c && c.raw) { RAW = c.raw; LC_DAYS = c.lc || {}; rebuild(); renderAll(); } } catch {}   // show cached data instantly
     try { await loadRemote(); renderAll(); await flushPending(false); }
     catch (e) {
       const msg = e.status === 401 || e.status === 403 ? `GitHub rejected the saved token (${e.message}). Use Reset and set it up again.` : `Could not load ${DFILE} from ${DREPO}: ${e.message}`;
@@ -704,5 +632,9 @@
     }
   }
   window.addEventListener("beforeunload", ev => { if (formDirty) { ev.preventDefault(); ev.returnValue = ""; } });
-  document.addEventListener("DOMContentLoaded", () => { if ($("public-heatmap")) renderPublicHeatmap($("public-heatmap")); if ($("gh-connect")) renderConnect($("gh-connect")); boot(); });
+  document.addEventListener("DOMContentLoaded", () => {
+    if ($("public-heatmap")) renderPublicHeatmap($("public-heatmap"));
+    if ($("gh-connect")) V.renderConnect($("gh-connect"), { repo: DREPO, onChange: () => { if (!token()) { RAW = {}; LC_DAYS = {}; rebuild(); } boot(); } });
+    boot();
+  });
 })();

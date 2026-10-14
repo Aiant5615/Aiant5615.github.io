@@ -2,11 +2,16 @@
 layout: default
 title: LeetCode
 permalink: /leetcode/
+sitemap: false
+noindex: true
 ---
 <div class="page-head">
   <h1>LeetCode</h1>
   <span class="page-tools">one a day · C, C++, Python · <a href="https://github.com/{{ site.leetcode_repo }}" target="_blank" rel="noopener">repo ↗</a></span>
 </div>
+<div id="lc-connect" style="margin:.6rem 0 .9rem"></div>
+
+<div id="lc-body" hidden>
 <p class="muted" id="lc-updated"></p>
 
 <div id="lc-stats"></div>
@@ -24,8 +29,14 @@ permalink: /leetcode/
   <div class="card" id="lc-table"></div>
   <p class="small muted">Click a language chip to view the code. Synced from GitHub every hour; the <code>coding</code> habit in the tracker is checked automatically on days with a new solution.</p>
 </div>
+</div>
 
 <link rel="stylesheet" id="hljs-light" href="{{ '/assets/lib/hljs/github.min.css' | relative_url }}">
 <link rel="stylesheet" id="hljs-dark" href="{{ '/assets/lib/hljs/github-dark.min.css' | relative_url }}" media="(prefers-color-scheme: dark)">
 <script src="{{ '/assets/lib/hljs/highlight.min.js' | relative_url }}"></script>
-{% include leetcode-data.html %}
+<script>
+  window.LEETCODE_CONFIG = { repo: {{ site.leetcode_repo | jsonify }}, branch: {{ site.leetcode_branch | default: "main" | jsonify }},
+    trackerRepo: {{ site.tracker_repo | jsonify }}, trackerBranch: {{ site.tracker_branch | default: "main" | jsonify }} };
+</script>
+<script src="{{ '/assets/js/vault.js' | relative_url }}?v={{ site.time | date: '%s' }}"></script>
+<script src="{{ '/assets/js/leetcode.js' | relative_url }}?v={{ site.time | date: '%s' }}"></script>

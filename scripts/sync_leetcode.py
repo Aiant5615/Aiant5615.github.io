@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Read a LeetHub-style solutions repo and write _data/leetcode.json.
+"""Read a LeetHub-style solutions repo and write leetcode.json (path from LEETCODE_OUT; the workflow pushes it to the private tracker repo).
 (The tracker page derives the `coding` habit from this file; nothing else is written.)
 
 Env: LEETCODE_DIR (path to a full clone of the solutions repo). Prints a summary; exit 0 always.
@@ -8,7 +8,7 @@ import json, os, re, subprocess, sys
 from datetime import datetime, timedelta, timezone
 
 ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
-OUT = os.path.join(ROOT, "_data", "leetcode.json")
+OUT = os.environ.get("LEETCODE_OUT") or os.path.join(ROOT, "_data", "leetcode.json")
 KST = timezone(timedelta(hours=9))
 EXT = {".c": "c", ".cpp": "cpp", ".cc": "cpp", ".cxx": "cpp", ".py": "py"}
 SKIP_DIRS = {".git", ".github", "node_modules"}

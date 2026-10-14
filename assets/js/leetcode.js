@@ -1,9 +1,10 @@
-/* LeetCode page + home summary. Reads window.LEETCODE_DATA (from _data/leetcode.json). */
+/* LeetCode page. Owner-only: after the vault is unlocked (vault.js) the solution index leetcode.json is read from the
+   private tracker repo through the GitHub API, and solution files from the solutions repo the same way. */
 (function () {
   "use strict";
-  const D = window.LEETCODE_DATA || {};
   const CFG = window.LEETCODE_CONFIG || {};
-  const P = Array.isArray(D.problems) ? D.problems : [];
+  const V = window.GHVault, CACHE_KEY = "leetcode_cache";
+  let D = {}, P = [];
   const LANGS = [["c", "C"], ["cpp", "C++"], ["py", "Python"]];
   const pad = n => String(n).padStart(2, "0");
   const keyOf = d => `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())}`;
@@ -15,21 +16,15 @@
   const TODAY = new Date(); TODAY.setHours(0, 0, 0, 0);
 
   // activity per day: first solves and every accepted re-submission (l.days), so reviewing a problem counts too
-  const byDay = {};
-  P.forEach(p => Object.values(p.langs || {}).forEach(l => (l.days && l.days.length ? l.days : [l.date]).forEach(d => { if (d) byDay[d] = (byDay[d] || 0) + 1; })));
-  const days = Object.keys(byDay).sort();
-  function streak() { let d = TODAY, n = 0; if (!byDay[keyOf(d)]) d = addDays(d, -1); while (byDay[keyOf(d)]) { n++; d = addDays(d, -1); } return n; }
-  function best() { let b = 0, c = 0, prev = null; days.forEach(k => { const d = parseKey(k); c = prev && (d - prev) / 864e5 === 1 ? c + 1 : 1; b = Math.max(b, c); prev = d; }); return b; }
-  const total = P.length, all3 = P.filter(p => LANGS.every(([k]) => p.langs[k])).length;
-  const perLang = Object.fromEntries(LANGS.map(([k]) => [k, P.filter(p => p.langs[k]).length]));
-  const week0 = addDays(TODAY, -((TODAY.getDay() + 6) % 7));
-  const thisWeek = days.filter(k => parseKey(k) >= week0).length;
-
-  function renderSummary(root) {   // home card
-    if (!total) { root.innerHTML = `<div class="empty">No solutions yet.</div>`; return; }
-    root.innerHTML = `<div class="today-bar"><span class="chip on">✅ <span class="n">${total}</span> solved</span><span class="chip">🔥 <span class="n">${streak()}</span>-day streak</span>` +
-      LANGS.map(([k, l]) => `<span class="chip">${l} <span class="n">${perLang[k]}</span></span>`).join("") + `</div>`;
+  let byDay = {}, days = [], total = 0, all3 = 0;
+  function setData(data) {
+    D = data || {}; P = Array.isArray(D.problems) ? D.problems : [];
+    byDay = {};
+    P.forEach(p => Object.values(p.langs || {}).forEach(l => (l.days && l.days.length ? l.days : [l.date]).forEach(d => { if (d) byDay[d] = (byDay[d] || 0) + 1; })));
+    days = Object.keys(byDay).sort();
+    total = P.length; all3 = P.filter(p => LANGS.every(([k]) => p.langs[k])).length;
   }
+  function streak() { let d = TODAY, n = 0; if (!byDay[keyOf(d)]) d = addDays(d, -1); while (byDay[keyOf(d)]) { n++; d = addDays(d, -1); } return n; }
 
   function renderStats(root) {
     const tile = (l, v) => `<div class="stat stat-lc"><div class="stat-label">${l}</div><div class="stat-value">${v}</div></div>`;
@@ -96,12 +91,11 @@
       if (already) return;
       chip.classList.add("open");
       const p = P.filter(x => !diff || x.difficulty === diff)[+chip.dataset.p], f = p.langs[chip.dataset.l].file;
-      const raw = `https://raw.githubusercontent.com/${CFG.repo}/${CFG.branch || "main"}/${p.path}/${f}`;
       const row = document.createElement("tr"); row.className = "lc-code"; row.dataset.l = chip.dataset.l;
       row.innerHTML = `<td colspan="6"><div class="code-head"><span>${esc(f)}</span><a href="https://github.com/${CFG.repo}/blob/${CFG.branch || "main"}/${encodeURIComponent(p.path)}/${encodeURIComponent(f)}" target="_blank" rel="noopener">open on GitHub ↗</a></div><pre><code>Loading…</code></pre></td>`;
       tr.after(row);
       try {
-        const txt = await (await fetch(raw)).text();
+        const txt = await V.ghRaw(CFG.repo, `${p.path}/${f}`, CFG.branch || "main");
         const code = row.querySelector("code"); code.textContent = txt;
         code.className = `language-${{ c: "c", cpp: "cpp", py: "python" }[chip.dataset.l]}`;
         if (window.hljs) hljs.highlightElement(code);
@@ -109,14 +103,28 @@
     }
   }
 
-  document.addEventListener("DOMContentLoaded", () => {
-    const $ = id => document.getElementById(id);
-    if ($("lc-summary")) renderSummary($("lc-summary"));
-    if ($("lc-stats")) {
-      const empty = total === 0;
-      $("lc-onboarding").hidden = !empty; $("lc-sections").hidden = empty; $("lc-stats").hidden = empty;
-      if ($("lc-updated")) $("lc-updated").textContent = D.updated ? `Last synced ${D.updated.replace("T", " ").slice(0, 16)} KST` : "";
-      if (!empty) { renderStats($("lc-stats")); renderHeatmap($("lc-heatmap")); renderTable($("lc-table"), $("lc-filter")); }
+  const $ = id => document.getElementById(id);
+  function render() {
+    const empty = total === 0;
+    $("lc-onboarding").hidden = !empty; $("lc-sections").hidden = empty; $("lc-stats").hidden = empty;
+    $("lc-updated").textContent = D.updated ? `Last synced ${D.updated.replace("T", " ").slice(0, 16)} KST` : "";
+    if (!empty) { renderStats($("lc-stats")); renderHeatmap($("lc-heatmap")); renderTable($("lc-table"), $("lc-filter")); }
+  }
+  async function boot() {
+    const connected = !!V.token();
+    $("lc-body").hidden = !connected;
+    if (!connected) { setData({}); return; }
+    try { const c = JSON.parse(V.lsGet(CACHE_KEY) || "null"); if (c && c.data) { setData(c.data); render(); } } catch {}   // cached copy first
+    try {
+      setData(JSON.parse(await V.ghRaw(CFG.trackerRepo, "leetcode.json", CFG.trackerBranch || "main")));
+      V.lsSet(CACHE_KEY, JSON.stringify({ at: Date.now(), data: D })); render();
+    } catch (e) {
+      if (e.status === 404) { setData({}); render(); $("lc-updated").textContent = "leetcode.json has not been synced to the private repo yet."; }
+      else $("lc-updated").innerHTML = `<span style="color:var(--danger)">Could not load the LeetCode index: ${esc(e.message)}</span>`;
     }
+  }
+  document.addEventListener("DOMContentLoaded", () => {
+    V.renderConnect($("lc-connect"), { repo: CFG.trackerRepo, onChange: boot });
+    boot();
   });
 })();

@@ -30,7 +30,8 @@ jobs:
           if [ -z "$TRACKER_TOKEN" ]; then echo "TRACKER_TOKEN secret not set; skipping (add it under Settings → Secrets and variables → Actions)."; exit 0; fi
           code=$(curl -s -o /tmp/days.json -w '%{http_code}' -H "Authorization: Bearer $TRACKER_TOKEN" -H "Accept: application/vnd.github.raw+json" "https://api.github.com/repos/$TRACKER_REPO/contents/$TRACKER_FILE")
           if [ "$code" != "200" ]; then echo "Could not read $TRACKER_REPO/$TRACKER_FILE (HTTP $code). Check that TRACKER_TOKEN has Contents read access."; exit 1; fi
-          python3 scripts/summarize_heatmap.py /tmp/days.json _data/heatmap.json
+          curl -s -o /tmp/leetcode.json -H "Authorization: Bearer $TRACKER_TOKEN" -H "Accept: application/vnd.github.raw+json" "https://api.github.com/repos/$TRACKER_REPO/contents/leetcode.json" || true
+          python3 scripts/summarize_heatmap.py /tmp/days.json _data/heatmap.json /tmp/leetcode.json
 
       - name: Commit if changed
         run: |

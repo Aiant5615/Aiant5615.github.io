@@ -1,5 +1,9 @@
 name: Sync LeetCode solutions
 
+# Indexes the solutions repo into leetcode.json and writes that file into the PRIVATE tracker repo, so the LeetCode
+# page (owner-only, unlocked with the same password as the tracker) can read it through the GitHub API. Nothing about
+# the solutions is published on the site itself. Needs the repository secret TRACKER_TOKEN with Contents read+write on
+# the tracker repo.
 on:
   schedule:
     - cron: "17 * * * *"        # hourly
@@ -8,12 +12,14 @@ on:
     types: [leetcode]           # sent by the leetcode repo's notify-site workflow (optional)
 
 permissions:
-  contents: write
+  contents: read
 
 concurrency: sync-leetcode
 
 env:
   LEETCODE_REPO: Aiant5615/leetcode
+  TRACKER_REPO: Aiant5615/tracker
+  TRACKER_FILE: leetcode.json
 
 jobs:
   sync:
@@ -22,19 +28,33 @@ jobs:
       - uses: actions/checkout@v4
 
       - name: Clone the solutions repo (full history, for commit dates)
-        run: git clone --quiet "https://github.com/${LEETCODE_REPO}.git" /tmp/leetcode
-
-      - name: Build _data/leetcode.json
-        run: LEETCODE_DIR=/tmp/leetcode python3 scripts/sync_leetcode.py
-
-      - name: Commit and push
-        id: push
+        env:
+          TRACKER_TOKEN: ${{ secrets.TRACKER_TOKEN }}
         run: |
-          git config user.name "github-actions[bot]"
-          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-          git add _data/leetcode.json
-          if git diff --cached --quiet; then echo "no changes"; echo "changed=false" >> "$GITHUB_OUTPUT"; else
-            git commit -m "leetcode: sync"
-            git push
-            echo "changed=true" >> "$GITHUB_OUTPUT"
-          fi
+          if [ -n "$TRACKER_TOKEN" ]; then git clone --quiet "https://x-access-token:${TRACKER_TOKEN}@github.com/${LEETCODE_REPO}.git" /tmp/leetcode || git clone --quiet "https://github.com/${LEETCODE_REPO}.git" /tmp/leetcode
+          else git clone --quiet "https://github.com/${LEETCODE_REPO}.git" /tmp/leetcode; fi
+
+      - name: Build leetcode.json and push it to the private tracker repo
+        env:
+          TRACKER_TOKEN: ${{ secrets.TRACKER_TOKEN }}
+        run: |
+          if [ -z "$TRACKER_TOKEN" ]; then echo "TRACKER_TOKEN secret not set; skipping."; exit 0; fi
+          api="https://api.github.com/repos/$TRACKER_REPO/contents/$TRACKER_FILE"
+          hdr=(-H "Authorization: Bearer $TRACKER_TOKEN" -H "Accept: application/vnd.github+json" -H "X-GitHub-Api-Version: 2022-11-28")
+          code=$(curl -s -o /tmp/current.json -w '%{http_code}' "${hdr[@]}" "$api")
+          sha=""
+          if [ "$code" = "200" ]; then sha=$(python3 -c 'import json,sys;print(json.load(open("/tmp/current.json"))["sha"])'); python3 -c 'import json,base64;d=json.load(open("/tmp/current.json"));open("/tmp/leetcode.json","w").write(base64.b64decode(d["content"]).decode())'
+          elif [ "$code" != "404" ]; then echo "Could not read $TRACKER_REPO/$TRACKER_FILE (HTTP $code). Check TRACKER_TOKEN."; exit 1; fi
+          cp /tmp/leetcode.json /tmp/before.json 2>/dev/null || true
+          LEETCODE_DIR=/tmp/leetcode LEETCODE_OUT=/tmp/leetcode.json python3 scripts/sync_leetcode.py
+          if [ -f /tmp/before.json ] && cmp -s /tmp/before.json /tmp/leetcode.json; then echo "no changes"; exit 0; fi
+          python3 - "$sha" <<'PY' > /tmp/body.json
+          import json, base64, sys
+          sha = sys.argv[1]
+          body = {"message": "leetcode: sync", "content": base64.b64encode(open("/tmp/leetcode.json", "rb").read()).decode()}
+          if sha: body["sha"] = sha
+          print(json.dumps(body))
+          PY
+          code=$(curl -s -o /tmp/put.json -w '%{http_code}' -X PUT "${hdr[@]}" -H "Content-Type: application/json" --data @/tmp/body.json "$api")
+          if [ "$code" != "200" ] && [ "$code" != "201" ]; then echo "Could not write $TRACKER_REPO/$TRACKER_FILE (HTTP $code): $(cat /tmp/put.json | head -c 300). TRACKER_TOKEN needs Contents read+write on $TRACKER_REPO."; exit 1; fi
+          echo "pushed leetcode.json to $TRACKER_REPO"
