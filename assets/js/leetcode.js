@@ -5,7 +5,7 @@
   const CFG = window.LEETCODE_CONFIG || {};
   const V = window.GHVault, CACHE_KEY = "leetcode_cache";
   let D = {}, P = [];
-  const LANGS = [["c", "C"], ["cpp", "C++"], ["py", "Python"]];
+  const LANGS = [["py", "Python"], ["c", "C"], ["cpp", "C++"]];
   const pad = n => String(n).padStart(2, "0");
   const keyOf = d => `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())}`;
   const parseKey = k => { const [y, m, d] = k.split("-").map(Number); return new Date(y, m - 1, d); };
