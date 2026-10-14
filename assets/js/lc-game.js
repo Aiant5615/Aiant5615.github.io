@@ -38,6 +38,28 @@
   let G = null;   // the current game
   const $ = id => document.getElementById(id);
 
+  // The problem statement from the folder's README.md (LeetHub writes it as HTML). Only a whitelist of tags survives.
+  const SAFE = new Set(["P", "PRE", "CODE", "STRONG", "B", "EM", "I", "UL", "OL", "LI", "BR", "SUP", "SUB", "H1", "H2", "H3", "H4", "HR", "SPAN", "DIV", "TABLE", "THEAD", "TBODY", "TR", "TH", "TD", "IMG", "A"]);
+  function sanitize(node, out) {
+    node.childNodes.forEach(n => {
+      if (n.nodeType === 3) { out.appendChild(document.createTextNode(n.textContent)); return; }
+      if (n.nodeType !== 1 || !SAFE.has(n.tagName)) { if (n.nodeType === 1) sanitize(n, out); return; }
+      const e = document.createElement(n.tagName.toLowerCase());
+      if (n.tagName === "A" && /^https?:/.test(n.getAttribute("href") || "")) { e.href = n.getAttribute("href"); e.target = "_blank"; e.rel = "noopener"; }
+      if (n.tagName === "IMG" && /^https:/.test(n.getAttribute("src") || "")) { e.src = n.getAttribute("src"); e.alt = n.getAttribute("alt") || ""; e.loading = "lazy"; }
+      sanitize(n, e); out.appendChild(e);
+    });
+  }
+  function descriptionHtml(readme) {
+    const doc = new DOMParser().parseFromString(readme, "text/html");
+    const first = doc.body.querySelector("h2"); if (first) first.remove();                 // the title line, shown in our own header
+    const diff = doc.body.querySelector("h3"); if (diff && /^(easy|medium|hard)$/i.test(diff.textContent.trim())) diff.remove();
+    const hr = doc.body.querySelector("hr"); if (hr && hr === doc.body.firstElementChild) hr.remove();
+    const out = document.createElement("div"); sanitize(doc.body, out);
+    return out.innerHTML.trim() || `<p class="muted">No description in this folder.</p>`;
+  }
+  const descPane = () => `<aside class="game-desc"><div class="game-desc-head"><b>${esc(G.problem.id != null ? "#" + G.problem.id + " " : "")}${esc(G.problem.title)}</b>${G.problem.difficulty ? ` <span class="diff diff-${G.problem.difficulty.toLowerCase()}">${esc(G.problem.difficulty)}</span>` : ""}${G.problem.url ? ` <a class="small" href="${esc(G.problem.url)}" target="_blank" rel="noopener">LeetCode ↗</a>` : ""}</div><div class="game-desc-body">${G.desc || `<p class="muted">Loading the description…</p>`}</div></aside>`;
+
   function lineMask(line, idx, mode) {
     // which tokens start visible: easy all, hard none, medium roughly half (deterministic per line)
     const tk = tokens(line);
@@ -55,20 +77,19 @@
     const p = G.problem, done = G.idx >= G.lines.length;
     const best = bests()[bestKey(p.slug, G.lang, G.mode)];
     const head = `<div class="game-head">
-        <div><b>${esc(p.id != null ? "#" + p.id + " " : "")}${esc(p.title)}</b> <span class="muted">· ${LANG_NAME[G.lang]} · ${G.mode}</span>
-          ${p.url ? `<a class="small" href="${esc(p.url)}" target="_blank" rel="noopener">problem ↗</a>` : ""}</div>
+        <div><b>${LANG_NAME[G.lang]}</b> <span class="muted">· ${G.mode} mode</span></div>
         <div class="game-meta"><span>line <b>${Math.min(G.idx + 1, G.lines.length)}</b>/${G.lines.length}</span><span>score <b id="game-score">${G.score}</b>/${G.max}</span>${best ? `<span class="muted">best ${best.best}/${best.max}</span>` : ""}<button type="button" class="btn btn-sm" id="game-quit">Quit</button></div>
       </div>
       <div class="game-progress"><i style="width:${(G.idx / G.lines.length * 100).toFixed(1)}%"></i></div>`;
     if (done) {
       const secs = Math.round((Date.now() - G.t0) / 1000), pct = Math.round(G.score / G.max * 100);
-      root.innerHTML = head + `<div class="game-done">
+      root.innerHTML = `<div class="game-layout"><div class="game-main">` + head + `<div class="game-done">
           <div class="game-done-score">${G.score} / ${G.max} <span class="unit">points · ${pct}%</span></div>
           <div class="muted">${G.lines.length} lines · ${G.wrong} wrong tries · ${G.skipped} skipped · ${Math.floor(secs / 60)}m ${secs % 60}s${G.newBest ? " · 🏆 new best" : ""}</div>
           <div class="form-actions" style="margin-top:.8rem"><button type="button" class="btn btn-primary" id="game-again">Play again</button>
             ${["easy", "medium", "hard"].filter(m => m !== G.mode).map(m => `<button type="button" class="btn" data-mode="${m}">Try ${m}</button>`).join("")}
             <button type="button" class="btn" id="game-random">Random problem</button></div>
-          <details class="more" style="margin-top:.8rem"><summary>Show the solution</summary><pre class="game-code"><code>${esc(G.lines.join("\n"))}</code></pre></details></div>`;
+          <details class="more" style="margin-top:.8rem"><summary>Show the solution</summary><pre class="game-code"><code>${esc(G.lines.join("\n"))}</code></pre></details></div></div>` + descPane() + `</div>`;
       root.querySelector("#game-again").addEventListener("click", () => start(G.problem, G.lang, G.mode));
       root.querySelectorAll("[data-mode]").forEach(b => b.addEventListener("click", () => start(G.problem, G.lang, b.dataset.mode)));
       root.querySelector("#game-random").addEventListener("click", () => window.LCGame.random());
@@ -79,11 +100,11 @@
     const doneLines = G.lines.slice(Math.max(0, G.idx - 6), G.idx).map(l => `<div class="game-prev">${esc(l)}</div>`).join("");
     const left = G.lines.length - G.idx - 1;
     const upcoming = G.mode === "hard" ? "" : G.lines.slice(G.idx + 1, G.idx + 4).map(l => `<div class="game-next"><span style="width:${Math.min(60, l.trim().length)}ch;margin-left:${l.match(/^\s*/)[0].length}ch"></span></div>`).join("");
-    root.innerHTML = head + `<div class="game-board" id="game-board">${doneLines}
+    root.innerHTML = `<div class="game-layout"><div class="game-main">` + head + `<div class="game-board" id="game-board">${doneLines}
         <div class="game-line"><pre class="ghost" id="game-ghost">${ghostHtml(line, G.mask)}</pre><input id="game-input" class="typed" type="text" spellcheck="false" autocomplete="off" autocapitalize="off" autocorrect="off" aria-label="Type the next line"></div>
         ${upcoming}${left > 0 ? `<div class="game-left muted small">${left} more line${left === 1 ? "" : "s"}</div>` : ""}</div>
-      <div class="game-tools"><span class="small" id="game-msg">${G.msg || "Type the line and press Enter · Tab inserts 4 spaces · Esc quits"}</span>
-        <span style="margin-left:auto;display:flex;gap:.4rem"><button type="button" class="btn btn-sm" id="game-hint" title="Reveal one more token (costs a point of this line)">Hint</button><button type="button" class="btn btn-sm" id="game-skip" title="Reveal the whole line, 0 points">Skip</button></span></div>`;
+      <div class="game-tools"><span class="small" id="game-msg">${G.msg || (G.mode === "hard" ? "Type the line and press Enter · Tab inserts 4 spaces · Esc quits" : "Enter submits · → types the next grey character (⇧→ a whole word; auto-typed lines score 0) · Esc quits")}</span>
+        <span style="margin-left:auto;display:flex;gap:.4rem"><button type="button" class="btn btn-sm" id="game-hint" title="Reveal one more token (costs a point of this line)">Hint</button><button type="button" class="btn btn-sm" id="game-skip" title="Reveal the whole line, 0 points">Skip</button></span></div></div>` + descPane() + `</div>`;
     const input = root.querySelector("#game-input");
     input.value = G.typed != null ? G.typed : indent;
     input.focus(); input.setSelectionRange(input.value.length, input.value.length);
@@ -91,12 +112,29 @@
       if (ev.key === "Enter") { ev.preventDefault(); submit(input.value); }
       else if (ev.key === "Tab") { ev.preventDefault(); const s = input.selectionStart; input.value = input.value.slice(0, s) + "    " + input.value.slice(input.selectionEnd); input.setSelectionRange(s + 4, s + 4); }
       else if (ev.key === "Escape") quit();
+      else if (ev.key === "ArrowRight" && input.selectionStart === input.value.length) { if (autoType(input, ev.shiftKey)) ev.preventDefault(); }
     });
     input.addEventListener("input", () => { G.typed = input.value; paint(input.value); });
     paint(input.value);
     root.querySelector("#game-hint").addEventListener("click", () => { reveal("hint"); G.typed = input.value; render(); });
     root.querySelector("#game-skip").addEventListener("click", skip);
     root.querySelector("#game-quit").addEventListener("click", quit);
+  }
+
+  // → fills in the next grey character (shift: the rest of the token) when it is visible; the line then scores 0
+  function autoType(input, wholeToken) {
+    const line = G.lines[G.idx], typed = input.value;
+    if (typed !== line.slice(0, typed.length)) return false;                         // only while everything so far is right
+    const tk = tokens(line); let pos = 0, i = 0;
+    while (i < tk.length && pos + tk[i].length <= typed.length) { pos += tk[i].length; i++; }
+    if (i >= tk.length) return false;
+    const visible = G.mask[i] || /^\s+$/.test(tk[i]);
+    if (!visible) return false;
+    const add = wholeToken ? line.slice(typed.length, pos + tk[i].length) : line[typed.length];
+    input.value = typed + add; G.typed = input.value; G.auto = true; G.linePts = 0;
+    paint(input.value);
+    const m = $("game-msg"); if (m) m.textContent = "auto-typed · this line scores 0";
+    return true;
   }
 
   // colour the ghost: characters already typed correctly turn solid, a typo turns red from the first mismatch
@@ -132,7 +170,7 @@
     if (!G) return;
     const line = G.lines[G.idx];
     if (norm(typed) === norm(line)) {
-      G.score += G.linePts; next(`✓ +${G.linePts}`);
+      G.score += G.linePts; next(G.auto ? "✓ auto-typed · +0" : `✓ +${G.linePts}`);
       return;
     }
     G.wrong++;
@@ -149,7 +187,7 @@
   function skip() { if (!G) return; G.skipped++; G.linePts = 0; next("skipped · 0"); }
 
   function next(msg) {
-    G.idx++; G.typed = null; G.msg = msg;
+    G.idx++; G.typed = null; G.msg = msg; G.auto = false;
     if (G.idx < G.lines.length) { G.mask = lineMask(G.lines[G.idx], G.idx, G.mode); G.linePts = PTS[G.mode]; }
     else {
       const key = bestKey(G.problem.slug, G.lang, G.mode), all = bests(), prev = all[key];
@@ -161,20 +199,23 @@
     render();
   }
 
-  function quit() { G = null; const root = $("lc-game"); if (root) root.innerHTML = ""; $("lc-game-card").hidden = true; }
+  function quit() { G = null; const root = $("lc-game"); if (root) root.innerHTML = ""; $("lc-game-card").hidden = true; $("lc-body").classList.remove("playing"); window.scrollTo({ top: 0, behavior: "smooth" }); }
 
   async function start(problem, lang, mode) {
     const card = $("lc-game-card"), root = $("lc-game");
-    card.hidden = false; card.scrollIntoView({ behavior: "smooth", block: "start" });
+    $("lc-body").classList.add("playing"); card.hidden = false; window.scrollTo({ top: 0 });
     root.innerHTML = `<div class="muted">Loading ${esc(problem.title)} (${LANG_NAME[lang]})…</div>`;
+    const branch = CFG.branch || "main";
+    const readme = V.ghRaw(CFG.repo, `${problem.path}/README.md`, branch).then(descriptionHtml, () => `<p class="muted">No description in this folder.</p>`);
     let text;
-    try { text = await V.ghRaw(CFG.repo, `${problem.path}/${problem.langs[lang].file}`, CFG.branch || "main"); }
+    try { text = await V.ghRaw(CFG.repo, `${problem.path}/${problem.langs[lang].file}`, branch); }
     catch (e) { root.innerHTML = `<span style="color:var(--danger)">Could not load the solution: ${esc(e.message)}</span>`; return; }
     const lines = playable(text, lang);
     if (!lines.length) { root.innerHTML = `<span class="muted">Nothing to type in this file.</span>`; return; }
-    G = { problem, lang, mode, lines, idx: 0, score: 0, max: lines.length * PTS[mode], linePts: PTS[mode], wrong: 0, skipped: 0, t0: Date.now(), typed: null, msg: "", newBest: false };
+    G = { problem, lang, mode, lines, idx: 0, score: 0, max: lines.length * PTS[mode], linePts: PTS[mode], wrong: 0, skipped: 0, t0: Date.now(), typed: null, msg: "", newBest: false, auto: false, desc: "" };
     G.mask = lineMask(lines[0], 0, mode);
     render();
+    readme.then(html => { if (G && G.problem === problem) { G.desc = html; const d = root.querySelector(".game-desc-body"); if (d) d.innerHTML = html; } });
   }
 
   // the launcher: problem + language + mode pickers
@@ -187,7 +228,7 @@
         ${sel("game-lang", "")}
         <div class="seg" id="game-mode">${["easy", "medium", "hard"].map((m, i) => `<button type="button" data-m="${m}" class="${i === 0 ? "on" : ""}">${m}</button>`).join("")}</div>
         <button type="button" class="btn btn-primary" id="game-start">▶ Play</button><button type="button" class="btn" id="game-random2" title="Random problem, language and mode">🎲</button>
-      </div><p class="small muted" style="margin:.5rem 0 0">easy shows the whole line in grey, medium about half of it, hard nothing. Points per line 1 / 2 / 3; a wrong try reveals a token and costs a point. Scores stay in this browser.</p>`;
+      </div><p class="small muted" style="margin:.5rem 0 0">easy shows the whole line in grey, medium about half of it, hard nothing. Points per line 1 / 2 / 3; a wrong try reveals a token and costs a point; → auto-types a grey character but that line then scores 0. The problem statement is shown next to the editor. Scores stay in this browser.</p>`;
     const langSel = root.querySelector("#game-lang"), probSel = root.querySelector("#game-problem");
     const fillLangs = () => { const p = playable_[+probSel.value]; langSel.innerHTML = Object.keys(p.langs).map(k => `<option value="${k}">${LANG_NAME[k] || k}</option>`).join(""); };
     probSel.addEventListener("change", fillLangs); fillLangs();

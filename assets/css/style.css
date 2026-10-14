@@ -461,3 +461,17 @@ ol.post-list.numbered li::before { content: counter(item); color: var(--muted); 
 .game-done-score .unit { font-size: .95rem; font-weight: 500; color: var(--muted); }
 .game-code { max-height: 360px; overflow: auto; }
 .game-badge { font-size: .75rem; color: var(--muted); margin-left: .35rem; }
+
+/* game: takes over the page while playing; editor left, problem statement right */
+#lc-body.playing > :not(#lc-game-card) { display: none; }
+#lc-game-card { padding: 1rem 1.1rem; }
+.game-layout { display: grid; grid-template-columns: minmax(0, 1fr); gap: 1.2rem; }
+@media (min-width: 900px) { .game-layout { grid-template-columns: minmax(0, 3fr) minmax(0, 2fr); align-items: start; } .game-desc { position: sticky; top: 4.2rem; } }
+.game-main { min-width: 0; }
+.game-desc { min-width: 0; max-height: calc(100vh - 6rem); overflow: auto; border-left: 1px solid var(--border); padding-left: 1.2rem; font-size: .92rem; }
+@media (max-width: 899px) { .game-desc { border-left: 0; padding-left: 0; border-top: 1px solid var(--border); padding-top: 1rem; max-height: none; } }
+.game-desc-head { display: flex; flex-wrap: wrap; gap: .5rem; align-items: center; margin-bottom: .6rem; font-size: 1rem; }
+.game-desc-body p { margin: .55rem 0; }
+.game-desc-body pre { padding: .6rem .8rem; font-size: .82rem; white-space: pre-wrap; }
+.game-desc-body ul, .game-desc-body ol { padding-left: 1.3rem; }
+.game-desc-body img { max-width: 100%; height: auto; }
