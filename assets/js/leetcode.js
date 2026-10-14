@@ -55,10 +55,10 @@
         const best = window.LCGame ? window.LCGame.bestFor(p.slug) : null;
         return `<tr><td class="num">${p.id ?? ""}</td><td><a href="${esc(url)}" target="_blank" rel="noopener">${esc(p.title)}</a>${best != null ? ` <span class="game-badge" title="best practice score">🎮 ${best}%</span>` : ""}</td>
           <td>${p.difficulty ? `<span class="diff diff-${p.difficulty.toLowerCase()}">${p.difficulty}</span>` : ""}</td>
-          <td class="small"><button type="button" class="btn btn-sm game-play" data-slug="${esc(p.slug)}" title="Retype this solution line by line">▶ Play</button> <a href="https://github.com/${CFG.repo}/tree/${CFG.branch || "main"}/${encodeURIComponent(p.path)}" target="_blank" rel="noopener">GitHub ↗</a></td></tr>`;
+          <td class="small">${LANGS.map(([k, l]) => p.langs[k] ? `<button type="button" class="btn btn-sm game-play" data-slug="${esc(p.slug)}" data-lang="${k}" title="Play this solution in ${l}">${l}</button>` : "").join(" ")}</td></tr>`;
       });
       root.innerHTML = rows.length ? `<div style="overflow-x:auto"><table class="lc-table"><thead><tr><th>#</th><th>Problem</th><th>Difficulty</th><th></th></tr></thead><tbody>${rows.join("")}</tbody></table></div>` : `<div class="empty">Nothing matches.</div>`;
-      root.querySelectorAll(".game-play").forEach(b => b.addEventListener("click", () => { const p = P.find(x => x.slug === b.dataset.slug); if (p) window.LCGame.start(p, Object.keys(p.langs)[0], "easy"); }));
+      root.querySelectorAll(".game-play").forEach(b => b.addEventListener("click", () => { const p = P.find(x => x.slug === b.dataset.slug); if (p) window.LCGame.start(p, b.dataset.lang, "easy"); }));
     };
     if (filterRoot) {
       filterRoot.innerHTML = `<div class="seg">${["", "Easy", "Medium", "Hard"].map(d => `<button type="button" data-d="${d}" class="${d === diff ? "on" : ""}">${d || "All"}</button>`).join("")}</div>`;
