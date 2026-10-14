@@ -82,6 +82,8 @@
     draw();
   }
 
+  const $ = id => document.getElementById(id);
+
   // practice-count heatmaps: one per language, a cell per problem (sorted by number), darker = more games played
   const PRACTICE = [["py", "Python", "37, 99, 235"], ["c", "C", "220, 38, 38"], ["cpp", "C++", "234, 88, 12"]];   // base colours (RGB)
   function renderPractice(root) {
