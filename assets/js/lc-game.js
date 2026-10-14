@@ -120,11 +120,12 @@
     ghost.innerHTML = html;
   }
 
-  function reveal(why) {
+  function reveal(why) {   // → true if a token was uncovered
     const hidden = G.mask.map((v, i) => v ? -1 : i).filter(i => i >= 0 && !/^\s+$/.test(tokens(G.lines[G.idx])[i]));
     if (hidden.length) G.mask[hidden[0]] = true;
     G.linePts = Math.max(0, G.linePts - 1);
-    if (why === "hint") G.msg = `Hint used · this line is now worth ${G.linePts}`;
+    if (why === "hint") G.msg = hidden.length ? `Hint: one more token revealed · this line is now worth ${G.linePts}` : `Nothing left to reveal · this line is now worth ${G.linePts}`;
+    return hidden.length > 0;
   }
 
   function submit(typed) {
@@ -138,8 +139,8 @@
     const a = norm(typed), b = norm(line);
     let k = 0; while (k < a.length && k < b.length && a[k] === b[k]) k++;
     const where = k >= a.length ? "your line is too short" : k >= b.length ? "your line is too long" : `first difference at column ${k + 1}`;
-    reveal("wrong");
-    G.msg = `✗ ${where} · one more token revealed · this line is now worth ${G.linePts}`;
+    const uncovered = reveal("wrong");
+    G.msg = `✗ ${where}${uncovered ? " · one more token revealed" : ""} · this line is now worth ${G.linePts}`;
     G.typed = typed;
     render();
     const board = $("game-board"); if (board) { board.classList.remove("shake"); void board.offsetWidth; board.classList.add("shake"); }
