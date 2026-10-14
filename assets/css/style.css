@@ -486,3 +486,11 @@ ol.post-list.numbered li::before { content: counter(item); color: var(--muted); 
 .game-track .runner { position: absolute; top: 50%; font-size: 1.5rem; line-height: 1; transform: translate(-30%, -62%) scaleX(-1); transition: left .6s cubic-bezier(.3, 1.2, .5, 1); }   /* mirrored: the emoji faces left, the flag is on the right */
 .game-track .runner.hop { animation: runner-hop .5s; }
 @keyframes runner-hop { 40% { transform: translate(-30%, -110%) scaleX(-1.15) scaleY(1.15); } 100% { transform: translate(-30%, -62%) scaleX(-1); } }
+
+/* practice-count heatmaps on the LeetCode page */
+.practice-card { margin-bottom: .8rem; }
+.practice-head { display: flex; justify-content: space-between; align-items: baseline; gap: .6rem; flex-wrap: wrap; margin-bottom: .6rem; }
+.pgrid { display: flex; flex-wrap: wrap; gap: 4px; }
+.pcell { width: 34px; height: 30px; border-radius: 6px; border: 1px solid var(--border); background: var(--heat-0); color: var(--text); font: inherit; font-size: .78rem; font-variant-numeric: tabular-nums; cursor: pointer; padding: 0; }
+.pcell:hover:not([disabled]) { outline: 2px solid var(--accent); outline-offset: 1px; }
+.pcell.none { opacity: .35; cursor: default; border-style: dashed; }

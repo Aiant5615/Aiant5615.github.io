@@ -106,13 +106,31 @@
   }
 
   const $ = id => document.getElementById(id);
+  // practice-count heatmaps: one per language, a cell per problem (sorted by number), darker = more games played
+  const PRACTICE = [["py", "Python", "37, 99, 235"], ["c", "C", "220, 38, 38"], ["cpp", "C++", "234, 88, 12"]];   // base colours (RGB)
+  function renderPractice(root) {
+    const plays = {};   // slug -> lang -> games played (all modes)
+    Object.entries(window.LCGame ? window.LCGame.bests() : {}).forEach(([k, v]) => { const [slug, lang] = k.split("|"); (plays[slug] = plays[slug] || {})[lang] = (plays[slug][lang] || 0) + (v.plays || 0); });
+    const probs = [...P].sort((a, b) => (a.id || 0) - (b.id || 0));
+    root.innerHTML = PRACTICE.map(([lang, name, rgb]) => {
+      const cells = probs.map(p => {
+        const n = (plays[p.slug] || {})[lang] || 0, has = !!p.langs[lang];
+        const lv = n === 0 ? 0 : Math.min(4, n);
+        const style = lv ? `background:rgba(${rgb},${(0.25 + 0.75 * lv / 4).toFixed(2)});color:${lv >= 3 ? "#fff" : "inherit"};border-color:transparent` : "";
+        return `<button type="button" class="pcell${has ? "" : " none"}" style="${style}" data-slug="${esc(p.slug)}" data-lang="${lang}" title="#${p.id ?? "?"} ${esc(p.title)} · ${has ? `${n} game${n === 1 ? "" : "s"} in ${name}` : `no ${name} solution`}" ${has ? "" : "disabled"}>${p.id ?? "?"}</button>`;
+      }).join("");
+      const total_ = probs.reduce((a, p) => a + ((plays[p.slug] || {})[lang] || 0), 0);
+      return `<div class="card practice-card"><div class="practice-head"><b style="color:rgb(${rgb})">${name}</b><span class="small muted">${total_} game${total_ === 1 ? "" : "s"} · click a problem to play</span></div><div class="pgrid">${cells}</div></div>`;
+    }).join("");
+    root.querySelectorAll(".pcell:not([disabled])").forEach(b => b.addEventListener("click", () => { const p = P.find(x => x.slug === b.dataset.slug); if (p && window.LCGame) window.LCGame.start(p, b.dataset.lang, "easy"); }));
+  }
+
   function render() {
     const empty = total === 0;
-    $("lc-onboarding").hidden = !empty; $("lc-sections").hidden = empty; $("lc-stats").hidden = empty;
-    $("lc-updated").textContent = D.updated ? `Last synced ${D.updated.replace("T", " ").slice(0, 16)} KST` : "";
-    if (!empty) { renderStats($("lc-stats")); renderHeatmap($("lc-heatmap")); renderTable($("lc-table"), $("lc-filter")); if (window.LCGame) window.LCGame.renderLauncher($("lc-game-launch"), P); }
+    $("lc-onboarding").hidden = !empty; $("lc-sections").hidden = empty;
+    if (!empty) { renderHeatmap($("lc-heatmap")); renderPractice($("lc-practice")); renderTable($("lc-table"), $("lc-filter")); if (window.LCGame) window.LCGame.renderLauncher($("lc-game-launch"), P); }
   }
-  document.addEventListener("lc-game-finished", () => { if (total) renderTable($("lc-table"), $("lc-filter")); });
+  document.addEventListener("lc-game-finished", () => { if (total) { renderTable($("lc-table"), $("lc-filter")); renderPractice($("lc-practice")); } });
   async function boot() {
     const connected = !!V.token();
     $("lc-body").hidden = !connected;
@@ -122,8 +140,8 @@
       setData(JSON.parse(await V.ghRaw(CFG.trackerRepo, "leetcode.json", CFG.trackerBranch || "main")));
       V.lsSet(CACHE_KEY, JSON.stringify({ at: Date.now(), data: D })); render();
     } catch (e) {
-      if (e.status === 404) { setData({}); render(); $("lc-updated").textContent = "leetcode.json has not been synced to the private repo yet."; }
-      else $("lc-updated").innerHTML = `<span style="color:var(--danger)">Could not load the LeetCode index: ${esc(e.message)}</span>`;
+      if (e.status === 404) { setData({}); render(); $("lc-onboarding").textContent = "leetcode.json has not been synced to the private repo yet."; }
+      else $("lc-onboarding").innerHTML = `<span style="color:var(--danger)">Could not load the LeetCode index: ${esc(e.message)}</span>`;
     }
   }
   document.addEventListener("DOMContentLoaded", () => {
