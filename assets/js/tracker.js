@@ -173,10 +173,9 @@
 
   // ───────── heatmap ─────────
   let heatMetric = "all";   // survives re-renders after a save
+  let heatYear = TODAY.getFullYear();
   function renderHeatmap(root, selectRoot) {
     let metric = heatMetric;
-    const cell = 12, gap = 3, step = cell + gap, left = 22, top = 18;
-    const weeksFor = () => { const w = root.clientWidth; return w < 200 ? 26 : Math.max(8, Math.min(26, Math.floor((w - 40 - left) / step))); };   // unknown width (hidden tab) → full 26 weeks
     const level = e => {
       if (!e) return 0;
       if (metric === "all") { if (!HKEYS.length) return 4; const r = [...e.done].filter(k => HMAP[k]).length / HKEYS.length; return r === 0 ? 0 : Math.max(1, Math.ceil(r * 4)); }
@@ -193,37 +192,21 @@
       return parts.join(" · ");
     };
     function draw() {
-      const weeks = weeksFor();
-      const hw = document.getElementById("heatmap-weeks"); if (hw) hw.textContent = `last ${weeks} weeks`;
-      const start = addDays(TODAY, -((TODAY.getDay() + 6) % 7) - (weeks - 1) * 7);   // Monday of the first week
-      const H = top + 5 * step + 4;                                   // Mon-Fri only
-      const labels = svgEl("svg", { class: "heat-labels", width: left, height: H, viewBox: `0 0 ${left} ${H}` });
-      [["Mon", 0], ["Wed", 2], ["Fri", 4]].forEach(([t, r]) => { const x = svgEl("text", { x: 0, y: top + r * step + cell - 2 }); x.textContent = t; labels.appendChild(x); });
-      const svg = svgEl("svg", { class: "heatmap", width: weeks * step, height: H, viewBox: `0 0 ${weeks * step} ${H}` });
-      let lastMonth = -1;
+      const years = [...new Set([...KEYS.map(k => +k.slice(0, 4)), TODAY.getFullYear()])].sort((a, b) => b - a);
+      if (!years.includes(heatYear)) heatYear = years[0];
       const goalH = HMAP[metric] && +HMAP[metric].weekly_goal ? HMAP[metric] : null;
-      for (let c = 0; c < weeks; c++) {
-        const mon = addDays(start, c * 7);
-        const wkN = goalH ? weekCount(mon, metric) : 0, wkMet = goalH && wkN >= +goalH.weekly_goal;
-        if (mon.getMonth() !== lastMonth) {
-          if (c > 0 || addDays(mon, 6).getMonth() === mon.getMonth()) { const fits = c * step + 24 <= weeks * step; const t = svgEl("text", fits ? { x: c * step, y: 10 } : { x: weeks * step, y: 10, "text-anchor": "end" }); t.textContent = MON[mon.getMonth()]; svg.appendChild(t); }
-          lastMonth = mon.getMonth();
-        }
-        for (let r = 0; r < 5; r++) {                                 // weekends are not shown
-          const d = addDays(mon, r);
-          if (d > TODAY) continue;
-          const k = keyOf(d), e = get(k);
-          const rect = svgEl("rect", { x: c * step, y: top + r * step, width: cell, height: cell, class: `heat-${level(e)}${k === TODAY_KEY ? " heat-today" : ""}${wkMet ? " heat-week-met" : ""}` });
-          const title = svgEl("title"); title.textContent = `${k} (${WD[d.getDay()]}) · ${tip(e)}${goalH ? ` · week ${wkN} / ${goalH.weekly_goal}${wkMet ? " ✓" : ""}` : ""}`; rect.appendChild(title);
-          if (e) { rect.style.cursor = "pointer"; rect.setAttribute("tabindex", "0"); rect.setAttribute("role", "button"); rect.setAttribute("aria-label", `${k}: ${tip(e)}. Load into the form`); rect.addEventListener("click", () => fillForm(k)); rect.addEventListener("keydown", ev => { if (ev.key === "Enter" || ev.key === " ") { ev.preventDefault(); fillForm(k); } }); }
-          svg.appendChild(rect);
-        }
-      }
-      root.innerHTML = "";
-      const outer = el("div", { class: "heat-outer" }); outer.appendChild(labels);
-      const wrap = el("div", { class: "heatmap-wrap", style: "flex:1;min-width:0" }); wrap.appendChild(svg); outer.appendChild(wrap);
-      root.appendChild(outer); wrap.scrollLeft = wrap.scrollWidth;
-      root.insertAdjacentHTML("beforeend", `<div class="legend">${goalH ? `<i class="sw-week"></i> week met the ${goalH.weekly_goal}/wk goal &nbsp; ` : ""}Less <i style="background:var(--heat-0)"></i><i style="background:var(--heat-1)"></i><i style="background:var(--heat-2)"></i><i style="background:var(--heat-3)"></i><i style="background:var(--heat-4)"></i> More</div>`);
+      window.YearHeat.draw(root, {
+        years, year: heatYear, onYear: y => { heatYear = y; draw(); },
+        cellFor: (k, d) => {
+          const e = get(k), mon = addDays(d, -((d.getDay() + 6) % 7));
+          const wkN = goalH ? weekCount(mon, metric) : 0, wkMet = goalH && wkN >= +goalH.weekly_goal;
+          return { cls: `heat-${level(e)}${wkMet ? " heat-week-met" : ""}`,
+            title: `${k} (${WD[d.getDay()]}) · ${tip(e)}${goalH ? ` · week ${wkN} / ${goalH.weekly_goal}${wkMet ? " ✓" : ""}` : ""}`,
+            click: e ? () => fillForm(k) : null };
+        },
+        legend: `${goalH ? `<i class="sw-week"></i> week met the ${goalH.weekly_goal}/wk goal &nbsp; ` : ""}Less <i style="background:var(--heat-0)"></i><i style="background:var(--heat-1)"></i><i style="background:var(--heat-2)"></i><i style="background:var(--heat-3)"></i><i style="background:var(--heat-4)"></i> More`
+      });
+      root._redraw = draw;
     }
     if (selectRoot) {
       const opts = [["all", "All"], ...HABITS.map(h => [h.key, `${h.emoji} ${h.label}`]), ["arrive", "🏢 Arrival"]];
@@ -231,10 +214,6 @@
       selectRoot.querySelectorAll("button").forEach(b => b.addEventListener("click", () => { metric = heatMetric = b.dataset.v; selectRoot.querySelectorAll("button").forEach(x => x.classList.toggle("on", x === b)); draw(); }));
     }
     draw();
-    let rt, lastWeeks = weeksFor();
-    const onResize = () => { clearTimeout(rt); rt = setTimeout(() => { const w = weeksFor(); if (w !== lastWeeks) { lastWeeks = w; (root._redraw || draw)(); } }, 150); };
-    if (!root._observed) { root._observed = true; if (window.ResizeObserver) new ResizeObserver(onResize).observe(root); else window.addEventListener("resize", onResize); }
-    root._redraw = draw;
   }
 
   // ───────── times chart (last 30 days): arrival, leave and wake-up on one time axis ─────────

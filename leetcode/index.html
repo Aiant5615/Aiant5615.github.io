@@ -20,10 +20,10 @@ noindex: true
 </div>
 
 <div id="lc-sections">
-  <h2>Daily streak <span class="small muted" style="font-weight:400">last 26 weeks · any language</span></h2>
+  <h2>Daily streak</h2>
   <div class="card" id="lc-heatmap"></div>
 
-  <h2>Practice count <span class="small muted" style="font-weight:400">by problem number · darker = played more often in this browser</span></h2>
+  <h2>Practice count</h2>
   <div id="lc-practice"></div>
 
   <h2>Practice <span class="small muted" style="font-weight:400">retype a solution line by line</span></h2>
@@ -43,5 +43,6 @@ noindex: true
     trackerRepo: {{ site.tracker_repo | jsonify }}, trackerBranch: {{ site.tracker_branch | default: "main" | jsonify }} };
 </script>
 <script src="{{ '/assets/js/vault.js' | relative_url }}?v={{ site.time | date: '%s' }}"></script>
+<script src="{{ '/assets/js/heat.js' | relative_url }}?v={{ site.time | date: '%s' }}"></script>
 <script src="{{ '/assets/js/lc-game.js' | relative_url }}?v={{ site.time | date: '%s' }}"></script>
 <script src="{{ '/assets/js/leetcode.js' | relative_url }}?v={{ site.time | date: '%s' }}"></script>

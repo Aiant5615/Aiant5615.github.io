@@ -36,30 +36,15 @@
     </div>`;
   }
 
+  let lcYear = TODAY.getFullYear();
   function renderHeatmap(root) {
-    const cell = 12, gap = 3, step = cell + gap, left = 22, top = 18;
-    const w = root.clientWidth, weeks = w < 200 ? 26 : Math.max(8, Math.min(26, Math.floor((w - 40 - left) / step)));
-    const start = addDays(TODAY, -((TODAY.getDay() + 6) % 7) - (weeks - 1) * 7);
-    const H = top + 5 * step + 4;                                   // Mon-Fri only
-    const labels = svgEl("svg", { class: "heat-labels", width: left, height: H, viewBox: `0 0 ${left} ${H}` });
-    [["Mon", 0], ["Wed", 2], ["Fri", 4]].forEach(([t, r]) => { const x = svgEl("text", { x: 0, y: top + r * step + cell - 2 }); x.textContent = t; labels.appendChild(x); });
-    const svg = svgEl("svg", { class: "heatmap", width: weeks * step, height: H, viewBox: `0 0 ${weeks * step} ${H}` });
-    let lastMonth = -1;
-    for (let c = 0; c < weeks; c++) {
-      const mon = addDays(start, c * 7);
-      if (mon.getMonth() !== lastMonth) {
-        if (c > 0 || addDays(mon, 6).getMonth() === mon.getMonth()) { const fits = c * step + 24 <= weeks * step; const t = svgEl("text", fits ? { x: c * step, y: 10 } : { x: weeks * step, y: 10, "text-anchor": "end" }); t.textContent = MON[mon.getMonth()]; svg.appendChild(t); }
-        lastMonth = mon.getMonth();
-      }
-      for (let r = 0; r < 5; r++) {                                 // weekends are not shown
-        const d = addDays(mon, r); if (d > TODAY) continue;
-        const k = keyOf(d), n = byDay[k] || 0, lv = n === 0 ? 0 : Math.min(4, n + 1);
-        const rect = svgEl("rect", { x: c * step, y: top + r * step, width: cell, height: cell, class: `heat-${lv}${k === keyOf(TODAY) ? " heat-today" : ""}` });
-        const t = svgEl("title"); t.textContent = `${k} · ${n ? n + " solution file(s)" : "nothing"}`; rect.appendChild(t); svg.appendChild(rect);
-      }
-    }
-    root.innerHTML = ""; const outer = document.createElement("div"); outer.className = "heat-outer"; outer.appendChild(labels);
-    const wrap = document.createElement("div"); wrap.className = "heatmap-wrap"; wrap.style.cssText = "flex:1;min-width:0"; wrap.appendChild(svg); outer.appendChild(wrap); root.appendChild(outer);
+    const years = [...new Set([...days.map(k => +k.slice(0, 4)), TODAY.getFullYear()])].sort((a, b) => b - a);
+    if (!years.includes(lcYear)) lcYear = years[0];
+    const draw = () => window.YearHeat.draw(root, {
+      years, year: lcYear, onYear: y => { lcYear = y; draw(); },
+      cellFor: k => { const n = byDay[k] || 0; return { cls: `heat-${n === 0 ? 0 : Math.min(4, n + 1)}`, title: `${k} · ${n ? n + " solution file(s)" : "nothing"}` }; }
+    });
+    draw(); root._redraw = draw;
   }
 
   function renderTable(root, filterRoot) {
@@ -84,23 +69,22 @@
 
   const $ = id => document.getElementById(id);
 
-  // practice-count heatmaps: one per language, a cell per problem (sorted by number), darker = more games played
-  const PRACTICE = [["py", "Python", "37, 99, 235"], ["c", "C", "220, 38, 38"], ["cpp", "C++", "234, 88, 12"]];   // base colours (RGB)
+  // practice-count heatmaps: one per language, one cell per problem (by number), darker = more games played here
+  const PRACTICE = [["py", "Python", "37, 99, 235"], ["c", "C", "234, 179, 8"], ["cpp", "C++", "220, 38, 38"]];   // blue, yellow, red
   function renderPractice(root) {
     const plays = {};   // slug -> lang -> games played (all modes)
     Object.entries(window.LCGame ? window.LCGame.bests() : {}).forEach(([k, v]) => { const [slug, lang] = k.split("|"); (plays[slug] = plays[slug] || {})[lang] = (plays[slug][lang] || 0) + (v.plays || 0); });
     const probs = [...P].sort((a, b) => (a.id || 0) - (b.id || 0));
-    root.innerHTML = PRACTICE.map(([lang, name, rgb]) => {
-      const cells = probs.map(p => {
-        const n = (plays[p.slug] || {})[lang] || 0, has = !!p.langs[lang];
-        const lv = n === 0 ? 0 : Math.min(4, n);
-        const style = lv ? `background:rgba(${rgb},${(0.25 + 0.75 * lv / 4).toFixed(2)});color:${lv >= 3 ? "#fff" : "inherit"};border-color:transparent` : "";
-        return `<button type="button" class="pcell${has ? "" : " none"}" style="${style}" data-slug="${esc(p.slug)}" data-lang="${lang}" title="#${p.id ?? "?"} ${esc(p.title)} · ${has ? `${n} game${n === 1 ? "" : "s"} in ${name}` : `no ${name} solution`}" ${has ? "" : "disabled"}>${p.id ?? "?"}</button>`;
-      }).join("");
-      const total_ = probs.reduce((a, p) => a + ((plays[p.slug] || {})[lang] || 0), 0);
-      return `<div class="card practice-card"><div class="practice-head"><b style="color:rgb(${rgb})">${name}</b><span class="small muted">${total_} game${total_ === 1 ? "" : "s"} · click a problem to play</span></div><div class="pgrid">${cells}</div></div>`;
-    }).join("");
-    root.querySelectorAll(".pcell:not([disabled])").forEach(b => b.addEventListener("click", () => { const p = P.find(x => x.slug === b.dataset.slug); if (p && window.LCGame) window.LCGame.start(p, b.dataset.lang, "easy"); }));
+    root.innerHTML = PRACTICE.map(([lang, name]) => `<div class="card practice-card"><div class="practice-head"><b>${name}</b></div><div class="pheat" data-lang="${lang}"></div></div>`).join("");
+    PRACTICE.forEach(([lang, name, rgb]) => {
+      const items = probs.map(p => {
+        const n = (plays[p.slug] || {})[lang] || 0, has = !!p.langs[lang], lv = Math.min(4, n);
+        return { fill: lv ? `rgba(${rgb},${(0.3 + 0.7 * lv / 4).toFixed(2)})` : "", cls: has ? "heat-0" : "heat-0 pheat-none",
+          title: `#${p.id ?? "?"} ${p.title} · ${has ? `${n} game${n === 1 ? "" : "s"} in ${name}` : `no ${name} solution`}`,
+          click: has ? () => window.LCGame.start(p, lang, "easy") : null };
+      });
+      window.YearHeat.grid(root.querySelector(`.pheat[data-lang="${lang}"]`), items);
+    });
   }
 
   function render() {
