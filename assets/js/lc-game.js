@@ -34,6 +34,23 @@
     return out;
   }
   const tokens = line => line.match(/\w+|[^\w\s]+|\s+/g) || [];
+  const HLJS_LANG = { c: "c", cpp: "cpp", py: "python" };
+
+  // syntax colour per character: highlight the line with highlight.js and record the class of each character
+  function charClasses(line) {
+    if (!window.hljs) return line.split("").map(() => "");
+    let html;
+    try { html = hljs.highlight(line, { language: HLJS_LANG[G.lang] || "plaintext", ignoreIllegals: true }).value; } catch { return line.split("").map(() => ""); }
+    const tpl = document.createElement("template"); tpl.innerHTML = html;
+    const out = [];
+    const walk = (node, cls) => node.childNodes.forEach(n => {
+      if (n.nodeType === 3) { for (const _ of n.textContent) out.push(cls); }
+      else walk(n, (cls + " " + (n.className || "")).trim());
+    });
+    walk(tpl.content, "");
+    return out.length === line.length ? out : line.split("").map(() => "");
+  }
+  const highlightLine = line => { try { return window.hljs ? hljs.highlight(line, { language: HLJS_LANG[G.lang] || "plaintext", ignoreIllegals: true }).value : esc(line); } catch { return esc(line); } };
 
   let G = null;   // the current game
   const $ = id => document.getElementById(id);
@@ -67,9 +84,14 @@
   }
 
   function ghostHtml(line, mask) {
-    const tk = tokens(line);
-    // hard mode shows nothing for hidden tokens (not even their length); medium shows dots of the same length
-    return tk.map((t, i) => mask[i] ? esc(t) : G.mode === "hard" ? "" : `<span class="ghost-hidden">${"•".repeat(t.length)}</span>`).join("");
+    const tk = tokens(line), cc = charClasses(line);
+    let pos = 0, html = "";
+    tk.forEach((t, i) => {
+      // hard mode shows nothing for hidden tokens (not even their length); medium shows dots of the same length
+      if (mask[i]) { for (const ch of t) { html += `<span class="pending ${cc[pos]}">${esc(ch)}</span>`; pos++; } }
+      else { html += G.mode === "hard" ? "" : `<span class="ghost-hidden">${"•".repeat(t.length)}</span>`; pos += t.length; }
+    });
+    return html;
   }
 
   function render() {
@@ -89,7 +111,7 @@
           <div class="form-actions" style="margin-top:.8rem"><button type="button" class="btn btn-primary" id="game-again">Play again</button>
             ${["easy", "medium", "hard"].filter(m => m !== G.mode).map(m => `<button type="button" class="btn" data-mode="${m}">Try ${m}</button>`).join("")}
             <button type="button" class="btn" id="game-random">Random problem</button></div>
-          <details class="more" style="margin-top:.8rem"><summary>Show the solution</summary><pre class="game-code"><code>${esc(G.lines.join("\n"))}</code></pre></details></div></div></div>`;
+          <details class="more" style="margin-top:.8rem"><summary>Show the solution</summary><pre class="game-code"><code class="hljs">${G.lines.map(highlightLine).join("\n")}</code></pre></details></div></div></div>`;
       moveRunner();
       root.querySelector("#game-again").addEventListener("click", () => start(G.problem, G.lang, G.mode));
       root.querySelectorAll("[data-mode]").forEach(b => b.addEventListener("click", () => start(G.problem, G.lang, b.dataset.mode)));
@@ -98,13 +120,13 @@
       return;
     }
     const line = G.lines[G.idx], indent = line.match(/^\s*/)[0];
-    const doneLines = G.lines.slice(Math.max(0, G.idx - 6), G.idx).map(l => `<div class="game-prev">${esc(l)}</div>`).join("");
+    const doneLines = G.lines.slice(Math.max(0, G.idx - 6), G.idx).map(l => `<div class="game-prev hljs">${highlightLine(l)}</div>`).join("");
     const left = G.lines.length - G.idx - 1;
     const upcoming = G.mode === "hard" ? "" : G.lines.slice(G.idx + 1, G.idx + 4).map(l => `<div class="game-next"><span style="width:${Math.min(60, l.trim().length)}ch;margin-left:${l.match(/^\s*/)[0].length}ch"></span></div>`).join("");
     root.innerHTML = `<div class="game-layout">` + descPane() + `<div class="game-main">` + head + `<div class="game-board" id="game-board">${doneLines}
-        <div class="game-line"><pre class="ghost" id="game-ghost">${ghostHtml(line, G.mask)}</pre><input id="game-input" class="typed" type="text" spellcheck="false" autocomplete="off" autocapitalize="off" autocorrect="off" aria-label="Type the next line"></div>
+        <div class="game-line"><pre class="ghost hljs" id="game-ghost">${ghostHtml(line, G.mask)}</pre><input id="game-input" class="typed" type="text" spellcheck="false" autocomplete="off" autocapitalize="off" autocorrect="off" aria-label="Type the next line"></div>
         ${upcoming}${left > 0 ? `<div class="game-left muted small">${left} more line${left === 1 ? "" : "s"}</div>` : ""}</div>
-      <div class="game-tools"><span class="small" id="game-msg">${G.msg || (G.mode === "hard" ? "Type the line and press Enter · Tab inserts 4 spaces · Esc quits" : "Enter submits · → types the next grey character (⇧→ a whole word; auto-typed lines score 0) · Esc quits")}</span>
+      <div class="game-tools"><span class="small" id="game-msg">${G.msg || (G.mode === "hard" ? "Type the line and press Enter · Tab inserts 4 spaces · Esc quits" : "Enter submits · → types the next grey character, ⇧→ a word, ← the whole line (auto-typed lines score 0) · Esc quits")}</span>
         <span style="margin-left:auto;display:flex;gap:.4rem"><button type="button" class="btn btn-sm" id="game-hint" title="Reveal one more token (costs a point of this line)">Hint</button><button type="button" class="btn btn-sm" id="game-skip" title="Reveal the whole line, 0 points">Skip</button></span></div></div></div>`;
     moveRunner();
     const input = root.querySelector("#game-input");
@@ -115,6 +137,7 @@
       else if (ev.key === "Tab") { ev.preventDefault(); const s = input.selectionStart; input.value = input.value.slice(0, s) + "    " + input.value.slice(input.selectionEnd); input.setSelectionRange(s + 4, s + 4); }
       else if (ev.key === "Escape") quit();
       else if (ev.key === "ArrowRight" && input.selectionStart === input.value.length) { if (autoType(input, ev.shiftKey)) ev.preventDefault(); }
+      else if (ev.key === "ArrowLeft") { ev.preventDefault(); completeLine(input); }
     });
     input.addEventListener("input", () => { G.typed = input.value; paint(input.value); });
     paint(input.value);
@@ -146,19 +169,29 @@
     return true;
   }
 
+  // ← types the whole line (hidden tokens included) for 0 points; Enter then submits it
+  function completeLine(input) {
+    const line = G.lines[G.idx];
+    G.mask = G.mask.map(() => true);
+    input.value = line; G.typed = line; G.auto = true; G.linePts = 0;
+    input.setSelectionRange(line.length, line.length);
+    paint(line);
+    const m = $("game-msg"); if (m) m.textContent = "whole line auto-typed · this line scores 0 · press Enter";
+  }
+
   // colour the ghost: characters already typed correctly turn solid, a typo turns red from the first mismatch
   function paint(typed) {
     const ghost = $("game-ghost"); if (!ghost || !G) return;
     const line = G.lines[G.idx];
-    const tk = tokens(line); let pos = 0, html = "", bad = false;
+    const tk = tokens(line), cc = charClasses(line); let pos = 0, html = "", bad = false;
     tk.forEach((t, i) => {
       let piece = "";
       for (const ch of t) {
         const typedCh = typed[pos];
-        const cls = typedCh === undefined ? "" : (!bad && typedCh === ch) ? "ok" : (bad = true, "bad");
+        const cls = typedCh === undefined ? "pending" : (!bad && typedCh === ch) ? "ok" : (bad = true, "bad");
         const visible = G.mask[i] || /^\s+$/.test(t);
         const shown = visible ? esc(ch) : typedCh !== undefined ? esc(typedCh) : G.mode === "hard" ? "" : "•";
-        piece += cls ? `<span class="${cls}">${shown}</span>` : visible ? shown : `<span class="ghost-hidden">${shown}</span>`;
+        piece += visible || typedCh !== undefined ? `<span class="${cls} ${cc[pos]}">${shown}</span>` : `<span class="ghost-hidden">${shown}</span>`;
         pos++;
       }
       html += piece;
@@ -237,7 +270,7 @@
         ${sel("game-lang", "")}
         <div class="seg" id="game-mode">${["easy", "medium", "hard"].map((m, i) => `<button type="button" data-m="${m}" class="${i === 0 ? "on" : ""}">${m}</button>`).join("")}</div>
         <button type="button" class="btn btn-primary" id="game-start">▶ Play</button><button type="button" class="btn" id="game-random2" title="Random problem, language and mode">🎲</button>
-      </div><p class="small muted" style="margin:.5rem 0 0">easy shows the whole line in grey, medium about half of it, hard nothing. Points per line 1 / 2 / 3; a wrong try reveals a token and costs a point; → auto-types a grey character but that line then scores 0. The problem statement is shown next to the editor. Scores stay in this browser.</p>`;
+      </div><p class="small muted" style="margin:.5rem 0 0">easy shows the whole line in grey, medium about half of it, hard nothing. Points per line 1 / 2 / 3; a wrong try reveals a token and costs a point; → auto-types a grey character and ← the whole line, but that line then scores 0. The problem statement is shown next to the editor. Scores stay in this browser.</p>`;
     const langSel = root.querySelector("#game-lang"), probSel = root.querySelector("#game-problem");
     const fillLangs = () => { const p = playable_[+probSel.value]; langSel.innerHTML = Object.keys(p.langs).map(k => `<option value="${k}">${LANG_NAME[k] || k}</option>`).join(""); };
     probSel.addEventListener("change", fillLangs); fillLangs();

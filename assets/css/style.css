@@ -450,9 +450,12 @@ ol.post-list.numbered li::before { content: counter(item); color: var(--muted); 
 .game-line { position: relative; margin: .15rem 0; }
 .game-line .ghost, .game-line .typed { font: inherit; line-height: inherit; letter-spacing: 0; margin: 0; padding: .25rem .5rem; border: 0; white-space: pre; }
 .game-line .ghost { background: var(--surface); border: 1px solid var(--accent); border-radius: 8px; color: transparent; min-height: 1.6em; overflow: hidden; }
-.game-line .ghost .ok { color: var(--text); }
-.game-line .ghost .bad { color: var(--danger); text-decoration: underline; }
-.game-line .ghost:not(.hard-empty) { color: var(--muted); opacity: 1; }
+.game-line .ghost.hljs { background: var(--surface); }
+.game-line .ghost .pending { opacity: .5; }
+.game-line .ghost .ok { opacity: 1; }
+.game-prev.hljs { background: transparent; padding: 0; opacity: .75; }
+.game-line .ghost .bad { color: var(--danger) !important; text-decoration: underline; }
+.game-line .ghost:not(.hard-empty) { color: var(--text); opacity: 1; }
 .game-line .ghost-hidden { color: var(--border); }
 .game-line .typed { position: absolute; inset: 0; width: 100%; background: transparent; color: transparent; caret-color: var(--accent); outline: none; }
 .game-line .typed::selection { background: var(--accent-soft); }
@@ -480,6 +483,6 @@ ol.post-list.numbered li::before { content: counter(item); color: var(--muted); 
 .game-track { position: relative; height: 2.2rem; margin: .6rem 0 1rem; padding: 0 1.4rem 0 .2rem; }
 .game-track .road { position: absolute; left: .2rem; right: 1.6rem; top: 50%; height: 4px; border-radius: 2px; background: repeating-linear-gradient(90deg, var(--border) 0 10px, transparent 10px 16px); }
 .game-track .flag { position: absolute; right: 0; top: 50%; transform: translateY(-58%); font-size: 1.3rem; }
-.game-track .runner { position: absolute; top: 50%; font-size: 1.5rem; line-height: 1; transform: translate(-30%, -62%); transition: left .6s cubic-bezier(.3, 1.2, .5, 1); }
+.game-track .runner { position: absolute; top: 50%; font-size: 1.5rem; line-height: 1; transform: translate(-30%, -62%) scaleX(-1); transition: left .6s cubic-bezier(.3, 1.2, .5, 1); }   /* mirrored: the emoji faces left, the flag is on the right */
 .game-track .runner.hop { animation: runner-hop .5s; }
-@keyframes runner-hop { 40% { transform: translate(-30%, -110%) scale(1.15); } 100% { transform: translate(-30%, -62%); } }
+@keyframes runner-hop { 40% { transform: translate(-30%, -110%) scaleX(-1.15) scaleY(1.15); } 100% { transform: translate(-30%, -62%) scaleX(-1); } }
