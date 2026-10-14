@@ -80,16 +80,17 @@
         <div><b>${LANG_NAME[G.lang]}</b> <span class="muted">· ${G.mode} mode</span></div>
         <div class="game-meta"><span>line <b>${Math.min(G.idx + 1, G.lines.length)}</b>/${G.lines.length}</span><span>score <b id="game-score">${G.score}</b>/${G.max}</span>${best ? `<span class="muted">best ${best.best}/${best.max}</span>` : ""}<button type="button" class="btn btn-sm" id="game-quit">Quit</button></div>
       </div>
-      <div class="game-progress"><i style="width:${(G.idx / G.lines.length * 100).toFixed(1)}%"></i></div>`;
+      <div class="game-track" title="${G.idx} of ${G.lines.length} lines done"><div class="road"></div><span class="flag">🏁</span><span class="runner" id="game-runner" style="left:${(G.prevPct || 0).toFixed(1)}%">${done ? "🎉" : "🏃"}</span></div>`;
     if (done) {
       const secs = Math.round((Date.now() - G.t0) / 1000), pct = Math.round(G.score / G.max * 100);
-      root.innerHTML = `<div class="game-layout"><div class="game-main">` + head + `<div class="game-done">
+      root.innerHTML = `<div class="game-layout">` + descPane() + `<div class="game-main">` + head + `<div class="game-done">
           <div class="game-done-score">${G.score} / ${G.max} <span class="unit">points · ${pct}%</span></div>
           <div class="muted">${G.lines.length} lines · ${G.wrong} wrong tries · ${G.skipped} skipped · ${Math.floor(secs / 60)}m ${secs % 60}s${G.newBest ? " · 🏆 new best" : ""}</div>
           <div class="form-actions" style="margin-top:.8rem"><button type="button" class="btn btn-primary" id="game-again">Play again</button>
             ${["easy", "medium", "hard"].filter(m => m !== G.mode).map(m => `<button type="button" class="btn" data-mode="${m}">Try ${m}</button>`).join("")}
             <button type="button" class="btn" id="game-random">Random problem</button></div>
-          <details class="more" style="margin-top:.8rem"><summary>Show the solution</summary><pre class="game-code"><code>${esc(G.lines.join("\n"))}</code></pre></details></div></div>` + descPane() + `</div>`;
+          <details class="more" style="margin-top:.8rem"><summary>Show the solution</summary><pre class="game-code"><code>${esc(G.lines.join("\n"))}</code></pre></details></div></div></div>`;
+      moveRunner();
       root.querySelector("#game-again").addEventListener("click", () => start(G.problem, G.lang, G.mode));
       root.querySelectorAll("[data-mode]").forEach(b => b.addEventListener("click", () => start(G.problem, G.lang, b.dataset.mode)));
       root.querySelector("#game-random").addEventListener("click", () => window.LCGame.random());
@@ -100,11 +101,12 @@
     const doneLines = G.lines.slice(Math.max(0, G.idx - 6), G.idx).map(l => `<div class="game-prev">${esc(l)}</div>`).join("");
     const left = G.lines.length - G.idx - 1;
     const upcoming = G.mode === "hard" ? "" : G.lines.slice(G.idx + 1, G.idx + 4).map(l => `<div class="game-next"><span style="width:${Math.min(60, l.trim().length)}ch;margin-left:${l.match(/^\s*/)[0].length}ch"></span></div>`).join("");
-    root.innerHTML = `<div class="game-layout"><div class="game-main">` + head + `<div class="game-board" id="game-board">${doneLines}
+    root.innerHTML = `<div class="game-layout">` + descPane() + `<div class="game-main">` + head + `<div class="game-board" id="game-board">${doneLines}
         <div class="game-line"><pre class="ghost" id="game-ghost">${ghostHtml(line, G.mask)}</pre><input id="game-input" class="typed" type="text" spellcheck="false" autocomplete="off" autocapitalize="off" autocorrect="off" aria-label="Type the next line"></div>
         ${upcoming}${left > 0 ? `<div class="game-left muted small">${left} more line${left === 1 ? "" : "s"}</div>` : ""}</div>
       <div class="game-tools"><span class="small" id="game-msg">${G.msg || (G.mode === "hard" ? "Type the line and press Enter · Tab inserts 4 spaces · Esc quits" : "Enter submits · → types the next grey character (⇧→ a whole word; auto-typed lines score 0) · Esc quits")}</span>
-        <span style="margin-left:auto;display:flex;gap:.4rem"><button type="button" class="btn btn-sm" id="game-hint" title="Reveal one more token (costs a point of this line)">Hint</button><button type="button" class="btn btn-sm" id="game-skip" title="Reveal the whole line, 0 points">Skip</button></span></div></div>` + descPane() + `</div>`;
+        <span style="margin-left:auto;display:flex;gap:.4rem"><button type="button" class="btn btn-sm" id="game-hint" title="Reveal one more token (costs a point of this line)">Hint</button><button type="button" class="btn btn-sm" id="game-skip" title="Reveal the whole line, 0 points">Skip</button></span></div></div></div>`;
+    moveRunner();
     const input = root.querySelector("#game-input");
     input.value = G.typed != null ? G.typed : indent;
     input.focus(); input.setSelectionRange(input.value.length, input.value.length);
@@ -119,6 +121,13 @@
     root.querySelector("#game-hint").addEventListener("click", () => { reveal("hint"); G.typed = input.value; render(); });
     root.querySelector("#game-skip").addEventListener("click", skip);
     root.querySelector("#game-quit").addEventListener("click", quit);
+  }
+
+  // the runner starts where it stood on the previous render and glides to the new position (one step per finished line)
+  function moveRunner() {
+    const r = $("game-runner"); if (!r || !G) return;
+    const pct = G.idx / G.lines.length * 100;
+    requestAnimationFrame(() => requestAnimationFrame(() => { r.style.left = pct.toFixed(1) + "%"; if (pct > (G.prevPct || 0)) { r.classList.add("hop"); setTimeout(() => r.classList.remove("hop"), 500); } G.prevPct = pct; }));
   }
 
   // → fills in the next grey character (shift: the rest of the token) when it is visible; the line then scores 0
