@@ -1,7 +1,7 @@
 <footer class="site-footer">
   <div class="container">
     <span>© {{ site.time | date: "%Y" }} {{ site.author }}</span>
-    <span class="sep">·</span>
-    <a href="https://github.com/{{ site.github_repo }}" target="_blank" rel="noopener">GitHub</a>
+    {% unless page.url contains '/leetcode/' %}<span class="sep">·</span>
+    <a href="https://github.com/{{ site.github_repo }}" target="_blank" rel="noopener">GitHub</a>{% endunless %}
   </div>
 </footer>

@@ -547,15 +547,15 @@
     if (!anyData) { root.innerHTML = `<div class="empty">No activity data yet.</div>`; if (note) note.textContent = ""; return; }
     const cell = 12, gap = 3, step = cell + gap, left = 22, top = 18;
     const w = root.clientWidth, weeks = w < 200 ? 26 : Math.max(8, Math.min(26, Math.floor((w - 40 - left) / step)));
-    const start = addDays(TODAY, -((TODAY.getDay() + 6) % 7) - (weeks - 1) * 7), H = top + 7 * step + 4;
+    const start = addDays(TODAY, -((TODAY.getDay() + 6) % 7) - (weeks - 1) * 7), H = top + 5 * step + 4;                   // Mon-Fri only
     const labels = svgEl("svg", { class: "heat-labels", width: left, height: H, viewBox: `0 0 ${left} ${H}` });
-    [["Mon", 0], ["Wed", 2], ["Fri", 4], ["Sun", 6]].forEach(([t, r]) => { const x = svgEl("text", { x: 0, y: top + r * step + cell - 2 }); x.textContent = t; labels.appendChild(x); });
+    [["Mon", 0], ["Wed", 2], ["Fri", 4]].forEach(([t, r]) => { const x = svgEl("text", { x: 0, y: top + r * step + cell - 2 }); x.textContent = t; labels.appendChild(x); });
     const svg = svgEl("svg", { class: "heatmap", width: weeks * step, height: H, viewBox: `0 0 ${weeks * step} ${H}` });
     let lastMonth = -1, logged = 0, streakN = 0;
     for (let c = 0; c < weeks; c++) {
       const mon = addDays(start, c * 7);
       if (mon.getMonth() !== lastMonth) { if (c > 0 || addDays(mon, 6).getMonth() === mon.getMonth()) { const fits = c * step + 24 <= weeks * step; const t = svgEl("text", fits ? { x: c * step, y: 10 } : { x: weeks * step, y: 10, "text-anchor": "end" }); t.textContent = MON[mon.getMonth()]; svg.appendChild(t); } lastMonth = mon.getMonth(); }
-      for (let r = 0; r < 7; r++) {
+      for (let r = 0; r < 5; r++) {                                   // weekends are not shown
         const d = addDays(mon, r); if (d > TODAY) continue;
         const k = keyOf(d), n = countOf(k);
         if (n != null) logged++;
@@ -564,7 +564,9 @@
         const t = svgEl("title"); t.textContent = `${k} (${WD[d.getDay()]}) · ${n == null ? "no entry" : n + " of " + HKEYS.length + " habits"}`; rect.appendChild(t); svg.appendChild(rect);
       }
     }
-    { let d = TODAY; if (countOf(keyOf(d)) == null) d = addDays(d, -1); while (countOf(keyOf(d)) != null) { streakN++; d = addDays(d, -1); if (streakN > 5000) break; } }
+    { const weekend = d => d.getDay() === 0 || d.getDay() === 6;          // the streak counts weekdays; weekends neither count nor break it
+      const back = d => { do d = addDays(d, -1); while (weekend(d)); return d; };
+      let d = TODAY; if (weekend(d) || countOf(keyOf(d)) == null) d = back(d); while (countOf(keyOf(d)) != null) { streakN++; d = back(d); if (streakN > 5000) break; } }
     root.innerHTML = ""; const outer = el("div", { class: "heat-outer" }); outer.appendChild(labels);
     const wrap = el("div", { class: "heatmap-wrap", style: "flex:1;min-width:0" }); wrap.appendChild(svg); outer.appendChild(wrap); root.appendChild(outer);
     root.insertAdjacentHTML("beforeend", `<div class="legend">Less <i style="background:var(--heat-0)"></i><i style="background:var(--heat-1)"></i><i style="background:var(--heat-2)"></i><i style="background:var(--heat-3)"></i><i style="background:var(--heat-4)"></i> More</div>`);
