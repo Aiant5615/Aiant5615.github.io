@@ -91,6 +91,15 @@ def main():
     if changed_json:
         open(OUT, "w", encoding="utf-8").write(new)
     print(f"problems: {len(problems)} · json {'updated' if changed_json else 'unchanged'}")
+    # Public list for the practice game: what is already public in the solutions repo, without any dates.
+    pub_out = os.environ.get("LEETCODE_PUBLIC_OUT")
+    if pub_out:
+        pub = [{"id": p.get("id"), "slug": p["slug"], "title": p["title"], "difficulty": p.get("difficulty"), "url": p.get("url"),
+                "path": p["path"], "langs": {k: {"file": v["file"]} for k, v in p["langs"].items()}}
+               for p in sorted(problems, key=lambda p: (p.get("id") or 0, p["slug"]))]
+        text = json.dumps(pub, ensure_ascii=False, indent=1) + "\n"
+        if not os.path.exists(pub_out) or open(pub_out, encoding="utf-8").read() != text:
+            open(pub_out, "w", encoding="utf-8").write(text); print(f"public list: {len(pub)} problems written")
 
 
 if __name__ == "__main__":

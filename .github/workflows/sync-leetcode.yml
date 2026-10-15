@@ -12,7 +12,7 @@ on:
     types: [leetcode]           # sent by the leetcode repo's notify-site workflow (optional)
 
 permissions:
-  contents: read
+  contents: write                 # commits the public problem list (_data/leetcode_problems.json, no dates)
 
 concurrency: sync-leetcode
 
@@ -46,7 +46,11 @@ jobs:
           if [ "$code" = "200" ]; then sha=$(python3 -c 'import json,sys;print(json.load(open("/tmp/current.json"))["sha"])'); python3 -c 'import json,base64;d=json.load(open("/tmp/current.json"));open("/tmp/leetcode.json","w").write(base64.b64decode(d["content"]).decode())'
           elif [ "$code" != "404" ]; then echo "Could not read $TRACKER_REPO/$TRACKER_FILE (HTTP $code). Check TRACKER_TOKEN."; exit 1; fi
           cp /tmp/leetcode.json /tmp/before.json 2>/dev/null || true
-          LEETCODE_DIR=/tmp/leetcode LEETCODE_OUT=/tmp/leetcode.json python3 scripts/sync_leetcode.py
+          LEETCODE_DIR=/tmp/leetcode LEETCODE_OUT=/tmp/leetcode.json LEETCODE_PUBLIC_OUT=_data/leetcode_problems.json python3 scripts/sync_leetcode.py
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add _data/leetcode_problems.json
+          if ! git diff --cached --quiet; then git commit -q -m "leetcode: public problem list" && git push -q; fi
           if [ -f /tmp/before.json ] && cmp -s /tmp/before.json /tmp/leetcode.json; then echo "no changes"; exit 0; fi
           python3 - "$sha" <<'PY' > /tmp/body.json
           import json, base64, sys

@@ -90,7 +90,7 @@ th, td { padding: .5rem .6rem; border-bottom: 1px solid var(--border); text-alig
 th { color: var(--muted); font-weight: 600; font-size: .82rem; }
 img { max-width: 100%; border-radius: 8px; }
 hr { border: 0; border-top: 1px solid var(--border); margin: 2rem 0; }
-.container { max-width: 860px; margin: 0 auto; padding: 0 1.2rem; }
+.container { margin: 0 auto; padding: 0 clamp(1.2rem, 4vw, 4rem); }   /* fluid: follows the window, side gutters grow with it */
 .muted { color: var(--muted); }
 .small { font-size: .85rem; }
 
@@ -427,7 +427,6 @@ ol.post-list.numbered li::before { content: counter(item); color: var(--muted); 
 .rsec.pinned .sec-code::before { content: "📌 "; }
 .rsec.has-code.hot > h2, .rsec.pinned > h2 { border-bottom-color: var(--accent); }
 @media (min-width: 1180px) {
-  main.container:has(.post-columns.has-code) { max-width: 1480px; }
   .post-columns.has-code { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: 2.2rem; align-items: start; }
   .post-columns.has-code .impl-pane { position: sticky; top: 1rem; }
   .post-columns.has-code .impl { margin-top: 0; }
@@ -498,3 +497,5 @@ ol.post-list.numbered li::before { content: counter(item); color: var(--muted); 
 .heat-years button.on { color: var(--accent); background: var(--accent-soft); border-color: transparent; }
 .practice-head b { color: var(--text); }
 .pheat-none { opacity: .25; }
+
+.game-desc-head .seg button { padding: .2rem .55rem; font-size: .8rem; }

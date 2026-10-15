@@ -4,6 +4,7 @@
   "use strict";
   const CFG = window.LEETCODE_CONFIG || {};
   const V = window.GHVault, CACHE_KEY = "leetcode_cache";
+  const PUB = Array.isArray(window.LC_PUBLIC) ? window.LC_PUBLIC : [];   // public problem list (no dates), for the game
   let D = {}, P = [];
   const LANGS = [["py", "Python"], ["c", "C"], ["cpp", "C++"]];
   const pad = n => String(n).padStart(2, "0");
@@ -52,7 +53,7 @@
     const draw = () => {
       const rows = P.filter(p => !diff || p.difficulty === diff).sort((a, b) => (a.id || 0) - (b.id || 0)).map(p => {
         const url = p.url || `https://leetcode.com/problems/${p.slug}/`;
-        const best = window.LCGame ? window.LCGame.bestFor(p.slug) : null;
+        const best = V.token() && window.LCGame ? window.LCGame.bestFor(p.slug) : null;
         return `<tr><td class="num">${p.id ?? ""}</td><td><a href="${esc(url)}" target="_blank" rel="noopener">${esc(p.title)}</a>${best != null ? ` <span class="game-badge" title="best practice score">🎮 ${best}%</span>` : ""}</td>
           <td>${p.difficulty ? `<span class="diff diff-${p.difficulty.toLowerCase()}">${p.difficulty}</span>` : ""}</td>
           <td class="small">${LANGS.map(([k, l]) => p.langs[k] ? `<button type="button" class="btn btn-sm game-play" data-slug="${esc(p.slug)}" data-lang="${k}" title="Play this solution in ${l}">${l}</button>` : "").join(" ")}</td></tr>`;
@@ -87,23 +88,27 @@
     });
   }
 
-  function render() {
-    const empty = total === 0;
+  function renderPublic() {
+    const empty = P.length === 0;
     $("lc-onboarding").hidden = !empty; $("lc-sections").hidden = empty;
-    if (!empty) { renderHeatmap($("lc-heatmap")); renderPractice($("lc-practice")); renderTable($("lc-table"), $("lc-filter")); if (window.LCGame) window.LCGame.renderLauncher($("lc-game-launch"), P); }
+    if (!empty) { renderTable($("lc-table"), $("lc-filter")); if (window.LCGame) window.LCGame.renderLauncher($("lc-game-launch"), P); }
   }
-  document.addEventListener("lc-game-finished", () => { if (total) { renderTable($("lc-table"), $("lc-filter")); renderPractice($("lc-practice")); } });
+  function renderPrivate() {
+    const on = !!V.token() && P.length > 0;
+    $("lc-private").hidden = !on;
+    if (on) { renderHeatmap($("lc-heatmap")); renderPractice($("lc-practice")); }
+  }
+  document.addEventListener("lc-game-finished", () => { renderTable($("lc-table"), $("lc-filter")); renderPrivate(); });
   async function boot() {
-    const connected = !!V.token();
-    $("lc-body").hidden = !connected;
-    if (!connected) { setData({}); return; }
-    try { const c = JSON.parse(V.lsGet(CACHE_KEY) || "null"); if (c && c.data) { setData(c.data); render(); } } catch {}   // cached copy first
+    setData({ problems: PUB }); renderPublic(); renderPrivate();          // anyone: problem list + game
+    $("lc-private-msg").textContent = "";
+    if (!V.token()) return;
+    try { const c = JSON.parse(V.lsGet(CACHE_KEY) || "null"); if (c && c.data) { setData(c.data); renderPublic(); renderPrivate(); } } catch {}   // cached copy first
     try {
       setData(JSON.parse(await V.ghRaw(CFG.trackerRepo, "leetcode.json", CFG.trackerBranch || "main")));
-      V.lsSet(CACHE_KEY, JSON.stringify({ at: Date.now(), data: D })); render();
+      V.lsSet(CACHE_KEY, JSON.stringify({ at: Date.now(), data: D })); renderPublic(); renderPrivate();
     } catch (e) {
-      if (e.status === 404) { setData({}); render(); $("lc-onboarding").textContent = "leetcode.json has not been synced to the private repo yet."; }
-      else $("lc-onboarding").innerHTML = `<span style="color:var(--danger)">Could not load the LeetCode index: ${esc(e.message)}</span>`;
+      $("lc-private-msg").innerHTML = e.status === 404 ? "leetcode.json has not been synced to the private repo yet." : `<span style="color:var(--danger)">Could not load the private LeetCode index: ${esc(e.message)}</span>`;
     }
   }
   document.addEventListener("DOMContentLoaded", () => {

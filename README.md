@@ -2,7 +2,7 @@
 
 A GitHub Pages site for tracking grad school life. https://aiant5615.github.io
 
-The blog, papers, and about pages are public. **The tracker and the LeetCode page are private**: its data lives in the private repo
+The blog, papers, and about pages are public, and so is the LeetCode practice game (problem list in `_data/leetcode_problems.json`, no dates). **The tracker and the LeetCode records (streak, practice counts) are private**: its data lives in the private repo
 [Aiant5615/tracker](https://github.com/Aiant5615/tracker) (`days.json`) and the tracker page only shows anything in a browser where
 the owner has connected a GitHub token.
 

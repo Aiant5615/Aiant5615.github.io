@@ -11,20 +11,22 @@ noindex: true
 </div>
 <div id="lc-connect" style="margin:.6rem 0 .9rem"></div>
 
-<div id="lc-body" hidden>
+<div id="lc-body">
 <div class="card" id="lc-game-card" hidden><div id="lc-game"></div></div>
 
 <div class="card log-hint" id="lc-onboarding" hidden>
-  No solutions yet. Install the <a href="https://github.com/raphaelheinz/LeetHub-3.0" target="_blank" rel="noopener">LeetHub</a> extension, point it at
-  <a href="https://github.com/{{ site.leetcode_repo }}" target="_blank" rel="noopener">{{ site.leetcode_repo }}</a>, and every accepted submission lands here within the hour.
+  No problems yet.
 </div>
 
 <div id="lc-sections">
-  <h2>Daily streak</h2>
-  <div class="card" id="lc-heatmap"></div>
+  <div id="lc-private" hidden>
+    <p class="small" id="lc-private-msg"></p>
+    <h2>Daily streak</h2>
+    <div class="card" id="lc-heatmap"></div>
 
-  <h2>Practice count</h2>
-  <div id="lc-practice"></div>
+    <h2>Practice count</h2>
+    <div id="lc-practice"></div>
+  </div>
 
   <h2>Practice <span class="small muted" style="font-weight:400">retype a solution line by line</span></h2>
   <div class="card" id="lc-game-launch"></div>
@@ -38,6 +40,7 @@ noindex: true
 <link rel="stylesheet" id="hljs-dark" href="{{ '/assets/lib/hljs/github-dark.min.css' | relative_url }}" media="(prefers-color-scheme: dark)">
 <script src="{{ '/assets/lib/hljs/highlight.min.js' | relative_url }}"></script>
 <script>
+  window.LC_PUBLIC = {{ site.data.leetcode_problems | jsonify }};
   window.LEETCODE_CONFIG = { repo: {{ site.leetcode_repo | jsonify }}, branch: {{ site.leetcode_branch | default: "main" | jsonify }},
     trackerRepo: {{ site.tracker_repo | jsonify }}, trackerBranch: {{ site.tracker_branch | default: "main" | jsonify }} };
 </script>
