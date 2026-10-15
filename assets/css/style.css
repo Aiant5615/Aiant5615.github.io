@@ -499,3 +499,4 @@ ol.post-list.numbered li::before { content: counter(item); color: var(--muted); 
 .pheat-none { opacity: .25; }
 
 .game-desc-head .seg button { padding: .2rem .55rem; font-size: .8rem; }
+body:has(#lc-body.playing) #lc-connect { display: none; }   /* the game gets the whole screen */
