@@ -39,6 +39,7 @@ noindex: true
 <script src="{{ '/assets/lib/hljs/highlight.min.js' | relative_url }}"></script>
 <script>
   window.LC_PUBLIC = {{ site.data.leetcode_problems | jsonify }};
+  window.LC_ALGO = {{ site.data.leetcode_algorithms | jsonify }};
   window.LEETCODE_CONFIG = { repo: {{ site.leetcode_repo | jsonify }}, branch: {{ site.leetcode_branch | default: "main" | jsonify }},
     trackerRepo: {{ site.tracker_repo | jsonify }}, trackerBranch: {{ site.tracker_branch | default: "main" | jsonify }} };
 </script>

@@ -188,5 +188,195 @@
     "file": "0010-regular-expression-matching.py"
    }
   }
+ },
+ {
+  "id": 11,
+  "slug": "container-with-most-water",
+  "title": "Container With Most Water",
+  "difficulty": "Medium",
+  "url": "https://leetcode.com/problems/container-with-most-water",
+  "path": "0011-container-with-most-water",
+  "langs": {
+   "c": {
+    "file": "0011-container-with-most-water.c"
+   },
+   "cpp": {
+    "file": "0011-container-with-most-water.cpp"
+   },
+   "py": {
+    "file": "0011-container-with-most-water.py"
+   }
+  }
+ },
+ {
+  "id": 12,
+  "slug": "integer-to-roman",
+  "title": "Integer to Roman",
+  "difficulty": "Medium",
+  "url": "https://leetcode.com/problems/integer-to-roman",
+  "path": "0012-integer-to-roman",
+  "langs": {
+   "c": {
+    "file": "0012-integer-to-roman.c"
+   },
+   "cpp": {
+    "file": "0012-integer-to-roman.cpp"
+   },
+   "py": {
+    "file": "0012-integer-to-roman.py"
+   }
+  }
+ },
+ {
+  "id": 13,
+  "slug": "roman-to-integer",
+  "title": "Roman to Integer",
+  "difficulty": "Easy",
+  "url": "https://leetcode.com/problems/roman-to-integer",
+  "path": "0013-roman-to-integer",
+  "langs": {
+   "c": {
+    "file": "0013-roman-to-integer.c"
+   },
+   "cpp": {
+    "file": "0013-roman-to-integer.cpp"
+   },
+   "py": {
+    "file": "0013-roman-to-integer.py"
+   }
+  }
+ },
+ {
+  "id": 14,
+  "slug": "longest-common-prefix",
+  "title": "Longest Common Prefix",
+  "difficulty": "Easy",
+  "url": "https://leetcode.com/problems/longest-common-prefix",
+  "path": "0014-longest-common-prefix",
+  "langs": {
+   "c": {
+    "file": "0014-longest-common-prefix.c"
+   },
+   "cpp": {
+    "file": "0014-longest-common-prefix.cpp"
+   },
+   "py": {
+    "file": "0014-longest-common-prefix.py"
+   }
+  }
+ },
+ {
+  "id": 15,
+  "slug": "3sum",
+  "title": "3Sum",
+  "difficulty": "Medium",
+  "url": "https://leetcode.com/problems/3sum",
+  "path": "0015-3sum",
+  "langs": {
+   "c": {
+    "file": "0015-3sum.c"
+   },
+   "cpp": {
+    "file": "0015-3sum.cpp"
+   },
+   "py": {
+    "file": "0015-3sum.py"
+   }
+  }
+ },
+ {
+  "id": 16,
+  "slug": "3sum-closest",
+  "title": "3Sum Closest",
+  "difficulty": "Medium",
+  "url": "https://leetcode.com/problems/3sum-closest",
+  "path": "0016-3sum-closest",
+  "langs": {
+   "c": {
+    "file": "0016-3sum-closest.c"
+   },
+   "cpp": {
+    "file": "0016-3sum-closest.cpp"
+   },
+   "py": {
+    "file": "0016-3sum-closest.py"
+   }
+  }
+ },
+ {
+  "id": 17,
+  "slug": "letter-combinations-of-a-phone-number",
+  "title": "Letter Combinations of a Phone Number",
+  "difficulty": "Medium",
+  "url": "https://leetcode.com/problems/letter-combinations-of-a-phone-number",
+  "path": "0017-letter-combinations-of-a-phone-number",
+  "langs": {
+   "c": {
+    "file": "0017-letter-combinations-of-a-phone-number.c"
+   },
+   "cpp": {
+    "file": "0017-letter-combinations-of-a-phone-number.cpp"
+   },
+   "py": {
+    "file": "0017-letter-combinations-of-a-phone-number.py"
+   }
+  }
+ },
+ {
+  "id": 18,
+  "slug": "4sum",
+  "title": "4Sum",
+  "difficulty": "Medium",
+  "url": "https://leetcode.com/problems/4sum",
+  "path": "0018-4sum",
+  "langs": {
+   "c": {
+    "file": "0018-4sum.c"
+   },
+   "cpp": {
+    "file": "0018-4sum.cpp"
+   },
+   "py": {
+    "file": "0018-4sum.py"
+   }
+  }
+ },
+ {
+  "id": 19,
+  "slug": "remove-nth-node-from-end-of-list",
+  "title": "Remove Nth Node From End of List",
+  "difficulty": "Medium",
+  "url": "https://leetcode.com/problems/remove-nth-node-from-end-of-list",
+  "path": "0019-remove-nth-node-from-end-of-list",
+  "langs": {
+   "c": {
+    "file": "0019-remove-nth-node-from-end-of-list.c"
+   },
+   "cpp": {
+    "file": "0019-remove-nth-node-from-end-of-list.cpp"
+   },
+   "py": {
+    "file": "0019-remove-nth-node-from-end-of-list.py"
+   }
+  }
+ },
+ {
+  "id": 20,
+  "slug": "valid-parentheses",
+  "title": "Valid Parentheses",
+  "difficulty": "Easy",
+  "url": "https://leetcode.com/problems/valid-parentheses",
+  "path": "0020-valid-parentheses",
+  "langs": {
+   "c": {
+    "file": "0020-valid-parentheses.c"
+   },
+   "cpp": {
+    "file": "0020-valid-parentheses.cpp"
+   },
+   "py": {
+    "file": "0020-valid-parentheses.py"
+   }
+  }
  }
 ]

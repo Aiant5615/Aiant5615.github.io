@@ -4,7 +4,8 @@
   "use strict";
   const CFG = window.LEETCODE_CONFIG || {};
   const V = window.GHVault, CACHE_KEY = "leetcode_cache";
-  const PUB = Array.isArray(window.LC_PUBLIC) ? window.LC_PUBLIC : [];   // public problem list (no dates), for the game
+  const PUB = Array.isArray(window.LC_PUBLIC) ? window.LC_PUBLIC : [];
+  const ALGO = window.LC_ALGO || {};                                     // problem number -> techniques   // public problem list (no dates), for the game
   let D = {}, P = [];
   const LANGS = [["py", "Python"], ["c", "C"], ["cpp", "C++"]];
   const pad = n => String(n).padStart(2, "0");
@@ -56,9 +57,10 @@
         const url = p.url || `https://leetcode.com/problems/${p.slug}/`;
         return `<tr><td class="num">${p.id ?? ""}</td><td><a href="${esc(url)}" target="_blank" rel="noopener">${esc(p.title)}</a></td>
           <td>${p.difficulty ? `<span class="diff diff-${p.difficulty.toLowerCase()}">${p.difficulty}</span>` : ""}</td>
+          <td>${(ALGO[p.id] || []).map(a => `<span class="algo">${esc(a)}</span>`).join("")}</td>
           <td class="small">${LANGS.map(([k, l]) => p.langs[k] ? `<button type="button" class="btn btn-sm game-play" data-slug="${esc(p.slug)}" data-lang="${k}" title="Play this solution in ${l}">${l}</button>` : "").join(" ")}</td></tr>`;
       });
-      root.innerHTML = rows.length ? `<div style="overflow-x:auto"><table class="lc-table"><thead><tr><th>#</th><th>Problem</th><th>Difficulty</th><th>Play</th></tr></thead><tbody>${rows.join("")}</tbody></table></div>` : `<div class="empty">Nothing matches.</div>`;
+      root.innerHTML = rows.length ? `<div style="overflow-x:auto"><table class="lc-table"><thead><tr><th>#</th><th>Problem</th><th>Difficulty</th><th>Algorithm</th><th>Play</th></tr></thead><tbody>${rows.join("")}</tbody></table></div>` : `<div class="empty">Nothing matches.</div>`;
       root.querySelectorAll(".game-play").forEach(b => b.addEventListener("click", () => { const p = P.find(x => x.slug === b.dataset.slug); if (p) window.LCGame.start(p, b.dataset.lang, "easy"); }));
     };
     if (filterRoot) {
