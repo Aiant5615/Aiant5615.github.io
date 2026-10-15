@@ -509,3 +509,6 @@ main.container:has(#lc-body.playing) { max-width: none; padding: 0 clamp(1.2rem,
 .algo { display: inline-block; font-size: .75rem; padding: .08rem .45rem; margin: .1rem .25rem .1rem 0; border-radius: 6px; background: var(--surface-2); border: 1px solid var(--border); color: var(--muted); white-space: nowrap; }
 .lc-table td { vertical-align: middle; }
 .lc-table td:last-child { white-space: nowrap; }
+.pager { display: flex; justify-content: center; gap: .3rem; margin-top: .8rem; flex-wrap: wrap; }
+.pager button { min-width: 2rem; font: inherit; font-size: .85rem; padding: .3rem .55rem; border-radius: 8px; border: 1px solid var(--border); background: var(--surface); color: var(--muted); cursor: pointer; }
+.pager button.on { color: var(--accent); background: var(--accent-soft); border-color: transparent; }

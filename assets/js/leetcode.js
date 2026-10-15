@@ -50,25 +50,34 @@
     draw(); root._redraw = draw;
   }
 
+  const PAGE = 20;
+  let tableDiff = "", tablePage = 0;                                     // kept across re-renders (e.g. after a game)
   function renderTable(root, filterRoot) {
-    let diff = "";
     const draw = () => {
-      const rows = P.filter(p => !diff || p.difficulty === diff).sort((a, b) => (a.id || 0) - (b.id || 0)).map(p => {
+      const list = P.filter(p => !tableDiff || p.difficulty === tableDiff).sort((a, b) => (a.id || 0) - (b.id || 0));
+      const pages = Math.max(1, Math.ceil(list.length / PAGE));
+      tablePage = Math.min(tablePage, pages - 1);
+      const rows = list.slice(tablePage * PAGE, (tablePage + 1) * PAGE).map(p => {
         const url = p.url || `https://leetcode.com/problems/${p.slug}/`;
         return `<tr><td class="num">${p.id ?? ""}</td><td><a href="${esc(url)}" target="_blank" rel="noopener">${esc(p.title)}</a></td>
           <td>${p.difficulty ? `<span class="diff diff-${p.difficulty.toLowerCase()}">${p.difficulty}</span>` : ""}</td>
           <td>${(ALGO[p.id] || []).map(a => `<span class="algo">${esc(a)}</span>`).join("")}</td>
           <td class="small">${LANGS.map(([k, l]) => p.langs[k] ? `<button type="button" class="btn btn-sm game-play" data-slug="${esc(p.slug)}" data-lang="${k}" title="Play this solution in ${l}">${l}</button>` : "").join(" ")}</td></tr>`;
       });
-      root.innerHTML = rows.length ? `<div style="overflow-x:auto"><table class="lc-table"><thead><tr><th>#</th><th>Problem</th><th>Difficulty</th><th>Algorithm</th><th>Play</th></tr></thead><tbody>${rows.join("")}</tbody></table></div>` : `<div class="empty">Nothing matches.</div>`;
+      const pager = pages > 1 ? `<div class="pager">${Array.from({ length: pages }, (_, i) => {
+          const from = list[i * PAGE].id, to = list[Math.min(list.length, (i + 1) * PAGE) - 1].id;
+          return `<button type="button" data-pg="${i}" class="${i === tablePage ? "on" : ""}" title="${from}–${to}">${i + 1}</button>`; }).join("")}</div>` : "";
+      root.innerHTML = rows.length ? `<div style="overflow-x:auto"><table class="lc-table"><thead><tr><th>#</th><th>Problem</th><th>Difficulty</th><th>Algorithm</th><th>Play</th></tr></thead><tbody>${rows.join("")}</tbody></table></div>${pager}` : `<div class="empty">Nothing matches.</div>`;
       root.querySelectorAll(".game-play").forEach(b => b.addEventListener("click", () => { const p = P.find(x => x.slug === b.dataset.slug); if (p) window.LCGame.start(p, b.dataset.lang, "easy"); }));
+      root.querySelectorAll(".pager button").forEach(b => b.addEventListener("click", () => { tablePage = +b.dataset.pg; draw(); root.scrollIntoView({ behavior: "smooth", block: "start" }); }));
     };
     if (filterRoot) {
-      filterRoot.innerHTML = `<div class="seg">${["", "Easy", "Medium", "Hard"].map(d => `<button type="button" data-d="${d}" class="${d === diff ? "on" : ""}">${d || "All"}</button>`).join("")}</div>`;
-      filterRoot.querySelectorAll("button").forEach(b => b.addEventListener("click", () => { diff = b.dataset.d; filterRoot.querySelectorAll("button").forEach(x => x.classList.toggle("on", x === b)); draw(); }));
+      filterRoot.innerHTML = `<div class="seg">${["", "Easy", "Medium", "Hard"].map(d => `<button type="button" data-d="${d}" class="${d === tableDiff ? "on" : ""}">${d || "All"}</button>`).join("")}</div>`;
+      filterRoot.querySelectorAll("button").forEach(b => b.addEventListener("click", () => { tableDiff = b.dataset.d; tablePage = 0; filterRoot.querySelectorAll("button").forEach(x => x.classList.toggle("on", x === b)); draw(); }));
     }
     draw();
   }
+
 
   const $ = id => document.getElementById(id);
 

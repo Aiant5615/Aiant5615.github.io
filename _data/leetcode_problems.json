@@ -378,5 +378,1525 @@
     "file": "0020-valid-parentheses.py"
    }
   }
+ },
+ {
+  "id": 21,
+  "slug": "merge-two-sorted-lists",
+  "title": "Merge Two Sorted Lists",
+  "difficulty": "Easy",
+  "url": "https://leetcode.com/problems/merge-two-sorted-lists",
+  "path": "0021-merge-two-sorted-lists",
+  "langs": {
+   "c": {
+    "file": "0021-merge-two-sorted-lists.c"
+   },
+   "cpp": {
+    "file": "0021-merge-two-sorted-lists.cpp"
+   },
+   "py": {
+    "file": "0021-merge-two-sorted-lists.py"
+   }
+  }
+ },
+ {
+  "id": 22,
+  "slug": "generate-parentheses",
+  "title": "Generate Parentheses",
+  "difficulty": "Medium",
+  "url": "https://leetcode.com/problems/generate-parentheses",
+  "path": "0022-generate-parentheses",
+  "langs": {
+   "c": {
+    "file": "0022-generate-parentheses.c"
+   },
+   "cpp": {
+    "file": "0022-generate-parentheses.cpp"
+   },
+   "py": {
+    "file": "0022-generate-parentheses.py"
+   }
+  }
+ },
+ {
+  "id": 23,
+  "slug": "merge-k-sorted-lists",
+  "title": "Merge k Sorted Lists",
+  "difficulty": "Hard",
+  "url": "https://leetcode.com/problems/merge-k-sorted-lists",
+  "path": "0023-merge-k-sorted-lists",
+  "langs": {
+   "c": {
+    "file": "0023-merge-k-sorted-lists.c"
+   },
+   "cpp": {
+    "file": "0023-merge-k-sorted-lists.cpp"
+   },
+   "py": {
+    "file": "0023-merge-k-sorted-lists.py"
+   }
+  }
+ },
+ {
+  "id": 24,
+  "slug": "swap-nodes-in-pairs",
+  "title": "Swap Nodes in Pairs",
+  "difficulty": "Medium",
+  "url": "https://leetcode.com/problems/swap-nodes-in-pairs",
+  "path": "0024-swap-nodes-in-pairs",
+  "langs": {
+   "c": {
+    "file": "0024-swap-nodes-in-pairs.c"
+   },
+   "cpp": {
+    "file": "0024-swap-nodes-in-pairs.cpp"
+   },
+   "py": {
+    "file": "0024-swap-nodes-in-pairs.py"
+   }
+  }
+ },
+ {
+  "id": 25,
+  "slug": "reverse-nodes-in-k-group",
+  "title": "Reverse Nodes in k-Group",
+  "difficulty": "Hard",
+  "url": "https://leetcode.com/problems/reverse-nodes-in-k-group",
+  "path": "0025-reverse-nodes-in-k-group",
+  "langs": {
+   "c": {
+    "file": "0025-reverse-nodes-in-k-group.c"
+   },
+   "cpp": {
+    "file": "0025-reverse-nodes-in-k-group.cpp"
+   },
+   "py": {
+    "file": "0025-reverse-nodes-in-k-group.py"
+   }
+  }
+ },
+ {
+  "id": 26,
+  "slug": "remove-duplicates-from-sorted-array",
+  "title": "Remove Duplicates from Sorted Array",
+  "difficulty": "Easy",
+  "url": "https://leetcode.com/problems/remove-duplicates-from-sorted-array",
+  "path": "0026-remove-duplicates-from-sorted-array",
+  "langs": {
+   "c": {
+    "file": "0026-remove-duplicates-from-sorted-array.c"
+   },
+   "cpp": {
+    "file": "0026-remove-duplicates-from-sorted-array.cpp"
+   },
+   "py": {
+    "file": "0026-remove-duplicates-from-sorted-array.py"
+   }
+  }
+ },
+ {
+  "id": 27,
+  "slug": "remove-element",
+  "title": "Remove Element",
+  "difficulty": "Easy",
+  "url": "https://leetcode.com/problems/remove-element",
+  "path": "0027-remove-element",
+  "langs": {
+   "c": {
+    "file": "0027-remove-element.c"
+   },
+   "cpp": {
+    "file": "0027-remove-element.cpp"
+   },
+   "py": {
+    "file": "0027-remove-element.py"
+   }
+  }
+ },
+ {
+  "id": 28,
+  "slug": "find-the-index-of-the-first-occurrence-in-a-string",
+  "title": "Find the Index of the First Occurrence in a String",
+  "difficulty": "Easy",
+  "url": "https://leetcode.com/problems/find-the-index-of-the-first-occurrence-in-a-string",
+  "path": "0028-find-the-index-of-the-first-occurrence-in-a-string",
+  "langs": {
+   "c": {
+    "file": "0028-find-the-index-of-the-first-occurrence-in-a-string.c"
+   },
+   "cpp": {
+    "file": "0028-find-the-index-of-the-first-occurrence-in-a-string.cpp"
+   },
+   "py": {
+    "file": "0028-find-the-index-of-the-first-occurrence-in-a-string.py"
+   }
+  }
+ },
+ {
+  "id": 29,
+  "slug": "divide-two-integers",
+  "title": "Divide Two Integers",
+  "difficulty": "Medium",
+  "url": "https://leetcode.com/problems/divide-two-integers",
+  "path": "0029-divide-two-integers",
+  "langs": {
+   "c": {
+    "file": "0029-divide-two-integers.c"
+   },
+   "cpp": {
+    "file": "0029-divide-two-integers.cpp"
+   },
+   "py": {
+    "file": "0029-divide-two-integers.py"
+   }
+  }
+ },
+ {
+  "id": 30,
+  "slug": "substring-with-concatenation-of-all-words",
+  "title": "Substring with Concatenation of All Words",
+  "difficulty": "Hard",
+  "url": "https://leetcode.com/problems/substring-with-concatenation-of-all-words",
+  "path": "0030-substring-with-concatenation-of-all-words",
+  "langs": {
+   "c": {
+    "file": "0030-substring-with-concatenation-of-all-words.c"
+   },
+   "cpp": {
+    "file": "0030-substring-with-concatenation-of-all-words.cpp"
+   },
+   "py": {
+    "file": "0030-substring-with-concatenation-of-all-words.py"
+   }
+  }
+ },
+ {
+  "id": 31,
+  "slug": "next-permutation",
+  "title": "Next Permutation",
+  "difficulty": "Medium",
+  "url": "https://leetcode.com/problems/next-permutation",
+  "path": "0031-next-permutation",
+  "langs": {
+   "c": {
+    "file": "0031-next-permutation.c"
+   },
+   "cpp": {
+    "file": "0031-next-permutation.cpp"
+   },
+   "py": {
+    "file": "0031-next-permutation.py"
+   }
+  }
+ },
+ {
+  "id": 32,
+  "slug": "longest-valid-parentheses",
+  "title": "Longest Valid Parentheses",
+  "difficulty": "Hard",
+  "url": "https://leetcode.com/problems/longest-valid-parentheses",
+  "path": "0032-longest-valid-parentheses",
+  "langs": {
+   "c": {
+    "file": "0032-longest-valid-parentheses.c"
+   },
+   "cpp": {
+    "file": "0032-longest-valid-parentheses.cpp"
+   },
+   "py": {
+    "file": "0032-longest-valid-parentheses.py"
+   }
+  }
+ },
+ {
+  "id": 33,
+  "slug": "search-in-rotated-sorted-array",
+  "title": "Search in Rotated Sorted Array",
+  "difficulty": "Medium",
+  "url": "https://leetcode.com/problems/search-in-rotated-sorted-array",
+  "path": "0033-search-in-rotated-sorted-array",
+  "langs": {
+   "c": {
+    "file": "0033-search-in-rotated-sorted-array.c"
+   },
+   "cpp": {
+    "file": "0033-search-in-rotated-sorted-array.cpp"
+   },
+   "py": {
+    "file": "0033-search-in-rotated-sorted-array.py"
+   }
+  }
+ },
+ {
+  "id": 34,
+  "slug": "find-first-and-last-position-of-element-in-sorted-array",
+  "title": "Find First and Last Position of Element in Sorted Array",
+  "difficulty": "Medium",
+  "url": "https://leetcode.com/problems/find-first-and-last-position-of-element-in-sorted-array",
+  "path": "0034-find-first-and-last-position-of-element-in-sorted-array",
+  "langs": {
+   "c": {
+    "file": "0034-find-first-and-last-position-of-element-in-sorted-array.c"
+   },
+   "cpp": {
+    "file": "0034-find-first-and-last-position-of-element-in-sorted-array.cpp"
+   },
+   "py": {
+    "file": "0034-find-first-and-last-position-of-element-in-sorted-array.py"
+   }
+  }
+ },
+ {
+  "id": 35,
+  "slug": "search-insert-position",
+  "title": "Search Insert Position",
+  "difficulty": "Easy",
+  "url": "https://leetcode.com/problems/search-insert-position",
+  "path": "0035-search-insert-position",
+  "langs": {
+   "c": {
+    "file": "0035-search-insert-position.c"
+   },
+   "cpp": {
+    "file": "0035-search-insert-position.cpp"
+   },
+   "py": {
+    "file": "0035-search-insert-position.py"
+   }
+  }
+ },
+ {
+  "id": 36,
+  "slug": "valid-sudoku",
+  "title": "Valid Sudoku",
+  "difficulty": "Medium",
+  "url": "https://leetcode.com/problems/valid-sudoku",
+  "path": "0036-valid-sudoku",
+  "langs": {
+   "c": {
+    "file": "0036-valid-sudoku.c"
+   },
+   "cpp": {
+    "file": "0036-valid-sudoku.cpp"
+   },
+   "py": {
+    "file": "0036-valid-sudoku.py"
+   }
+  }
+ },
+ {
+  "id": 37,
+  "slug": "sudoku-solver",
+  "title": "Sudoku Solver",
+  "difficulty": "Hard",
+  "url": "https://leetcode.com/problems/sudoku-solver",
+  "path": "0037-sudoku-solver",
+  "langs": {
+   "c": {
+    "file": "0037-sudoku-solver.c"
+   },
+   "cpp": {
+    "file": "0037-sudoku-solver.cpp"
+   },
+   "py": {
+    "file": "0037-sudoku-solver.py"
+   }
+  }
+ },
+ {
+  "id": 38,
+  "slug": "count-and-say",
+  "title": "Count and Say",
+  "difficulty": "Medium",
+  "url": "https://leetcode.com/problems/count-and-say",
+  "path": "0038-count-and-say",
+  "langs": {
+   "c": {
+    "file": "0038-count-and-say.c"
+   },
+   "cpp": {
+    "file": "0038-count-and-say.cpp"
+   },
+   "py": {
+    "file": "0038-count-and-say.py"
+   }
+  }
+ },
+ {
+  "id": 39,
+  "slug": "combination-sum",
+  "title": "Combination Sum",
+  "difficulty": "Medium",
+  "url": "https://leetcode.com/problems/combination-sum",
+  "path": "0039-combination-sum",
+  "langs": {
+   "c": {
+    "file": "0039-combination-sum.c"
+   },
+   "cpp": {
+    "file": "0039-combination-sum.cpp"
+   },
+   "py": {
+    "file": "0039-combination-sum.py"
+   }
+  }
+ },
+ {
+  "id": 40,
+  "slug": "combination-sum-ii",
+  "title": "Combination Sum II",
+  "difficulty": "Medium",
+  "url": "https://leetcode.com/problems/combination-sum-ii",
+  "path": "0040-combination-sum-ii",
+  "langs": {
+   "c": {
+    "file": "0040-combination-sum-ii.c"
+   },
+   "cpp": {
+    "file": "0040-combination-sum-ii.cpp"
+   },
+   "py": {
+    "file": "0040-combination-sum-ii.py"
+   }
+  }
+ },
+ {
+  "id": 41,
+  "slug": "first-missing-positive",
+  "title": "First Missing Positive",
+  "difficulty": "Hard",
+  "url": "https://leetcode.com/problems/first-missing-positive",
+  "path": "0041-first-missing-positive",
+  "langs": {
+   "c": {
+    "file": "0041-first-missing-positive.c"
+   },
+   "cpp": {
+    "file": "0041-first-missing-positive.cpp"
+   },
+   "py": {
+    "file": "0041-first-missing-positive.py"
+   }
+  }
+ },
+ {
+  "id": 42,
+  "slug": "trapping-rain-water",
+  "title": "Trapping Rain Water",
+  "difficulty": "Hard",
+  "url": "https://leetcode.com/problems/trapping-rain-water",
+  "path": "0042-trapping-rain-water",
+  "langs": {
+   "c": {
+    "file": "0042-trapping-rain-water.c"
+   },
+   "cpp": {
+    "file": "0042-trapping-rain-water.cpp"
+   },
+   "py": {
+    "file": "0042-trapping-rain-water.py"
+   }
+  }
+ },
+ {
+  "id": 43,
+  "slug": "multiply-strings",
+  "title": "Multiply Strings",
+  "difficulty": "Medium",
+  "url": "https://leetcode.com/problems/multiply-strings",
+  "path": "0043-multiply-strings",
+  "langs": {
+   "c": {
+    "file": "0043-multiply-strings.c"
+   },
+   "cpp": {
+    "file": "0043-multiply-strings.cpp"
+   },
+   "py": {
+    "file": "0043-multiply-strings.py"
+   }
+  }
+ },
+ {
+  "id": 44,
+  "slug": "wildcard-matching",
+  "title": "Wildcard Matching",
+  "difficulty": "Hard",
+  "url": "https://leetcode.com/problems/wildcard-matching",
+  "path": "0044-wildcard-matching",
+  "langs": {
+   "c": {
+    "file": "0044-wildcard-matching.c"
+   },
+   "cpp": {
+    "file": "0044-wildcard-matching.cpp"
+   },
+   "py": {
+    "file": "0044-wildcard-matching.py"
+   }
+  }
+ },
+ {
+  "id": 45,
+  "slug": "jump-game-ii",
+  "title": "Jump Game II",
+  "difficulty": "Medium",
+  "url": "https://leetcode.com/problems/jump-game-ii",
+  "path": "0045-jump-game-ii",
+  "langs": {
+   "c": {
+    "file": "0045-jump-game-ii.c"
+   },
+   "cpp": {
+    "file": "0045-jump-game-ii.cpp"
+   },
+   "py": {
+    "file": "0045-jump-game-ii.py"
+   }
+  }
+ },
+ {
+  "id": 46,
+  "slug": "permutations",
+  "title": "Permutations",
+  "difficulty": "Medium",
+  "url": "https://leetcode.com/problems/permutations",
+  "path": "0046-permutations",
+  "langs": {
+   "c": {
+    "file": "0046-permutations.c"
+   },
+   "cpp": {
+    "file": "0046-permutations.cpp"
+   },
+   "py": {
+    "file": "0046-permutations.py"
+   }
+  }
+ },
+ {
+  "id": 47,
+  "slug": "permutations-ii",
+  "title": "Permutations II",
+  "difficulty": "Medium",
+  "url": "https://leetcode.com/problems/permutations-ii",
+  "path": "0047-permutations-ii",
+  "langs": {
+   "c": {
+    "file": "0047-permutations-ii.c"
+   },
+   "cpp": {
+    "file": "0047-permutations-ii.cpp"
+   },
+   "py": {
+    "file": "0047-permutations-ii.py"
+   }
+  }
+ },
+ {
+  "id": 48,
+  "slug": "rotate-image",
+  "title": "Rotate Image",
+  "difficulty": "Medium",
+  "url": "https://leetcode.com/problems/rotate-image",
+  "path": "0048-rotate-image",
+  "langs": {
+   "c": {
+    "file": "0048-rotate-image.c"
+   },
+   "cpp": {
+    "file": "0048-rotate-image.cpp"
+   },
+   "py": {
+    "file": "0048-rotate-image.py"
+   }
+  }
+ },
+ {
+  "id": 49,
+  "slug": "group-anagrams",
+  "title": "Group Anagrams",
+  "difficulty": "Medium",
+  "url": "https://leetcode.com/problems/group-anagrams",
+  "path": "0049-group-anagrams",
+  "langs": {
+   "c": {
+    "file": "0049-group-anagrams.c"
+   },
+   "cpp": {
+    "file": "0049-group-anagrams.cpp"
+   },
+   "py": {
+    "file": "0049-group-anagrams.py"
+   }
+  }
+ },
+ {
+  "id": 50,
+  "slug": "powx-n",
+  "title": "Pow(x, n)",
+  "difficulty": "Medium",
+  "url": "https://leetcode.com/problems/powx-n",
+  "path": "0050-powx-n",
+  "langs": {
+   "c": {
+    "file": "0050-powx-n.c"
+   },
+   "cpp": {
+    "file": "0050-powx-n.cpp"
+   },
+   "py": {
+    "file": "0050-powx-n.py"
+   }
+  }
+ },
+ {
+  "id": 51,
+  "slug": "n-queens",
+  "title": "N-Queens",
+  "difficulty": "Hard",
+  "url": "https://leetcode.com/problems/n-queens",
+  "path": "0051-n-queens",
+  "langs": {
+   "c": {
+    "file": "0051-n-queens.c"
+   },
+   "cpp": {
+    "file": "0051-n-queens.cpp"
+   },
+   "py": {
+    "file": "0051-n-queens.py"
+   }
+  }
+ },
+ {
+  "id": 52,
+  "slug": "n-queens-ii",
+  "title": "N-Queens II",
+  "difficulty": "Hard",
+  "url": "https://leetcode.com/problems/n-queens-ii",
+  "path": "0052-n-queens-ii",
+  "langs": {
+   "c": {
+    "file": "0052-n-queens-ii.c"
+   },
+   "cpp": {
+    "file": "0052-n-queens-ii.cpp"
+   },
+   "py": {
+    "file": "0052-n-queens-ii.py"
+   }
+  }
+ },
+ {
+  "id": 53,
+  "slug": "maximum-subarray",
+  "title": "Maximum Subarray",
+  "difficulty": "Medium",
+  "url": "https://leetcode.com/problems/maximum-subarray",
+  "path": "0053-maximum-subarray",
+  "langs": {
+   "c": {
+    "file": "0053-maximum-subarray.c"
+   },
+   "cpp": {
+    "file": "0053-maximum-subarray.cpp"
+   },
+   "py": {
+    "file": "0053-maximum-subarray.py"
+   }
+  }
+ },
+ {
+  "id": 54,
+  "slug": "spiral-matrix",
+  "title": "Spiral Matrix",
+  "difficulty": "Medium",
+  "url": "https://leetcode.com/problems/spiral-matrix",
+  "path": "0054-spiral-matrix",
+  "langs": {
+   "c": {
+    "file": "0054-spiral-matrix.c"
+   },
+   "cpp": {
+    "file": "0054-spiral-matrix.cpp"
+   },
+   "py": {
+    "file": "0054-spiral-matrix.py"
+   }
+  }
+ },
+ {
+  "id": 55,
+  "slug": "jump-game",
+  "title": "Jump Game",
+  "difficulty": "Medium",
+  "url": "https://leetcode.com/problems/jump-game",
+  "path": "0055-jump-game",
+  "langs": {
+   "c": {
+    "file": "0055-jump-game.c"
+   },
+   "cpp": {
+    "file": "0055-jump-game.cpp"
+   },
+   "py": {
+    "file": "0055-jump-game.py"
+   }
+  }
+ },
+ {
+  "id": 56,
+  "slug": "merge-intervals",
+  "title": "Merge Intervals",
+  "difficulty": "Medium",
+  "url": "https://leetcode.com/problems/merge-intervals",
+  "path": "0056-merge-intervals",
+  "langs": {
+   "c": {
+    "file": "0056-merge-intervals.c"
+   },
+   "cpp": {
+    "file": "0056-merge-intervals.cpp"
+   },
+   "py": {
+    "file": "0056-merge-intervals.py"
+   }
+  }
+ },
+ {
+  "id": 57,
+  "slug": "insert-interval",
+  "title": "Insert Interval",
+  "difficulty": "Medium",
+  "url": "https://leetcode.com/problems/insert-interval",
+  "path": "0057-insert-interval",
+  "langs": {
+   "c": {
+    "file": "0057-insert-interval.c"
+   },
+   "cpp": {
+    "file": "0057-insert-interval.cpp"
+   },
+   "py": {
+    "file": "0057-insert-interval.py"
+   }
+  }
+ },
+ {
+  "id": 58,
+  "slug": "length-of-last-word",
+  "title": "Length of Last Word",
+  "difficulty": "Easy",
+  "url": "https://leetcode.com/problems/length-of-last-word",
+  "path": "0058-length-of-last-word",
+  "langs": {
+   "c": {
+    "file": "0058-length-of-last-word.c"
+   },
+   "cpp": {
+    "file": "0058-length-of-last-word.cpp"
+   },
+   "py": {
+    "file": "0058-length-of-last-word.py"
+   }
+  }
+ },
+ {
+  "id": 59,
+  "slug": "spiral-matrix-ii",
+  "title": "Spiral Matrix II",
+  "difficulty": "Medium",
+  "url": "https://leetcode.com/problems/spiral-matrix-ii",
+  "path": "0059-spiral-matrix-ii",
+  "langs": {
+   "c": {
+    "file": "0059-spiral-matrix-ii.c"
+   },
+   "cpp": {
+    "file": "0059-spiral-matrix-ii.cpp"
+   },
+   "py": {
+    "file": "0059-spiral-matrix-ii.py"
+   }
+  }
+ },
+ {
+  "id": 60,
+  "slug": "permutation-sequence",
+  "title": "Permutation Sequence",
+  "difficulty": "Hard",
+  "url": "https://leetcode.com/problems/permutation-sequence",
+  "path": "0060-permutation-sequence",
+  "langs": {
+   "c": {
+    "file": "0060-permutation-sequence.c"
+   },
+   "cpp": {
+    "file": "0060-permutation-sequence.cpp"
+   },
+   "py": {
+    "file": "0060-permutation-sequence.py"
+   }
+  }
+ },
+ {
+  "id": 61,
+  "slug": "rotate-list",
+  "title": "Rotate List",
+  "difficulty": "Medium",
+  "url": "https://leetcode.com/problems/rotate-list",
+  "path": "0061-rotate-list",
+  "langs": {
+   "c": {
+    "file": "0061-rotate-list.c"
+   },
+   "cpp": {
+    "file": "0061-rotate-list.cpp"
+   },
+   "py": {
+    "file": "0061-rotate-list.py"
+   }
+  }
+ },
+ {
+  "id": 62,
+  "slug": "unique-paths",
+  "title": "Unique Paths",
+  "difficulty": "Medium",
+  "url": "https://leetcode.com/problems/unique-paths",
+  "path": "0062-unique-paths",
+  "langs": {
+   "c": {
+    "file": "0062-unique-paths.c"
+   },
+   "cpp": {
+    "file": "0062-unique-paths.cpp"
+   },
+   "py": {
+    "file": "0062-unique-paths.py"
+   }
+  }
+ },
+ {
+  "id": 63,
+  "slug": "unique-paths-ii",
+  "title": "Unique Paths II",
+  "difficulty": "Medium",
+  "url": "https://leetcode.com/problems/unique-paths-ii",
+  "path": "0063-unique-paths-ii",
+  "langs": {
+   "c": {
+    "file": "0063-unique-paths-ii.c"
+   },
+   "cpp": {
+    "file": "0063-unique-paths-ii.cpp"
+   },
+   "py": {
+    "file": "0063-unique-paths-ii.py"
+   }
+  }
+ },
+ {
+  "id": 64,
+  "slug": "minimum-path-sum",
+  "title": "Minimum Path Sum",
+  "difficulty": "Medium",
+  "url": "https://leetcode.com/problems/minimum-path-sum",
+  "path": "0064-minimum-path-sum",
+  "langs": {
+   "c": {
+    "file": "0064-minimum-path-sum.c"
+   },
+   "cpp": {
+    "file": "0064-minimum-path-sum.cpp"
+   },
+   "py": {
+    "file": "0064-minimum-path-sum.py"
+   }
+  }
+ },
+ {
+  "id": 65,
+  "slug": "valid-number",
+  "title": "Valid Number",
+  "difficulty": "Hard",
+  "url": "https://leetcode.com/problems/valid-number",
+  "path": "0065-valid-number",
+  "langs": {
+   "c": {
+    "file": "0065-valid-number.c"
+   },
+   "cpp": {
+    "file": "0065-valid-number.cpp"
+   },
+   "py": {
+    "file": "0065-valid-number.py"
+   }
+  }
+ },
+ {
+  "id": 66,
+  "slug": "plus-one",
+  "title": "Plus One",
+  "difficulty": "Easy",
+  "url": "https://leetcode.com/problems/plus-one",
+  "path": "0066-plus-one",
+  "langs": {
+   "c": {
+    "file": "0066-plus-one.c"
+   },
+   "cpp": {
+    "file": "0066-plus-one.cpp"
+   },
+   "py": {
+    "file": "0066-plus-one.py"
+   }
+  }
+ },
+ {
+  "id": 67,
+  "slug": "add-binary",
+  "title": "Add Binary",
+  "difficulty": "Easy",
+  "url": "https://leetcode.com/problems/add-binary",
+  "path": "0067-add-binary",
+  "langs": {
+   "c": {
+    "file": "0067-add-binary.c"
+   },
+   "cpp": {
+    "file": "0067-add-binary.cpp"
+   },
+   "py": {
+    "file": "0067-add-binary.py"
+   }
+  }
+ },
+ {
+  "id": 68,
+  "slug": "text-justification",
+  "title": "Text Justification",
+  "difficulty": "Hard",
+  "url": "https://leetcode.com/problems/text-justification",
+  "path": "0068-text-justification",
+  "langs": {
+   "c": {
+    "file": "0068-text-justification.c"
+   },
+   "cpp": {
+    "file": "0068-text-justification.cpp"
+   },
+   "py": {
+    "file": "0068-text-justification.py"
+   }
+  }
+ },
+ {
+  "id": 69,
+  "slug": "sqrtx",
+  "title": "Sqrt(x)",
+  "difficulty": "Easy",
+  "url": "https://leetcode.com/problems/sqrtx",
+  "path": "0069-sqrtx",
+  "langs": {
+   "c": {
+    "file": "0069-sqrtx.c"
+   },
+   "cpp": {
+    "file": "0069-sqrtx.cpp"
+   },
+   "py": {
+    "file": "0069-sqrtx.py"
+   }
+  }
+ },
+ {
+  "id": 70,
+  "slug": "climbing-stairs",
+  "title": "Climbing Stairs",
+  "difficulty": "Easy",
+  "url": "https://leetcode.com/problems/climbing-stairs",
+  "path": "0070-climbing-stairs",
+  "langs": {
+   "c": {
+    "file": "0070-climbing-stairs.c"
+   },
+   "cpp": {
+    "file": "0070-climbing-stairs.cpp"
+   },
+   "py": {
+    "file": "0070-climbing-stairs.py"
+   }
+  }
+ },
+ {
+  "id": 71,
+  "slug": "simplify-path",
+  "title": "Simplify Path",
+  "difficulty": "Medium",
+  "url": "https://leetcode.com/problems/simplify-path",
+  "path": "0071-simplify-path",
+  "langs": {
+   "c": {
+    "file": "0071-simplify-path.c"
+   },
+   "cpp": {
+    "file": "0071-simplify-path.cpp"
+   },
+   "py": {
+    "file": "0071-simplify-path.py"
+   }
+  }
+ },
+ {
+  "id": 72,
+  "slug": "edit-distance",
+  "title": "Edit Distance",
+  "difficulty": "Medium",
+  "url": "https://leetcode.com/problems/edit-distance",
+  "path": "0072-edit-distance",
+  "langs": {
+   "c": {
+    "file": "0072-edit-distance.c"
+   },
+   "cpp": {
+    "file": "0072-edit-distance.cpp"
+   },
+   "py": {
+    "file": "0072-edit-distance.py"
+   }
+  }
+ },
+ {
+  "id": 73,
+  "slug": "set-matrix-zeroes",
+  "title": "Set Matrix Zeroes",
+  "difficulty": "Medium",
+  "url": "https://leetcode.com/problems/set-matrix-zeroes",
+  "path": "0073-set-matrix-zeroes",
+  "langs": {
+   "c": {
+    "file": "0073-set-matrix-zeroes.c"
+   },
+   "cpp": {
+    "file": "0073-set-matrix-zeroes.cpp"
+   },
+   "py": {
+    "file": "0073-set-matrix-zeroes.py"
+   }
+  }
+ },
+ {
+  "id": 74,
+  "slug": "search-a-2d-matrix",
+  "title": "Search a 2D Matrix",
+  "difficulty": "Medium",
+  "url": "https://leetcode.com/problems/search-a-2d-matrix",
+  "path": "0074-search-a-2d-matrix",
+  "langs": {
+   "c": {
+    "file": "0074-search-a-2d-matrix.c"
+   },
+   "cpp": {
+    "file": "0074-search-a-2d-matrix.cpp"
+   },
+   "py": {
+    "file": "0074-search-a-2d-matrix.py"
+   }
+  }
+ },
+ {
+  "id": 75,
+  "slug": "sort-colors",
+  "title": "Sort Colors",
+  "difficulty": "Medium",
+  "url": "https://leetcode.com/problems/sort-colors",
+  "path": "0075-sort-colors",
+  "langs": {
+   "c": {
+    "file": "0075-sort-colors.c"
+   },
+   "cpp": {
+    "file": "0075-sort-colors.cpp"
+   },
+   "py": {
+    "file": "0075-sort-colors.py"
+   }
+  }
+ },
+ {
+  "id": 76,
+  "slug": "minimum-window-substring",
+  "title": "Minimum Window Substring",
+  "difficulty": "Hard",
+  "url": "https://leetcode.com/problems/minimum-window-substring",
+  "path": "0076-minimum-window-substring",
+  "langs": {
+   "c": {
+    "file": "0076-minimum-window-substring.c"
+   },
+   "cpp": {
+    "file": "0076-minimum-window-substring.cpp"
+   },
+   "py": {
+    "file": "0076-minimum-window-substring.py"
+   }
+  }
+ },
+ {
+  "id": 77,
+  "slug": "combinations",
+  "title": "Combinations",
+  "difficulty": "Medium",
+  "url": "https://leetcode.com/problems/combinations",
+  "path": "0077-combinations",
+  "langs": {
+   "c": {
+    "file": "0077-combinations.c"
+   },
+   "cpp": {
+    "file": "0077-combinations.cpp"
+   },
+   "py": {
+    "file": "0077-combinations.py"
+   }
+  }
+ },
+ {
+  "id": 78,
+  "slug": "subsets",
+  "title": "Subsets",
+  "difficulty": "Medium",
+  "url": "https://leetcode.com/problems/subsets",
+  "path": "0078-subsets",
+  "langs": {
+   "c": {
+    "file": "0078-subsets.c"
+   },
+   "cpp": {
+    "file": "0078-subsets.cpp"
+   },
+   "py": {
+    "file": "0078-subsets.py"
+   }
+  }
+ },
+ {
+  "id": 79,
+  "slug": "word-search",
+  "title": "Word Search",
+  "difficulty": "Medium",
+  "url": "https://leetcode.com/problems/word-search",
+  "path": "0079-word-search",
+  "langs": {
+   "c": {
+    "file": "0079-word-search.c"
+   },
+   "cpp": {
+    "file": "0079-word-search.cpp"
+   },
+   "py": {
+    "file": "0079-word-search.py"
+   }
+  }
+ },
+ {
+  "id": 80,
+  "slug": "remove-duplicates-from-sorted-array-ii",
+  "title": "Remove Duplicates from Sorted Array II",
+  "difficulty": "Medium",
+  "url": "https://leetcode.com/problems/remove-duplicates-from-sorted-array-ii",
+  "path": "0080-remove-duplicates-from-sorted-array-ii",
+  "langs": {
+   "c": {
+    "file": "0080-remove-duplicates-from-sorted-array-ii.c"
+   },
+   "cpp": {
+    "file": "0080-remove-duplicates-from-sorted-array-ii.cpp"
+   },
+   "py": {
+    "file": "0080-remove-duplicates-from-sorted-array-ii.py"
+   }
+  }
+ },
+ {
+  "id": 81,
+  "slug": "search-in-rotated-sorted-array-ii",
+  "title": "Search in Rotated Sorted Array II",
+  "difficulty": "Medium",
+  "url": "https://leetcode.com/problems/search-in-rotated-sorted-array-ii",
+  "path": "0081-search-in-rotated-sorted-array-ii",
+  "langs": {
+   "c": {
+    "file": "0081-search-in-rotated-sorted-array-ii.c"
+   },
+   "cpp": {
+    "file": "0081-search-in-rotated-sorted-array-ii.cpp"
+   },
+   "py": {
+    "file": "0081-search-in-rotated-sorted-array-ii.py"
+   }
+  }
+ },
+ {
+  "id": 82,
+  "slug": "remove-duplicates-from-sorted-list-ii",
+  "title": "Remove Duplicates from Sorted List II",
+  "difficulty": "Medium",
+  "url": "https://leetcode.com/problems/remove-duplicates-from-sorted-list-ii",
+  "path": "0082-remove-duplicates-from-sorted-list-ii",
+  "langs": {
+   "c": {
+    "file": "0082-remove-duplicates-from-sorted-list-ii.c"
+   },
+   "cpp": {
+    "file": "0082-remove-duplicates-from-sorted-list-ii.cpp"
+   },
+   "py": {
+    "file": "0082-remove-duplicates-from-sorted-list-ii.py"
+   }
+  }
+ },
+ {
+  "id": 83,
+  "slug": "remove-duplicates-from-sorted-list",
+  "title": "Remove Duplicates from Sorted List",
+  "difficulty": "Easy",
+  "url": "https://leetcode.com/problems/remove-duplicates-from-sorted-list",
+  "path": "0083-remove-duplicates-from-sorted-list",
+  "langs": {
+   "c": {
+    "file": "0083-remove-duplicates-from-sorted-list.c"
+   },
+   "cpp": {
+    "file": "0083-remove-duplicates-from-sorted-list.cpp"
+   },
+   "py": {
+    "file": "0083-remove-duplicates-from-sorted-list.py"
+   }
+  }
+ },
+ {
+  "id": 84,
+  "slug": "largest-rectangle-in-histogram",
+  "title": "Largest Rectangle in Histogram",
+  "difficulty": "Hard",
+  "url": "https://leetcode.com/problems/largest-rectangle-in-histogram",
+  "path": "0084-largest-rectangle-in-histogram",
+  "langs": {
+   "c": {
+    "file": "0084-largest-rectangle-in-histogram.c"
+   },
+   "cpp": {
+    "file": "0084-largest-rectangle-in-histogram.cpp"
+   },
+   "py": {
+    "file": "0084-largest-rectangle-in-histogram.py"
+   }
+  }
+ },
+ {
+  "id": 85,
+  "slug": "maximal-rectangle",
+  "title": "Maximal Rectangle",
+  "difficulty": "Hard",
+  "url": "https://leetcode.com/problems/maximal-rectangle",
+  "path": "0085-maximal-rectangle",
+  "langs": {
+   "c": {
+    "file": "0085-maximal-rectangle.c"
+   },
+   "cpp": {
+    "file": "0085-maximal-rectangle.cpp"
+   },
+   "py": {
+    "file": "0085-maximal-rectangle.py"
+   }
+  }
+ },
+ {
+  "id": 86,
+  "slug": "partition-list",
+  "title": "Partition List",
+  "difficulty": "Medium",
+  "url": "https://leetcode.com/problems/partition-list",
+  "path": "0086-partition-list",
+  "langs": {
+   "c": {
+    "file": "0086-partition-list.c"
+   },
+   "cpp": {
+    "file": "0086-partition-list.cpp"
+   },
+   "py": {
+    "file": "0086-partition-list.py"
+   }
+  }
+ },
+ {
+  "id": 87,
+  "slug": "scramble-string",
+  "title": "Scramble String",
+  "difficulty": "Hard",
+  "url": "https://leetcode.com/problems/scramble-string",
+  "path": "0087-scramble-string",
+  "langs": {
+   "c": {
+    "file": "0087-scramble-string.c"
+   },
+   "cpp": {
+    "file": "0087-scramble-string.cpp"
+   },
+   "py": {
+    "file": "0087-scramble-string.py"
+   }
+  }
+ },
+ {
+  "id": 88,
+  "slug": "merge-sorted-array",
+  "title": "Merge Sorted Array",
+  "difficulty": "Easy",
+  "url": "https://leetcode.com/problems/merge-sorted-array",
+  "path": "0088-merge-sorted-array",
+  "langs": {
+   "c": {
+    "file": "0088-merge-sorted-array.c"
+   },
+   "cpp": {
+    "file": "0088-merge-sorted-array.cpp"
+   },
+   "py": {
+    "file": "0088-merge-sorted-array.py"
+   }
+  }
+ },
+ {
+  "id": 89,
+  "slug": "gray-code",
+  "title": "Gray Code",
+  "difficulty": "Medium",
+  "url": "https://leetcode.com/problems/gray-code",
+  "path": "0089-gray-code",
+  "langs": {
+   "c": {
+    "file": "0089-gray-code.c"
+   },
+   "cpp": {
+    "file": "0089-gray-code.cpp"
+   },
+   "py": {
+    "file": "0089-gray-code.py"
+   }
+  }
+ },
+ {
+  "id": 90,
+  "slug": "subsets-ii",
+  "title": "Subsets II",
+  "difficulty": "Medium",
+  "url": "https://leetcode.com/problems/subsets-ii",
+  "path": "0090-subsets-ii",
+  "langs": {
+   "c": {
+    "file": "0090-subsets-ii.c"
+   },
+   "cpp": {
+    "file": "0090-subsets-ii.cpp"
+   },
+   "py": {
+    "file": "0090-subsets-ii.py"
+   }
+  }
+ },
+ {
+  "id": 91,
+  "slug": "decode-ways",
+  "title": "Decode Ways",
+  "difficulty": "Medium",
+  "url": "https://leetcode.com/problems/decode-ways",
+  "path": "0091-decode-ways",
+  "langs": {
+   "c": {
+    "file": "0091-decode-ways.c"
+   },
+   "cpp": {
+    "file": "0091-decode-ways.cpp"
+   },
+   "py": {
+    "file": "0091-decode-ways.py"
+   }
+  }
+ },
+ {
+  "id": 92,
+  "slug": "reverse-linked-list-ii",
+  "title": "Reverse Linked List II",
+  "difficulty": "Medium",
+  "url": "https://leetcode.com/problems/reverse-linked-list-ii",
+  "path": "0092-reverse-linked-list-ii",
+  "langs": {
+   "c": {
+    "file": "0092-reverse-linked-list-ii.c"
+   },
+   "cpp": {
+    "file": "0092-reverse-linked-list-ii.cpp"
+   },
+   "py": {
+    "file": "0092-reverse-linked-list-ii.py"
+   }
+  }
+ },
+ {
+  "id": 93,
+  "slug": "restore-ip-addresses",
+  "title": "Restore IP Addresses",
+  "difficulty": "Medium",
+  "url": "https://leetcode.com/problems/restore-ip-addresses",
+  "path": "0093-restore-ip-addresses",
+  "langs": {
+   "c": {
+    "file": "0093-restore-ip-addresses.c"
+   },
+   "cpp": {
+    "file": "0093-restore-ip-addresses.cpp"
+   },
+   "py": {
+    "file": "0093-restore-ip-addresses.py"
+   }
+  }
+ },
+ {
+  "id": 94,
+  "slug": "binary-tree-inorder-traversal",
+  "title": "Binary Tree Inorder Traversal",
+  "difficulty": "Easy",
+  "url": "https://leetcode.com/problems/binary-tree-inorder-traversal",
+  "path": "0094-binary-tree-inorder-traversal",
+  "langs": {
+   "c": {
+    "file": "0094-binary-tree-inorder-traversal.c"
+   },
+   "cpp": {
+    "file": "0094-binary-tree-inorder-traversal.cpp"
+   },
+   "py": {
+    "file": "0094-binary-tree-inorder-traversal.py"
+   }
+  }
+ },
+ {
+  "id": 95,
+  "slug": "unique-binary-search-trees-ii",
+  "title": "Unique Binary Search Trees II",
+  "difficulty": "Medium",
+  "url": "https://leetcode.com/problems/unique-binary-search-trees-ii",
+  "path": "0095-unique-binary-search-trees-ii",
+  "langs": {
+   "c": {
+    "file": "0095-unique-binary-search-trees-ii.c"
+   },
+   "cpp": {
+    "file": "0095-unique-binary-search-trees-ii.cpp"
+   },
+   "py": {
+    "file": "0095-unique-binary-search-trees-ii.py"
+   }
+  }
+ },
+ {
+  "id": 96,
+  "slug": "unique-binary-search-trees",
+  "title": "Unique Binary Search Trees",
+  "difficulty": "Medium",
+  "url": "https://leetcode.com/problems/unique-binary-search-trees",
+  "path": "0096-unique-binary-search-trees",
+  "langs": {
+   "c": {
+    "file": "0096-unique-binary-search-trees.c"
+   },
+   "cpp": {
+    "file": "0096-unique-binary-search-trees.cpp"
+   },
+   "py": {
+    "file": "0096-unique-binary-search-trees.py"
+   }
+  }
+ },
+ {
+  "id": 97,
+  "slug": "interleaving-string",
+  "title": "Interleaving String",
+  "difficulty": "Medium",
+  "url": "https://leetcode.com/problems/interleaving-string",
+  "path": "0097-interleaving-string",
+  "langs": {
+   "c": {
+    "file": "0097-interleaving-string.c"
+   },
+   "cpp": {
+    "file": "0097-interleaving-string.cpp"
+   },
+   "py": {
+    "file": "0097-interleaving-string.py"
+   }
+  }
+ },
+ {
+  "id": 98,
+  "slug": "validate-binary-search-tree",
+  "title": "Validate Binary Search Tree",
+  "difficulty": "Medium",
+  "url": "https://leetcode.com/problems/validate-binary-search-tree",
+  "path": "0098-validate-binary-search-tree",
+  "langs": {
+   "c": {
+    "file": "0098-validate-binary-search-tree.c"
+   },
+   "cpp": {
+    "file": "0098-validate-binary-search-tree.cpp"
+   },
+   "py": {
+    "file": "0098-validate-binary-search-tree.py"
+   }
+  }
+ },
+ {
+  "id": 99,
+  "slug": "recover-binary-search-tree",
+  "title": "Recover Binary Search Tree",
+  "difficulty": "Medium",
+  "url": "https://leetcode.com/problems/recover-binary-search-tree",
+  "path": "0099-recover-binary-search-tree",
+  "langs": {
+   "c": {
+    "file": "0099-recover-binary-search-tree.c"
+   },
+   "cpp": {
+    "file": "0099-recover-binary-search-tree.cpp"
+   },
+   "py": {
+    "file": "0099-recover-binary-search-tree.py"
+   }
+  }
+ },
+ {
+  "id": 100,
+  "slug": "same-tree",
+  "title": "Same Tree",
+  "difficulty": "Easy",
+  "url": "https://leetcode.com/problems/same-tree",
+  "path": "0100-same-tree",
+  "langs": {
+   "c": {
+    "file": "0100-same-tree.c"
+   },
+   "cpp": {
+    "file": "0100-same-tree.cpp"
+   },
+   "py": {
+    "file": "0100-same-tree.py"
+   }
+  }
  }
 ]
