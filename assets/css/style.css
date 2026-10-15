@@ -504,3 +504,5 @@ body:has(#lc-body.playing) #lc-connect { display: none; }   /* the game gets the
 
 /* the coding game alone uses the whole window */
 main.container:has(#lc-body.playing) { max-width: none; padding: 0 clamp(1.2rem, 3vw, 3rem); }
+.game-title { display: flex; align-items: center; gap: .7rem; flex-wrap: wrap; }
+.game-mode button { padding: .2rem .6rem; font-size: .8rem; }

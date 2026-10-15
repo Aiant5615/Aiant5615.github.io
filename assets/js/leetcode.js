@@ -58,7 +58,7 @@
           <td>${p.difficulty ? `<span class="diff diff-${p.difficulty.toLowerCase()}">${p.difficulty}</span>` : ""}</td>
           <td class="small">${LANGS.map(([k, l]) => p.langs[k] ? `<button type="button" class="btn btn-sm game-play" data-slug="${esc(p.slug)}" data-lang="${k}" title="Play this solution in ${l}">${l}</button>` : "").join(" ")}</td></tr>`;
       });
-      root.innerHTML = rows.length ? `<div style="overflow-x:auto"><table class="lc-table"><thead><tr><th>#</th><th>Problem</th><th>Difficulty</th><th></th></tr></thead><tbody>${rows.join("")}</tbody></table></div>` : `<div class="empty">Nothing matches.</div>`;
+      root.innerHTML = rows.length ? `<div style="overflow-x:auto"><table class="lc-table"><thead><tr><th>#</th><th>Problem</th><th>Difficulty</th><th>Play</th></tr></thead><tbody>${rows.join("")}</tbody></table></div>` : `<div class="empty">Nothing matches.</div>`;
       root.querySelectorAll(".game-play").forEach(b => b.addEventListener("click", () => { const p = P.find(x => x.slug === b.dataset.slug); if (p) window.LCGame.start(p, b.dataset.lang, "easy"); }));
     };
     if (filterRoot) {
@@ -93,7 +93,7 @@
   function renderPublic() {
     const empty = P.length === 0;
     $("lc-onboarding").hidden = !empty; $("lc-sections").hidden = empty;
-    if (!empty) { renderTable($("lc-table"), $("lc-filter")); if (window.LCGame) window.LCGame.renderLauncher($("lc-game-launch"), P); }
+    if (!empty) { renderTable($("lc-table"), $("lc-filter")); if (window.LCGame) window.LCGame.setProblems(P); }
   }
   function renderPrivate() {
     const on = !!V.token() && P.length > 0;

@@ -115,7 +115,7 @@
     const root = $("lc-game"); if (!root || !G) return;
     const p = G.problem, done = G.idx >= G.lines.length;
     const head = `<div class="game-head">
-        <div><b>${LANG_NAME[G.lang]}</b> <span class="muted">· ${G.mode} mode</span></div>
+        <div class="game-title"><b>${LANG_NAME[G.lang]}</b><div class="seg game-mode">${["easy", "medium", "hard"].map(m => `<button type="button" data-gm="${m}" class="${m === G.mode ? "on" : ""}" title="Restart this problem in ${m} mode">${m}</button>`).join("")}</div></div>
         <div class="game-meta"><span>line <b>${Math.min(G.idx + 1, G.lines.length)}</b>/${G.lines.length}</span><button type="button" class="btn btn-sm" id="game-quit">Quit</button></div>
       </div>
       <div class="game-track" title="${G.idx} of ${G.lines.length} lines done"><div class="road"></div><span class="flag">🏁</span><span class="runner" id="game-runner" style="left:${(G.prevPct || 0).toFixed(1)}%">${done ? "🎉" : "🏃"}</span></div>`;
@@ -133,6 +133,7 @@
       root.querySelectorAll("[data-mode]").forEach(b => b.addEventListener("click", () => start(G.problem, G.lang, b.dataset.mode)));
       root.querySelector("#game-random").addEventListener("click", () => window.LCGame.random());
       root.querySelector("#game-quit").addEventListener("click", quit);
+      wireMode(root);
       return;
     }
     const line = G.lines[G.idx], indent = line.match(/^\s*/)[0];
@@ -158,7 +159,9 @@
     paint(input.value);
     root.querySelector("#game-skip").addEventListener("click", skip);
     root.querySelector("#game-quit").addEventListener("click", quit);
+    wireMode(root);
   }
+  const wireMode = root => root.querySelectorAll(".game-mode button").forEach(b => b.addEventListener("click", () => { if (b.dataset.gm !== G.mode) start(G.problem, G.lang, b.dataset.gm); }));
 
   // the runner starts where it stood on the previous render and glides to the new position (one step per finished line)
   function moveRunner() {
@@ -263,29 +266,8 @@
     }));
   }
 
-  // the launcher: problem + language + mode pickers
-  function renderLauncher(root, problems) {
-    const playable_ = problems.filter(p => Object.keys(p.langs || {}).length);
-    if (!playable_.length) { root.innerHTML = ""; return; }
-    const sel = (id, opts) => `<select id="${id}" class="search" style="margin:0;min-width:0">${opts}</select>`;
-    root.innerHTML = `<div class="form-actions">
-        ${sel("game-problem", playable_.map((p, i) => `<option value="${i}">${esc((p.id != null ? "#" + p.id + " " : "") + p.title)}</option>`).join(""))}
-        ${sel("game-lang", "")}
-        <div class="seg" id="game-mode">${["easy", "medium", "hard"].map((m, i) => `<button type="button" data-m="${m}" class="${i === 0 ? "on" : ""}">${m}</button>`).join("")}</div>
-        <button type="button" class="btn btn-primary" id="game-start">▶ Play</button><button type="button" class="btn" id="game-random2" title="Random problem, language and mode">🎲</button>
-      </div><p class="small muted" style="margin:.5rem 0 0">easy shows the whole line in grey, medium about half of it, hard nothing. A wrong try reveals one more token; ⌘← types the whole line.</p>`;
-    const langSel = root.querySelector("#game-lang"), probSel = root.querySelector("#game-problem");
-    const fillLangs = () => { const p = playable_[+probSel.value]; langSel.innerHTML = Object.keys(p.langs).map(k => `<option value="${k}">${LANG_NAME[k] || k}</option>`).join(""); };
-    probSel.addEventListener("change", fillLangs); fillLangs();
-    let mode = "easy";
-    root.querySelectorAll("#game-mode button").forEach(b => b.addEventListener("click", () => { mode = b.dataset.m; root.querySelectorAll("#game-mode button").forEach(x => x.classList.toggle("on", x === b)); }));
-    root.querySelector("#game-start").addEventListener("click", () => start(playable_[+probSel.value], langSel.value, mode));
-    root.querySelector("#game-random2").addEventListener("click", () => window.LCGame.random());
-    window.LCGame._problems = playable_;
-  }
-
   window.LCGame = {
-    start, renderLauncher, bests,
+    start, bests, setProblems(ps) { window.LCGame._problems = ps.filter(p => Object.keys(p.langs || {}).length); },
     random() {
       const ps = window.LCGame._problems || []; if (!ps.length) return;
       const p = ps[Math.floor(Math.random() * ps.length)], langs = Object.keys(p.langs), modes = ["easy", "medium", "hard"];
