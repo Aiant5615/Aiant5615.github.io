@@ -28,9 +28,27 @@
         if (t.startsWith("/*")) { if (!t.includes("*/")) inBlock = true; return; }
         if (t.startsWith("//")) return;
       } else if (t.startsWith("#")) return;
-      if (t) out.push(line.replace(/\s+$/, ""));
+      const code = stripComment(line, lang);
+      if (code.trim()) out.push(code);
+      if (lang !== "py" && code.length < line.length && /\/\*/.test(line.slice(code.length)) && !/\*\//.test(line.slice(code.length))) inBlock = true;   // a block comment opened at the end of a line
     });
     return out;
+  }
+  // Remove a trailing comment (# in Python; // or /* ... */ in C and C++) without touching string or character literals.
+  function stripComment(line, lang) {
+    let quote = null;
+    for (let i = 0; i < line.length; i++) {
+      const ch = line[i];
+      if (quote) { if (ch === "\\") i++; else if (ch === quote) quote = null; continue; }
+      if (ch === '"' || ch === "'") { quote = ch; continue; }
+      if (lang === "py" ? ch === "#" : ch === "/" && line[i + 1] === "/") return line.slice(0, i).replace(/\s+$/, "");
+      if (lang !== "py" && ch === "/" && line[i + 1] === "*") {
+        const end = line.indexOf("*/", i + 2);
+        if (end < 0) return line.slice(0, i).replace(/\s+$/, "");
+        line = (line.slice(0, i) + line.slice(end + 2)).replace(/\s+$/, ""); i--;
+      }
+    }
+    return line.replace(/\s+$/, "");
   }
   const tokens = line => line.match(/\w+|[^\w\s]+|\s+/g) || [];
   const HLJS_LANG = { c: "c", cpp: "cpp", py: "python" };
