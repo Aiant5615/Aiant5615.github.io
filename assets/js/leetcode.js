@@ -43,7 +43,8 @@
     if (!years.includes(lcYear)) lcYear = years[0];
     const draw = () => window.YearHeat.draw(root, {
       years, year: lcYear, onYear: y => { lcYear = y; draw(); },
-      cellFor: k => { const n = byDay[k] || 0; return { cls: `heat-${n === 0 ? 0 : Math.min(4, n + 1)}`, title: `${k} · ${n ? n + " solution file(s)" : "nothing"}` }; }
+      cellFor: k => { const n = byDay[k] || 0; return { cls: `heat-${n === 0 ? 0 : Math.min(4, n + 1)}`, title: `${k} · ${n ? n + " solution file(s)" : "nothing"}` }; },
+      legend: `Less <i style="background:var(--heat-0)"></i><i style="background:var(--heat-1)"></i><i style="background:var(--heat-2)"></i><i style="background:var(--heat-3)"></i><i style="background:var(--heat-4)"></i> More`
     });
     draw(); root._redraw = draw;
   }
@@ -53,8 +54,7 @@
     const draw = () => {
       const rows = P.filter(p => !diff || p.difficulty === diff).sort((a, b) => (a.id || 0) - (b.id || 0)).map(p => {
         const url = p.url || `https://leetcode.com/problems/${p.slug}/`;
-        const best = V.token() && window.LCGame ? window.LCGame.bestFor(p.slug) : null;
-        return `<tr><td class="num">${p.id ?? ""}</td><td><a href="${esc(url)}" target="_blank" rel="noopener">${esc(p.title)}</a>${best != null ? ` <span class="game-badge" title="best practice score">🎮 ${best}%</span>` : ""}</td>
+        return `<tr><td class="num">${p.id ?? ""}</td><td><a href="${esc(url)}" target="_blank" rel="noopener">${esc(p.title)}</a></td>
           <td>${p.difficulty ? `<span class="diff diff-${p.difficulty.toLowerCase()}">${p.difficulty}</span>` : ""}</td>
           <td class="small">${LANGS.map(([k, l]) => p.langs[k] ? `<button type="button" class="btn btn-sm game-play" data-slug="${esc(p.slug)}" data-lang="${k}" title="Play this solution in ${l}">${l}</button>` : "").join(" ")}</td></tr>`;
       });
@@ -84,7 +84,9 @@
           title: `#${p.id ?? "?"} ${p.title} · ${has ? `${n} game${n === 1 ? "" : "s"} in ${name}` : `no ${name} solution`}`,
           click: has ? () => window.LCGame.start(p, lang, "easy") : null };
       });
-      window.YearHeat.grid(root.querySelector(`.pheat[data-lang="${lang}"]`), items);
+      const box = root.querySelector(`.pheat[data-lang="${lang}"]`);
+      window.YearHeat.grid(box, items);
+      box.insertAdjacentHTML("beforeend", `<div class="legend">Less <i style="background:var(--heat-0)"></i>${[1, 2, 3, 4].map(lv => `<i style="background:rgba(${rgb},${(0.3 + 0.7 * lv / 4).toFixed(2)})"></i>`).join("")} More</div>`);
     });
   }
 

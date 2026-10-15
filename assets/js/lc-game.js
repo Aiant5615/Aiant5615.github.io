@@ -2,13 +2,12 @@
    easy   - the whole answer line is shown as grey ghost text under what you type
    medium - about half of the tokens of each line are shown, the rest are hidden
    hard   - nothing is shown
-   Points per line: easy 1, medium 2, hard 3; every wrong try reveals one more hidden token and costs one point of that
-   line; Skip reveals the line for 0 points. Best scores are kept in this browser (localStorage) only. */
+   A wrong try reveals one more hidden token; Cmd+← types the whole line; Skip moves on. No score: only the number of
+   games played per problem and language is kept, and only while the vault is unlocked (localStorage). */
 (function () {
   "use strict";
   const V = window.GHVault, CFG = window.LEETCODE_CONFIG || {};
   const STORE = "leetcode_game";
-  const PTS = { easy: 1, medium: 2, hard: 3 };
   const LANG_NAME = { c: "C", cpp: "C++", py: "Python" };
   const esc = s => String(s ?? "").replace(/[&<>"']/g, c => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]));
   const lsGet = k => { try { return JSON.parse(localStorage.getItem(k) || "null"); } catch { return null; } };
@@ -115,17 +114,16 @@
   function render() {
     const root = $("lc-game"); if (!root || !G) return;
     const p = G.problem, done = G.idx >= G.lines.length;
-    const best = bests()[bestKey(p.slug, G.lang, G.mode)];
     const head = `<div class="game-head">
         <div><b>${LANG_NAME[G.lang]}</b> <span class="muted">· ${G.mode} mode</span></div>
-        <div class="game-meta"><span>line <b>${Math.min(G.idx + 1, G.lines.length)}</b>/${G.lines.length}</span><span>score <b id="game-score">${G.score}</b>/${G.max}</span>${best ? `<span class="muted">best ${best.best}/${best.max}</span>` : ""}<button type="button" class="btn btn-sm" id="game-quit">Quit</button></div>
+        <div class="game-meta"><span>line <b>${Math.min(G.idx + 1, G.lines.length)}</b>/${G.lines.length}</span><button type="button" class="btn btn-sm" id="game-quit">Quit</button></div>
       </div>
       <div class="game-track" title="${G.idx} of ${G.lines.length} lines done"><div class="road"></div><span class="flag">🏁</span><span class="runner" id="game-runner" style="left:${(G.prevPct || 0).toFixed(1)}%">${done ? "🎉" : "🏃"}</span></div>`;
     if (done) {
-      const secs = Math.round((Date.now() - G.t0) / 1000), pct = Math.round(G.score / G.max * 100);
+      const secs = Math.round((Date.now() - G.t0) / 1000);
       root.innerHTML = `<div class="game-layout">` + descPane() + `<div class="game-main">` + head + `<div class="game-done">
-          <div class="game-done-score">${G.score} / ${G.max} <span class="unit">points · ${pct}%</span></div>
-          <div class="muted">${G.lines.length} lines · ${G.wrong} wrong tries · ${G.skipped} skipped · ${Math.floor(secs / 60)}m ${secs % 60}s${G.recorded ? (G.newBest ? " · 🏆 new best" : "") : " · not recorded"}</div>
+          <div class="game-done-score">🏁 Finished</div>
+          <div class="muted">${G.lines.length} lines · ${G.wrong} wrong tries · ${G.skipped} skipped · ${Math.floor(secs / 60)}m ${secs % 60}s</div>
           <div class="form-actions" style="margin-top:.8rem"><button type="button" class="btn btn-primary" id="game-again">Play again</button>
             ${["easy", "medium", "hard"].filter(m => m !== G.mode).map(m => `<button type="button" class="btn" data-mode="${m}">Try ${m}</button>`).join("")}
             <button type="button" class="btn" id="game-random">Random problem</button></div>
@@ -145,7 +143,7 @@
         <div class="game-line"><pre class="ghost hljs" id="game-ghost">${ghostHtml(line, G.mask)}</pre><input id="game-input" class="typed" type="text" spellcheck="false" autocomplete="off" autocapitalize="off" autocorrect="off" aria-label="Type the next line"></div>
         ${upcoming}${left > 0 ? `<div class="game-left muted small">${left} more line${left === 1 ? "" : "s"}</div>` : ""}</div>
       <div class="game-tools"><span class="small" id="game-msg">${G.msg || ""}</span>
-        <span style="margin-left:auto;display:flex;gap:.4rem"><button type="button" class="btn btn-sm" id="game-skip" title="Reveal the whole line, 0 points">Skip</button></span></div></div></div>`;
+        <span style="margin-left:auto;display:flex;gap:.4rem"><button type="button" class="btn btn-sm" id="game-skip" title="Show the line and move on">Skip</button></span></div></div></div>`;
     moveRunner(); wireDesc(root);
     const input = root.querySelector("#game-input");
     input.value = G.typed != null ? G.typed : indent;
@@ -154,8 +152,7 @@
       if (ev.key === "Enter") { ev.preventDefault(); submit(input.value); }
       else if (ev.key === "Tab") { ev.preventDefault(); const s = input.selectionStart; input.value = input.value.slice(0, s) + "    " + input.value.slice(input.selectionEnd); input.setSelectionRange(s + 4, s + 4); }
       else if (ev.key === "Escape") quit();
-      else if (ev.key === "ArrowRight" && input.selectionStart === input.value.length) { if (autoType(input, ev.shiftKey)) ev.preventDefault(); }
-      else if (ev.key === "ArrowLeft") { ev.preventDefault(); completeLine(input); }
+      else if (ev.key === "ArrowLeft" && ev.metaKey) { ev.preventDefault(); completeLine(input); }   // ⌘← types the whole line; plain arrows move the cursor
     });
     input.addEventListener("input", () => { G.typed = input.value; paint(input.value); });
     paint(input.value);
@@ -170,30 +167,13 @@
     requestAnimationFrame(() => requestAnimationFrame(() => { r.style.left = pct.toFixed(1) + "%"; if (pct > (G.prevPct || 0)) { r.classList.add("hop"); setTimeout(() => r.classList.remove("hop"), 500); } G.prevPct = pct; }));
   }
 
-  // → fills in the next grey character (shift: the rest of the token) when it is visible; the line then scores 0
-  function autoType(input, wholeToken) {
-    const line = G.lines[G.idx], typed = input.value;
-    if (typed !== line.slice(0, typed.length)) return false;                         // only while everything so far is right
-    const tk = tokens(line); let pos = 0, i = 0;
-    while (i < tk.length && pos + tk[i].length <= typed.length) { pos += tk[i].length; i++; }
-    if (i >= tk.length) return false;
-    const visible = G.mask[i] || /^\s+$/.test(tk[i]);
-    if (!visible) return false;
-    const add = wholeToken ? line.slice(typed.length, pos + tk[i].length) : line[typed.length];
-    input.value = typed + add; G.typed = input.value; G.auto = true; G.linePts = 0;
-    paint(input.value);
-    const m = $("game-msg"); if (m) m.textContent = "auto-typed · this line scores 0";
-    return true;
-  }
-
-  // ← types the whole line (hidden tokens included) for 0 points; Enter then submits it
+  // ⌘← types the whole line (hidden tokens included); Enter then submits it
   function completeLine(input) {
     const line = G.lines[G.idx];
     G.mask = G.mask.map(() => true);
-    input.value = line; G.typed = line; G.auto = true; G.linePts = 0;
+    input.value = line; G.typed = line;
     input.setSelectionRange(line.length, line.length);
     paint(line);
-    const m = $("game-msg"); if (m) m.textContent = "whole line auto-typed · this line scores 0 · press Enter";
   }
 
   // colour the ghost: characters already typed correctly turn solid, a typo turns red from the first mismatch
@@ -220,8 +200,6 @@
   function reveal(why) {   // → true if a token was uncovered
     const hidden = G.mask.map((v, i) => v ? -1 : i).filter(i => i >= 0 && !/^\s+$/.test(tokens(G.lines[G.idx])[i]));
     if (hidden.length) G.mask[hidden[0]] = true;
-    G.linePts = Math.max(0, G.linePts - 1);
-    if (why === "hint") G.msg = hidden.length ? `Hint: one more token revealed · this line is now worth ${G.linePts}` : `Nothing left to reveal · this line is now worth ${G.linePts}`;
     return hidden.length > 0;
   }
 
@@ -229,7 +207,7 @@
     if (!G) return;
     const line = G.lines[G.idx];
     if (norm(typed) === norm(line)) {
-      G.score += G.linePts; next(G.auto ? "✓ auto-typed · +0" : `✓ +${G.linePts}`);
+      next("✓");
       return;
     }
     G.wrong++;
@@ -237,23 +215,22 @@
     let k = 0; while (k < a.length && k < b.length && a[k] === b[k]) k++;
     const where = k >= a.length ? "your line is too short" : k >= b.length ? "your line is too long" : `first difference at column ${k + 1}`;
     const uncovered = reveal("wrong");
-    G.msg = `✗ ${where}${uncovered ? " · one more token revealed" : ""} · this line is now worth ${G.linePts}`;
+    G.msg = `✗ ${where}${uncovered ? " · one more token revealed" : ""}`;
     G.typed = typed;
     render();
     const board = $("game-board"); if (board) { board.classList.remove("shake"); void board.offsetWidth; board.classList.add("shake"); }
   }
 
-  function skip() { if (!G) return; G.skipped++; G.linePts = 0; next("skipped · 0"); }
+  function skip() { if (!G) return; G.skipped++; next("skipped"); }
 
   function next(msg) {
-    G.idx++; G.typed = null; G.msg = msg; G.auto = false;
-    if (G.idx < G.lines.length) { G.mask = lineMask(G.lines[G.idx], G.idx, G.mode); G.linePts = PTS[G.mode]; }
+    G.idx++; G.typed = null; G.msg = msg;
+    if (G.idx < G.lines.length) G.mask = lineMask(G.lines[G.idx], G.idx, G.mode);
     else {
       G.recorded = !!V.token();                       // records are kept only for the owner (vault unlocked)
       if (G.recorded) {
         const key = bestKey(G.problem.slug, G.lang, G.mode), all = bests(), prev = all[key];
-        G.newBest = !prev || G.score > prev.best;
-        all[key] = { best: G.newBest ? G.score : prev.best, max: G.max, plays: (prev ? prev.plays : 0) + 1, lastAt: new Date().toISOString().slice(0, 10) };
+        all[key] = { plays: (prev ? prev.plays : 0) + 1, lastAt: new Date().toISOString().slice(0, 10) };
         lsSet(STORE, all);
         document.dispatchEvent(new CustomEvent("lc-game-finished"));
       }
@@ -276,7 +253,7 @@
     catch (e) { root.innerHTML = `<span style="color:var(--danger)">Could not load the solution: ${esc(e.message)}</span>`; return; }
     const lines = playable(text, lang);
     if (!lines.length) { root.innerHTML = `<span class="muted">Nothing to type in this file.</span>`; return; }
-    G = { problem, lang, mode, lines, idx: 0, score: 0, max: lines.length * PTS[mode], linePts: PTS[mode], wrong: 0, skipped: 0, t0: Date.now(), typed: null, msg: "", newBest: false, recorded: false, auto: false, desc: {}, descLang: descLang() };
+    G = { problem, lang, mode, lines, idx: 0, wrong: 0, skipped: 0, t0: Date.now(), typed: null, msg: "", recorded: false, desc: {}, descLang: descLang() };
     G.mask = lineMask(lines[0], 0, mode);
     render();
     Object.entries(desc).forEach(([l, pr]) => pr.then(html => {
@@ -296,7 +273,7 @@
         ${sel("game-lang", "")}
         <div class="seg" id="game-mode">${["easy", "medium", "hard"].map((m, i) => `<button type="button" data-m="${m}" class="${i === 0 ? "on" : ""}">${m}</button>`).join("")}</div>
         <button type="button" class="btn btn-primary" id="game-start">▶ Play</button><button type="button" class="btn" id="game-random2" title="Random problem, language and mode">🎲</button>
-      </div><p class="small muted" style="margin:.5rem 0 0">easy shows the whole line in grey, medium about half of it, hard nothing. Points per line 1 / 2 / 3; a wrong try reveals a token and costs a point; → auto-types a grey character and ← the whole line, but that line then scores 0.</p>`;
+      </div><p class="small muted" style="margin:.5rem 0 0">easy shows the whole line in grey, medium about half of it, hard nothing. A wrong try reveals one more token; ⌘← types the whole line.</p>`;
     const langSel = root.querySelector("#game-lang"), probSel = root.querySelector("#game-problem");
     const fillLangs = () => { const p = playable_[+probSel.value]; langSel.innerHTML = Object.keys(p.langs).map(k => `<option value="${k}">${LANG_NAME[k] || k}</option>`).join(""); };
     probSel.addEventListener("change", fillLangs); fillLangs();
@@ -313,11 +290,7 @@
       const ps = window.LCGame._problems || []; if (!ps.length) return;
       const p = ps[Math.floor(Math.random() * ps.length)], langs = Object.keys(p.langs), modes = ["easy", "medium", "hard"];
       start(p, langs[Math.floor(Math.random() * langs.length)], modes[Math.floor(Math.random() * modes.length)]);
-    },
-    bestFor(slug) {   // best percentage over all languages and modes, for the table badge
-      let best = null;
-      Object.entries(bests()).forEach(([k, v]) => { if (k.startsWith(slug + "|")) { const pct = Math.round(v.best / v.max * 100); if (best == null || pct > best) best = pct; } });
-      return best;
     }
+
   };
 })();
